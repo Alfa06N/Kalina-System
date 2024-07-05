@@ -1,45 +1,44 @@
 import flet as ft 
-from .customControls import CustomContainer, CustomFilledButton, CustomOutlinedButton
+from .customControls import CustomContainer, CustomFilledButton, CustomOutlinedButton, CustomGradientContainer, CustomWhiteContainer
 
-class RegisterForm(ft.Container):
+class RegisterForm(CustomGradientContainer):
   def __init__(self):
     super().__init__()
-    self.height = 500
-    self.width = 400
-    self.border_radius = ft.border_radius.all(30)
-    self.padding = ft.padding.symmetric(horizontal=30, vertical=20)
-    self.gradient=ft.LinearGradient(
-      begin=ft.alignment.center_left,
-      end=ft.alignment.center_right,
-      colors=["#222222", "#36240c"]
-    )
     
     self.nextButton = ft.Row(
       controls=[
-        CustomFilledButton(text="Siguiente", bgcolor="#E19E45", size=18, color="#222222", overlay="#e6b363")
+        CustomFilledButton(text="Siguiente", bgcolor=constants.ORANGE, size=18, color=constants.ORANGE, overlay=constants.ORANGE_OVERLAY)
       ],
       alignment=ft.MainAxisAlignment.CENTER
     )
 
     self.titleRegister = ft.Row(
       controls=[
-        ft.Text(value="Nuevo Usuario", size=42, color="#e0e0e0", weight=ft.FontWeight.BOLD)
+        ft.Text(value="Nuevo Usuario", size=42, color=constants.WHITE, weight=ft.FontWeight.BOLD)
       ],
       alignment=ft.MainAxisAlignment.CENTER
     )
 
-    self.newUserName = ft.TextField(label="Nombre de Nuevo Usuario", border_color="e0e0e0", border_width=2)
-    self.password = ft.TextField(label="Contraseña", border_color="e0e0e0", border_width=2, password=True, can_reveal_password=True)
-    self.passwordConfirmation = ft.TextField(label="Confirmar Contraseña", border_color="e0e0e0", border_width=2, password=True, can_reveal_password=True)
-    self.adminPassword = ft.TextField(label="Autorización de Administrador", border_color="e0e0e0", border_width=2, password=True, hint_text="Contraseña")
+    self.newUserName = ft.TextField(label="Nombre de Nuevo Usuario", border_color=constants.WHITE_GRAY, border_width=2, focused_border_color=constants.ORANGE_LIGHT, label_style=ft.TextStyle(
+      color=constants.ORANGE_LIGHT
+    ))
+    self.password = ft.TextField(label="Contraseña", border_color=constants.WHITE_GRAY, border_width=2, password=True, can_reveal_password=True, focused_border_color=constants.ORANGE_LIGHT, label_style=ft.TextStyle(
+      color=constants.ORANGE_LIGHT
+    ))
+    self.passwordConfirmation = ft.TextField(label="Confirmar Contraseña", border_color=constants.WHITE_GRAY, border_width=2, password=True, can_reveal_password=True, focused_border_color=constants.ORANGE_LIGHT, label_style=ft.TextStyle(
+      color=constants.ORANGE_LIGHT
+    ))
+    self.userCI = ft.TextField(label="Documento de Empleado", border_color=constants.WHITE_GRAY, border_width=2, focused_border_color=constants.ORANGE_LIGHT, label_style=ft.TextStyle(
+      color=constants.ORANGE_LIGHT
+    ))
 
     # inputs
     self.inputs = ft.Column(
       controls=[
         self.newUserName,
+        self.userCI,
         self.password,
         self.passwordConfirmation,
-        self.adminPassword,
       ],
     )
 
@@ -47,8 +46,8 @@ class RegisterForm(ft.Container):
     self.radios = ft.RadioGroup(
       content=ft.Row(
         controls=[
-          ft.Radio(value="Administrador", label="Administrador", fill_color="#E19E45"),
-          ft.Radio(value="Colaborador", label="Colaborador", fill_color="#E19E45")
+          ft.Radio(value="Administrador", label="Administrador", fill_color=constants.ORANGE),
+          ft.Radio(value="Colaborador", label="Colaborador", fill_color=constants.ORANGE)
         ],
         alignment=ft.MainAxisAlignment.CENTER,
         spacing=15,
@@ -69,10 +68,18 @@ class RegisterForm(ft.Container):
 
     ####################
 
-    self.questionOne = ft.TextField(label="Primera Pregunta", border_color="e0e0e0", border_width=2, hint_text='"Comida favorita"')
-    self.answerOne = ft.TextField(label="Respuesta", border_color="e0e0e0", border_width=2)
-    self.questionTwo = ft.TextField(label="Segunda Pregunta", border_color="e0e0e0", border_width=2, hint_text='"Nombre de mi primera mascota"')
-    self.answerTwo = ft.TextField(label="Respuesta", border_color="e0e0e0", border_width=2)
+    self.questionOne = ft.TextField(label="Primera Pregunta", border_color=constants.WHITE_GRAY, border_width=2, hint_text='"Comida favorita"', focused_border_color=constants.ORANGE_LIGHT, label_style=ft.TextStyle(
+      color=constants.ORANGE_LIGHT
+    ))
+    self.answerOne = ft.TextField(label="Respuesta", border_color=constants.WHITE_GRAY, border_width=2, focused_border_color=constants.ORANGE_LIGHT, label_style=ft.TextStyle(
+      color=constants.ORANGE_LIGHT
+    ))
+    self.questionTwo = ft.TextField(label="Segunda Pregunta", border_color=constants.WHITE_GRAY, border_width=2, hint_text='"Nombre de mi primera mascota"', focused_border_color=constants.ORANGE_LIGHT, label_style=ft.TextStyle(
+      color=constants.ORANGE_LIGHT
+    ))
+    self.answerTwo = ft.TextField(label="Respuesta", border_color=constants.WHITE_GRAY, border_width=2, focused_border_color=constants.ORANGE_LIGHT, label_style=ft.TextStyle(
+      color=constants.ORANGE_LIGHT
+    ))
 
     self.questionsInputs = ft.Column(
       controls=[
@@ -92,7 +99,7 @@ class RegisterForm(ft.Container):
 
     self.finishButton = ft.Row(
       controls=[
-        CustomFilledButton(text="Crear Usuario", size=18, bgcolor="#E19E45", color="#222222", overlay="#e6b363")
+        CustomFilledButton(text="Crear Usuario", size=18, bgcolor=constants.ORANGE, color=constants.ORANGE, overlay=constants.ORANGE_OVERLAY)
       ],
       alignment=ft.MainAxisAlignment.CENTER
     )
@@ -109,7 +116,7 @@ class RegisterForm(ft.Container):
     )
 
     # content
-    self.content = self.formSecond
+    self.content = self.formFirst
 
 class RegisterPresentation(ft.Container):
   pass
