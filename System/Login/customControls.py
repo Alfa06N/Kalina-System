@@ -2,7 +2,7 @@ import flet as ft
 import constants 
 
 class CustomContainer(ft.Container):
-  def __init__(self, width=900, height=500):
+  def __init__(self, width, height):
     super().__init__()
     self.width = width
     self.height = height
@@ -13,31 +13,31 @@ class CustomContainer(ft.Container):
       blur_radius = 20,
       color = "#444444"
     ) 
-
+# width = 450 height 500
 class CustomGradientContainer(ft.Container):
-  def __init__(self):
+  def __init__(self, height, width):
     super().__init__()
-    self.width = 450
-    self.height = 500
+    self.width = width
+    self.height = height
     self.border_radius = ft.border_radius.all(30)
     self.padding = ft.padding.symmetric(horizontal=30, vertical=20)
     self.gradient=ft.LinearGradient(
-      begin=ft.alignment.center_left,
-      end=ft.alignment.center_right,
+      begin=ft.alignment.top_center,
+      end=ft.alignment.bottom_center,
       colors=[constants.BROWN, constants.BLACK]
     )
 
 class CustomWhiteContainer(ft.Container):
-  def __init__(self):
+  def __init__(self, height, width):
     super().__init__()
-    self.width = 450
-    self.height = 500
+    self.width = width
+    self.height = height
     self.border_radius = ft.border_radius.all(30)
     self.padding = ft.padding.symmetric(horizontal=30, vertical=20)
     self.bgcolor = constants.WHITE
 
 class CustomFilledButton(ft.FilledButton):
-  def __init__(self, text, overlay, bgcolor, color, size):
+  def __init__(self, text, overlay, bgcolor, color, size, clickFunction):
     super().__init__()
     self.text = text
     self.size = size
@@ -45,12 +45,16 @@ class CustomFilledButton(ft.FilledButton):
     self.bgcolor = bgcolor
     self.overlay = overlay
     self.elevation = 8
+    self.clickFunction = clickFunction
 
     self.content = ft.Text(
       value=self.text,
       size=self.size,
       weight=ft.FontWeight.BOLD
     )
+    
+    # Evento Click
+    self.on_click = self.clickFunction
 
     self.style=ft.ButtonStyle(
       shape=ft.RoundedRectangleBorder(radius=10),

@@ -5,7 +5,7 @@ def showLogin(page: ft.Page):
   login = Login()
 
   footer = ft.Row(
-    height = 50,
+    height = 60,
     controls=[
       ft.Text("© 2024 Kariña System. Todos los derechos reservados.", color="#222222", size=16)
     ],
@@ -13,7 +13,7 @@ def showLogin(page: ft.Page):
   )
 
   page.add(
-    ft.Row(height=50),
+    ft.Row(height=60),
     login,
     footer
   )
