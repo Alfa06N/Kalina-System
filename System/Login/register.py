@@ -1,5 +1,6 @@
 import flet as ft 
 from .customControls import CustomContainer, CustomFilledButton, CustomOutlinedButton, CustomGradientContainer, CustomWhiteContainer
+import constants
 
 class RegisterForm(CustomGradientContainer):
   def __init__(self):
