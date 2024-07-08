@@ -1,13 +1,14 @@
 import flet as ft 
 from .customControls import CustomContainer, CustomFilledButton, CustomOutlinedButton, CustomGradientContainer, CustomWhiteContainer
+import constants
 
 class RegisterForm(CustomGradientContainer):
   def __init__(self):
-    super().__init__()
+    super().__init__(height=500, width=450)
     
     self.nextButton = ft.Row(
       controls=[
-        CustomFilledButton(text="Siguiente", bgcolor=constants.ORANGE, size=18, color=constants.ORANGE, overlay=constants.ORANGE_OVERLAY)
+        CustomFilledButton(text="Siguiente", bgcolor=constants.ORANGE, size=18, color=constants.BLACK, overlay=constants.ORANGE_OVERLAY, clickFunction=None)
       ],
       alignment=ft.MainAxisAlignment.CENTER
     )
@@ -99,7 +100,7 @@ class RegisterForm(CustomGradientContainer):
 
     self.finishButton = ft.Row(
       controls=[
-        CustomFilledButton(text="Crear Usuario", size=18, bgcolor=constants.ORANGE, color=constants.ORANGE, overlay=constants.ORANGE_OVERLAY)
+        CustomFilledButton(text="Crear Usuario", size=18, bgcolor=constants.ORANGE, color=constants.BLACK, overlay=constants.ORANGE_OVERLAY, clickFunction=None)
       ],
       alignment=ft.MainAxisAlignment.CENTER
     )
@@ -118,5 +119,16 @@ class RegisterForm(CustomGradientContainer):
     # content
     self.content = self.formFirst
 
-class RegisterPresentation(ft.Container):
-  pass
+class RegisterPresentation(CustomWhiteContainer):
+  def __init__(self):
+    super().__init__(height=500, width=450)
+    self.spacing = 10
+    self.logo = ft.Image(
+      src="../images/logoCDC-kalinaSystem.png",
+      fit="contain",
+      width=240,
+      height=240
+    )
+    self.description = ft.Text(
+      value=""
+    )
