@@ -1,5 +1,5 @@
 import flet as ft
-from .customControls import CustomContainer, CustomFilledButton, CustomGradientContainer, CustomWhiteContainer
+from Login.customControls import CustomContainer, CustomFilledButton, CustomGradientContainer, CustomWhiteContainer
 import constants
 import time
 from validation import validateUsername, validatePassword, evaluateForm

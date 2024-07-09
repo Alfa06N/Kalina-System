@@ -1,7 +1,7 @@
 import flet as ft 
 from Login.login import Login
 from interface import showLogin
-from Login.register import RegisterForm
+from Login.register import Register
 
 def main(page: ft.Page):
   page.fonts = {
@@ -15,6 +15,6 @@ def main(page: ft.Page):
   page.vertical_alignment = ft.MainAxisAlignment.CENTER
   page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
-  # showLogin(page)
-  page.add(RegisterForm())
+  showLogin(page)
+  # page.add(Register())
 ft.app(target=main)

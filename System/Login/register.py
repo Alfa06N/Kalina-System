@@ -1,5 +1,5 @@
 import flet as ft 
-from .customControls import CustomContainer, CustomFilledButton, CustomOutlinedButton, CustomGradientContainer, CustomWhiteContainer
+from Login.customControls import CustomContainer, CustomFilledButton, CustomOutlinedButton, CustomGradientContainer, CustomWhiteContainer
 import constants
 
 class RegisterForm(CustomGradientContainer):
@@ -114,6 +114,7 @@ class RegisterForm(CustomGradientContainer):
       ],
       alignment=ft.MainAxisAlignment.CENTER,
       spacing=20,
+      horizontal_alignment=ft.CrossAxisAlignment.CENTER
     )
 
     # content
@@ -123,12 +124,55 @@ class RegisterPresentation(CustomWhiteContainer):
   def __init__(self):
     super().__init__(height=500, width=450)
     self.spacing = 10
+    
     self.logo = ft.Image(
       src="../images/logoCDC-kalinaSystem.png",
       fit="contain",
       width=240,
       height=240
     )
+    
+    self.title = ft.Text(
+      value="Bienvenido a bordo", 
+      size=42, 
+      color=constants.BROWN, 
+      weight=ft.FontWeight.BOLD,
+    )
+    
     self.description = ft.Text(
-      value=""
+      value="Regístrate y comienza a disfrutar de una experiencia personalizada. Nos alegra tenerte aquí"
+    )
+    
+    self.button = CustomFilledButton(
+      text="¿Ya tienes un usuario?",
+      bgcolor=constants.BROWN,
+      color=constants.WHITE, size=18,
+      overlay=constants.BROWN_OVERLAY,
+      clickFunction=None
+    )
+    
+    self.login = ft.Row(
+      controls=[
+        self.button
+      ],
+      alignment=ft.MainAxisAlignment.CENTER
+    )
+    
+    self.content = ft.Column(
+      controls=[
+        self.title,
+        self.logo,
+        self.login,
+        self.description
+      ]
+    )
+    
+class Register(CustomContainer):
+  def __init__(self):
+    super().__init__(width=900, height=500)
+    self.content = ft.Row(
+      controls=[
+        RegisterForm(),
+        RegisterPresentation(),
+      ]
     )
