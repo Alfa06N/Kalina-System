@@ -16,18 +16,29 @@ def validateUsername(field):
 
 def validatePassword(field):
   validateField(field, lambda value: len(value) >= 8, "La contraseña debe tener al menos 8 caracteres")
+  
+def validateCI(field):
+  validateField(field, lambda value: len(value) > 6 and len(value) < 9, "Número fuera de rango")
 
-def evaluateForm(username=list, password=list):
+def evaluateForm(username=list, password=list, ci=list):
+  isValid = True
   for field in username:
     if len(field.value) == 0:
       field.error_text = "El nombre de usuario no puede estar vacío"
       field.update()
-      return False
+      isValid = False
   
   for field in password:
     if len(field.value) < 8:
       field.error_text = "La contraseña debe tener al menos 8 caracteres"
       field.update()
-      return False
+      isValid = False
   
-  return True
+  for field in ci:
+    if len(field.value) < 7 or len(field.value) > 9:
+      field.error_text = "Número fuera de rango"
+      field.update()
+      isValid = False
+  
+  
+  return isValid
