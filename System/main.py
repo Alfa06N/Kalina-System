@@ -1,7 +1,6 @@
 import flet as ft 
-from Login.login import Login
-from interface import showLogin
-from Login.register import Register
+from interface import initApp
+import constants
 
 def main(page: ft.Page):
   page.fonts = {
@@ -11,10 +10,9 @@ def main(page: ft.Page):
 
   # page.theme = ft.Theme(font_family="Grotesk")
   page.title = "Kariña System"
-  page.bgcolor = "#e0e0e0"
+  page.bgcolor = constants.WHITE
   page.vertical_alignment = ft.MainAxisAlignment.CENTER
   page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-
-  showLogin(page)
-  # page.add(Register())
+  
+  initApp(page)
 ft.app(target=main)
