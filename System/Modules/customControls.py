@@ -1,7 +1,7 @@
 import flet as ft
 import constants 
 
-class CustomContainer(ft.Container):
+class CustomPrincipalContainer(ft.Container):
   def __init__(self, width, height, containerContent):
     super().__init__()
     self.width = width
@@ -20,31 +20,26 @@ class CustomContainer(ft.Container):
       blur_radius = 20,
       color = "#444444"
     ) 
+      
   def updateContent(self, newContent):
     self.animatedContainer.content = newContent
     self.animatedContainer.update()
-
-class CustomGradientContainer(ft.Container):
-  def __init__(self, height, width):
+    
+class CustomSimpleContainer(ft.Container):
+  def __init__(self, height, width, gradient):
     super().__init__()
-    self.width = width
     self.height = height
-    self.border_radius = ft.border_radius.all(30)
-    self.padding = ft.padding.symmetric(horizontal=30, vertical=20)
-    self.gradient=ft.LinearGradient(
-      begin=ft.alignment.top_center,
-      end=ft.alignment.bottom_center,
-      colors=[constants.BROWN, constants.BLACK]
-    )
-
-class CustomWhiteContainer(ft.Container):
-  def __init__(self, height, width):
-    super().__init__()
     self.width = width
-    self.height = height
     self.border_radius = ft.border_radius.all(30)
     self.padding = ft.padding.symmetric(horizontal=30, vertical=20)
     self.bgcolor = constants.WHITE
+    
+    if gradient:
+      self.gradient = ft.LinearGradient(
+        begin=ft.alignment.top_center,
+        end=ft.alignment.bottom_center,
+        colors=[constants.BROWN, constants.BLACK]
+      )
 
 class CustomFilledButton(ft.FilledButton):
   def __init__(self, text, overlay, bgcolor, color, size, clickFunction):
@@ -139,10 +134,6 @@ class CustomReturnButton(ft.OutlinedButton):
         width=2,
         color=self.color
       ),
-      # overlay_color={
-      #   ft.ControlState.HOVERED: None,
-      #   ft.ControlState.FOCUSED: None,
-      # }
     )
     
 class CustomCheckbox(ft.Checkbox):
@@ -155,10 +146,3 @@ class CustomCheckbox(ft.Checkbox):
       size=18,
     )
     self.active_color = fill_color
-    
-class CustomDialog(ft.AlertDialog):
-  def __init__(self, title, description):
-    super().__init__()
-    self.title = ft.Text(title)
-    self.content = ft.Text(description)
-    self.shadow_color = constants.BLACK

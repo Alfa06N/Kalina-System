@@ -1,13 +1,13 @@
 import flet as ft
-from Modules.customControls import CustomContainer, CustomFilledButton, CustomGradientContainer, CustomWhiteContainer
+from Modules.customControls import CustomFilledButton, CustomSimpleContainer
 import constants
 import time
 from validation import validateUsername, validatePassword, evaluateForm
-from interface import showRegister
+from interface import showRegister, showRecovery
 
-class LoginForm(CustomGradientContainer):
+class LoginForm(CustomSimpleContainer):
   def __init__(self, page):
-    super().__init__(height=500, width=450)
+    super().__init__(height=500, width=450, gradient=True)
     self.page = page 
     self.loginButton = ft.Row(
       controls=[
@@ -21,12 +21,7 @@ class LoginForm(CustomGradientContainer):
       ],
       alignment=ft.MainAxisAlignment.CENTER,
     )
-    self.createText = ft.Row(
-      controls=[
-        ft.Text(value="¿Eres un nuevo usuario? ¡Haz click aquí!", size=18, color=constants.ORANGE) 
-      ],
-      alignment=ft.MainAxisAlignment.CENTER,
-    )
+  
 
     self.usernameInput = ft.TextField(
       label="Nombre de Usuario", border_color=constants.WHITE_GRAY,
@@ -53,7 +48,11 @@ class LoginForm(CustomGradientContainer):
 
     self.passwordRecovery = ft.Row(
       controls=[
-        ft.Text("Ha olvidado su contraseña?", size=18, color=constants.ORANGE,)
+        ft.GestureDetector(
+         content=ft.Text("Ha olvidado su contraseña?", size=18, color=constants.ORANGE_LIGHT, text_align=ft.TextAlign.CENTER),
+         on_tap=lambda e: showRecovery(self.page),
+         mouse_cursor="click",
+        )
       ],
       alignment=ft.MainAxisAlignment.CENTER
     )
@@ -85,9 +84,9 @@ class LoginForm(CustomGradientContainer):
     else:
       print("Inicio de sesión rechazado")
 
-class LoginPresentation(CustomWhiteContainer):
+class LoginPresentation(CustomSimpleContainer):
   def __init__(self, page):
-    super().__init__(height=500, width=450)
+    super().__init__(height=500, width=450, gradient=False)
     self.spacing = 10
     self.page = page
     

@@ -1,12 +1,12 @@
 import flet as ft 
-from Modules.customControls import CustomContainer, CustomFilledButton, CustomOutlinedButton, CustomGradientContainer, CustomWhiteContainer, CustomCheckbox, CustomReturnButton, CustomDialog
+from Modules.customControls import CustomFilledButton, CustomOutlinedButton, CustomCheckbox, CustomReturnButton, CustomSimpleContainer
 from validation import evaluateForm, validateUsername, validatePassword, validateCI
 import constants
 from interface import showLogin
 
-class RegisterForm(CustomGradientContainer):
+class RegisterForm(CustomSimpleContainer):
   def __init__(self, page):
-    super().__init__(height=500, width=450)
+    super().__init__(height=500, width=450, gradient=True)
     self.page = page
     
     self.nextButton = ft.Row(
@@ -207,9 +207,9 @@ class RegisterForm(CustomGradientContainer):
     self.animatedContainer.content = self.formList[self.currentForm]
     self.update()
 
-class RegisterPresentation(CustomWhiteContainer):
+class RegisterPresentation(CustomSimpleContainer):
   def __init__(self, page):
-    super().__init__(height=500, width=450)
+    super().__init__(height=500, width=450, gradient=False)
     self.spacing = 20
     self.page = page
     

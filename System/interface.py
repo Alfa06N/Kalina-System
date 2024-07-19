@@ -2,12 +2,12 @@ import flet as ft
 import constants
   
 def initApp(page: ft.Page):
-  from Modules.customControls import CustomContainer
+  from Modules.customControls import CustomPrincipalContainer
   from Modules.login_module import Login
   
   login = Login(page)
   
-  container = CustomContainer(width=900, height=500, containerContent=login)
+  container = CustomPrincipalContainer(width=900, height=500, containerContent=login)
   
   page.add(
     ft.Row(height=60),
@@ -35,6 +35,12 @@ def showLogin(page: ft.Page):
   
   login = Login(page)
   updateContainerContent(page, login)
+  
+def showRecovery(page: ft.Page):
+  from Modules.recovery_module import Recovery
+  
+  recovery = Recovery(page)
+  updateContainerContent(page, recovery)
   
 def updateContainerContent(page: ft.Page, newContent):
   if hasattr(page, "customContainer"):
