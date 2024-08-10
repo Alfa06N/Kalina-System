@@ -1,17 +1,6 @@
 CREATE DATABASE IF NOT EXISTS `Abundysystem`;
 USE `Abundysystem`;
 
-CREATE TABLE IF NOT EXISTS `Producto` (
-  `IDProducto` INT NOT NULL,
-  `Nombre` VARCHAR(45) NULL,
-  `Tipo` TEXT(50) NULL,
-  `Cantidad disponible` INT NULL,
-  `Descripcion` DECIMAL NULL,
-  `Precio` INT NULL,
-  `Marca` VARCHAR(50) NULL,
-  `ID De hds` INT NOT NULL,
-  PRIMARY KEY (`IDProducto`, `ID De hds`))
-ENGINE = InnoDB;
 
 -- -----------------------------------------------------
 -- Table `Base de datos`.`Producto`
@@ -24,8 +13,7 @@ CREATE TABLE IF NOT EXISTS `Abundysystem`.`Producto` (
   `Descripcion` DECIMAL NULL,
   `Precio` INT NULL,
   `Marca` VARCHAR(50) NULL,
-  `ID De hds` INT NOT NULL,
-  PRIMARY KEY (`IDProducto`, `ID De hds`))
+  PRIMARY KEY (`IDProducto`))
 ENGINE = InnoDB;
 
 
@@ -67,32 +55,27 @@ ENGINE = InnoDB;
 -- Table `Base de datos`.`Venta`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `Abundysystem`.`Venta` (
-  `IDVenta` INT NOT NULL,
+  `IDVenta` INT PRIMARY KEY NOT NULL,
   `Fecha` DATE NULL,
   `IDCliente` INT NOT NULL,
-  `Total Venta` FLOAT NULL,
-  PRIMARY KEY (`IDVenta`,`IDCliente`))
+  `Total Venta` FLOAT NULL)
 
 ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `Base de datos`.`DetalleVenta`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `Abundysystem.DetalleVenta` (
-  IDDetalleVenta INT NOT NULL,
-  IDVenta INT NOT NULL,
-  IDProducto INT NOT NULL,
-  Cantidad INT NULL,
-  Preciounitario DECIMAL NULL,
-  IDUsuario INT NOT NULL,
-  PRIMARY KEY (`IDDetalleVenta`),
-    FOREIGN KEY (`IDVenta`) REFERENCES venta (`IDVenta`),
-    FOREIGN KEY (`IDProducto`) REFERENCES producto (`IDProducto`),
-    FOREIGN KEY (`IDUsuario`) REFERENCES usuario (`IDUsuario`)
+CREATE TABLE IF NOT EXISTS Abundysystem.DetalleVenta (
+   IDDetalleVenta INT NOT NULL,
+   IDVenta INT NOT NULL,
+   IDProducto INT NOT NULL,
+   Cantidad INT NULL,
+   Preciounitario DECIMAL NULL,
+   IDUsuario INT NOT NULL,
+   PRIMARY KEY (IDDetalleVenta),
+     FOREIGN KEY (IDVenta) REFERENCES venta (IDVenta),
+     FOREIGN KEY (IDProducto) REFERENCES producto (IDProducto),
+     FOREIGN KEY (IDUsuario) REFERENCES usuario (IDUsuario)
     );
-
-
-
-
 
 -- -----------------------------------------------------
 -- Table `Base de datos`.`Empleado`
@@ -106,6 +89,7 @@ CREATE TABLE IF NOT EXISTS `Abundysystem`.`Empleado` (
   PRIMARY KEY (`N_Carnet_del_empleado`,`ID direccion` ))
     
 ENGINE = InnoDB;
+
 -- -----------------------------------------------------
 -- Table `Base de datos`.`DetalleCompra`
 -- -----------------------------------------------------
@@ -206,20 +190,6 @@ CREATE TABLE IF NOT EXISTS `Abundysystem`.`Sub_categoria` (
 FOREIGN KEY (`IDCategoria`) REFERENCES categoria (`IDCategoria`))
 ENGINE = InnoDB;
 
-
--- -----------------------------------------------------
--- Table `Base de datos`.`HDS`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `Abundysystem`.`HDS` (
-  `ID_hds` INT NOT NULL,
-  `Propiedad_producto` VARCHAR(45) NULL,
-  `Descripcion_riesgo` VARCHAR(45) NULL,
-  `Medida contra incendios` VARCHAR(45) NULL,
-  `Primeros_aux` VARCHAR(45) NULL,
-  `Forma_Almacenamiento` VARCHAR(45) NULL,
-  `Informacion_Toxicologica` VARCHAR(45) NULL,
-  PRIMARY KEY (`ID_hds`))
-ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
@@ -351,3 +321,22 @@ FOREIGN KEY (`IDCategoria`) REFERENCES categoria (`IDCategoria`),
 FOREIGN KEY(`IDProducto`) REFERENCES producto (`IDProducto`))
 
 ENGINE = InnoDB;
+
+
+insert into abundysystem.usuario (`IDUsuario`,`Nombre de usuario`,`Contraseña`,`Tipo de usuario`) values ('1', 'Jose Narvaez', 'Alg454','Gerente');
+insert into abundysystem.usuario (`IDUsuario`,`Nombre de usuario`,`Contraseña`,`Tipo de usuario`) values ('2', 'Francisco Coll', '45A459','Cajero');
+insert into abundysystem.usuario (`IDUsuario`,`Nombre de usuario`,`Contraseña`,`Tipo de usuario`) values ('3', 'Alberto Bernaez', 'Blr564','SubGerente');
+insert into abundysystem.usuario (`IDUsuario`,`Nombre de usuario`,`Contraseña`,`Tipo de usuario`) values ('4', 'Arlety Rosas', 'Fvv453','Seguridad');
+insert into abundysystem.cliente (`N. de afiliacion`,`C.I Cliente`,`ID de Direccion`) values ('1', '11004822', '1');
+insert into abundysystem.cliente (`N. de afiliacion`,`C.I Cliente`,`ID de Direccion`) values ('2', '10845782', '2');
+insert into abundysystem.cliente (`N. de afiliacion`,`C.I Cliente`,`ID de Direccion`) values ('3', '982789', '2');
+insert into abundysystem.cliente (`N. de afiliacion`,`C.I Cliente`,`ID de Direccion`) values ('4', '4352785', '3');
+
+
+select * from abundysystem.usuario;
+
+select * from abundysystem.cliente;
+
+
+SELECT * FROM cliente WHERE `ID de Direccion`= '2';
+

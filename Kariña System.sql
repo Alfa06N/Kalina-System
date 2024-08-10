@@ -1,3 +1,4 @@
+DROP DATABASE `KariñaSystem`;
 CREATE DATABASE IF NOT EXISTS `KariñaSystem`;
 
 USE KariñaSystem;
@@ -11,7 +12,7 @@ CREATE TABLE IF NOT EXISTS Empleado (
 );
 
 CREATE TABLE IF NOT EXISTS Cliente (
-    idCliente INT AUTO_INCREMENT PRIMARY KEY,
+    ciCliente INT PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL,
     apellido1 VARCHAR(50) NOT NULL,
     apellido2 VARCHAR(50)
@@ -40,9 +41,10 @@ CREATE TABLE IF NOT EXISTS Usuario (
     idUsuario INT AUTO_INCREMENT PRIMARY KEY,
     nombreUsuario VARCHAR(50) NOT NULL,
     contraseña VARCHAR(255) NOT NULL,
-    rol VARCHAR(20) NOT NULL,
+    rol ENUM('Administrador', 'Colaborador') NOT NULL,
     ciEmpleado INT,
-    FOREIGN KEY (ciEmpleado) REFERENCES Empleado(ciEmpleado)
+    FOREIGN KEY (ciEmpleado) 
+    REFERENCES Empleado(ciEmpleado)
 );
 
 CREATE TABLE IF NOT EXISTS Cierre (
@@ -63,14 +65,6 @@ CREATE TABLE IF NOT EXISTS Venta (
     FOREIGN KEY (idUsuario) REFERENCES Usuario(idUsuario)
 );
 
-CREATE TABLE IF NOT EXISTS UsuarioVenta (
-	idUsuarioVenta INT AUTO_INCREMENT PRIMARY KEY,
-    idUsuario INT,
-    idVenta INT,
-    fecha DATE NOT NULL,
-    FOREIGN KEY (idUsuario) REFERENCES Usuario(idUsuario)
-);
-
 CREATE TABLE IF NOT EXISTS Pago (
     idPago INT AUTO_INCREMENT PRIMARY KEY,
     monto DECIMAL(10, 2) NOT NULL,
@@ -79,7 +73,7 @@ CREATE TABLE IF NOT EXISTS Pago (
     fecha DATE NOT NULL,
     hora TIME NOT NULL,
     idVenta INT,
-    FOREIGN KEY (ciCliente) REFERENCES Cliente(idCliente),
+    FOREIGN KEY (ciCliente) REFERENCES Cliente(ciCliente),
     FOREIGN KEY (idVenta) REFERENCES Venta(idVenta)
 );
 
@@ -95,8 +89,8 @@ CREATE TABLE IF NOT EXISTS Recuperacion (
 
 CREATE TABLE IF NOT EXISTS Telefono (
     idTelefono INT AUTO_INCREMENT PRIMARY KEY,
-    area VARCHAR(10) NOT NULL,
-    numero VARCHAR(20) NOT NULL,
+    area INTEGER NOT NULL,
+    numero INTEGER NOT NULL,
     tipo VARCHAR(20) NOT NULL,
     idEmpleado INT,
     FOREIGN KEY (idEmpleado) REFERENCES Empleado(ciEmpleado)
@@ -175,7 +169,7 @@ CREATE TABLE IF NOT EXISTS CriptoActivo (
 CREATE TABLE IF NOT EXISTS PagoMovil (
     idPago INT,
     referencia VARCHAR(100) NOT NULL,
-    telefono VARCHAR(20) NOT NULL,
+    telefono INT NOT NULL,
     PRIMARY KEY (idPago),
     FOREIGN KEY (idPago) REFERENCES Pago(idPago)
 );
@@ -204,7 +198,6 @@ CREATE TABLE IF NOT EXISTS Punto (
 
 CREATE TABLE IF NOT EXISTS Estadistica (
     idEstadistica INT AUTO_INCREMENT PRIMARY KEY,
-    promedioVentas DECIMAL(10, 2) NOT NULL,
     producto1 INT,
     cantidad1 INT NOT NULL,
     producto2 INT,
@@ -212,7 +205,8 @@ CREATE TABLE IF NOT EXISTS Estadistica (
     producto3 INT,
     cantidad3 INT NOT NULL,
     cantidadOtros INT NOT NULL,
-    fecha DATE NOT NULL,
+    InicioMes DATE NOT NULL,
+    FinMes DATE NOT NULL,
     FOREIGN KEY (producto1) REFERENCES Producto(idProducto),
     FOREIGN KEY (producto2) REFERENCES Producto(idProducto),
     FOREIGN KEY (producto3) REFERENCES Producto(idProducto)
