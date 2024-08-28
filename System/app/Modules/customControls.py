@@ -188,8 +188,8 @@ class CustomOperationContainer(ft.Container):
 class CustomAnimatedContainer(ft.AnimatedSwitcher):
   def __init__(self, actualContent, transition, duration, reverse_duration):
     super().__init__(content=actualContent)
-    self.height = actualContent.height
-    self.width = actualContent.width
+    self.height = self.content.height if self.content.height else "auto"
+    self.width = self.content.width if self.content.width else "auto"
     self.transition = transition
     self.duration = duration
     self.reverse_duration = reverse_duration
@@ -305,19 +305,30 @@ class CustomCheckbox(ft.Checkbox):
     self.active_color = fill_color
     
 class CustomTextField(ft.TextField):
-  def __init__(self, label, revealPassword, mode, hint_text, field, expand, submitFunction):
+  def __init__(self, label, field, revealPassword=False,  mode="light",  hint_text=None,  expand=False, submitFunction=None, disabled:bool=False):
     super().__init__()
     self.label = label
     self.border_width = 2
     self.expand = expand
     self.on_submit = submitFunction
+    self.disabled = disabled
     
     if mode == "gradient":
+      self.color = constants.WHITE
       self.border_color = constants.WHITE_GRAY
       self.focused_border_color = constants.ORANGE_LIGHT
       self.label_style=ft.TextStyle(
         color=constants.ORANGE_LIGHT
       )
+      self.cursor_color = constants.WHITE
+    else:
+      self.color = constants.BLACK
+      self.border_color = constants.BLACK_GRAY
+      self.focused_border_color = constants.BLACK
+      self.label_style = ft.TextStyle(
+        color=constants.BLACK
+      )
+      self.cursor_color = constants.BLACK
     
     if field == "username":
       self.on_change = lambda e: validateUsername(self)
@@ -342,10 +353,326 @@ class CustomDropdown(ft.Dropdown):
     self.border_width = 2
     
     if mode == "gradient":
+      self.color = constants.WHITE
       self.border_color=constants.WHITE_GRAY
       self.focused_border_color=constants.ORANGE_LIGHT
       self.label_style=ft.TextStyle(
         color=constants.ORANGE_LIGHT
       )
+    else:
+      self.color = constants.BLACK
+      self.border_color = constants.BLACK_GRAY
+      self.focused_border_color=constants.BLACK
+      self.label_style=ft.TextStyle(
+        color=constants.BLACK
+      )
     
     self.on_change = lambda e: validateEmptyField(self)
+    
+class CustomUserIcon(ft.Container):
+  def __init__(self, initial, fontSize: int = 24, width: int = 60, height: int = 60, gradient: bool = True):
+    super().__init__()
+    self.width = width
+    self.height = height
+    self.border_radius = ft.border_radius.all(50)
+    self.fontSize = fontSize
+    # self.padding = ft.padding.all(10)
+    self.alignment = ft.alignment.center
+    
+    if gradient:
+      self.gradient = ft.LinearGradient(
+        begin=ft.alignment.top_center,
+        end=ft.alignment.bottom_center,
+        colors=[constants.BROWN, constants.BLACK]
+      )
+      self.content = ft.Text(value=initial, size=self.fontSize, weight=ft.FontWeight.BOLD, color=constants.ORANGE_LIGHT)
+    else:
+      self.bgcolor = ft.colors.TRANSPARENT
+      self.border = ft.border.all(2, constants.WHITE_GRAY)
+      self.content = ft.Text(value=initial, size=self.fontSize, weight=ft.FontWeight.BOLD, color=constants.BLACK)
+    
+class CustomAppBar(ft.AppBar):
+  def __init__(self, title, page):
+    super().__init__()
+    self.page = page
+    self.leading = ft.Column(
+      alignment=ft.MainAxisAlignment.CENTER,
+      horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+      controls=[
+        CustomUserIcon(initial="NA", gradient=True)
+      ],
+      expand=True
+    )
+    
+    # self.logoutDialog = CustomAlertDialog(
+    #   modal=True,
+    #   title="¿Deseas cerrar sesión?",
+    #   content="",
+    #   actions=[
+    #     ft.TextButton("Sí", on_click=self.logout),
+    #     ft.TextButton("No", on_click=lambda e: self.page.close(self.dialog))
+    #   ]
+    # )
+    
+    self.leading_width = 70
+    self.title = ft.Text(title, color=constants.BLACK, weight=ft.FontWeight.BOLD, size=32)
+    self.toolbar_height = 70
+    self.center_title = True
+    self.surface_tint_color = constants.BLACK
+    self.elevation = 2
+    self.shadow_color = constants.WHITE_GRAY
+    self.bgcolor = constants.WHITE
+    self.actions = [
+      ft.PopupMenuButton(
+        icon_color=constants.BLACK,
+        padding=ft.padding.all(12),
+        items=[
+          ft.PopupMenuItem(icon=ft.icons.SETTINGS_ROUNDED, text="Configuración"),
+          ft.PopupMenuItem(),
+          ft.PopupMenuItem(icon=ft.icons.LOGOUT_OUTLINED, text="Cerrar sesión", on_click=self.openLogoutDialog)
+        ]
+      )
+    ]
+  
+  def openLogoutDialog(self, e):
+    self.dialog = CustomAlertDialog(
+      modal=True,
+      title="¿Deseas cerrar sesión?",
+      content="",
+      actions=[
+        ft.TextButton("Sí", on_click=self.logout),
+        ft.TextButton("No", on_click=lambda e: self.page.close(self.dialog))
+      ]
+    )
+    self.page.open(self.dialog)
+    
+  def logout(self, e):
+    self.page.close(self.dialog)
+    self.page.controls.clear()
+    from interface import initApp
+    initApp(self.page)
+    
+class CustomSidebar(ft.Container):
+  def __init__(self, page):
+    super().__init__()
+    # self.expand = True
+    self.margin = ft.margin.all(0)
+    self.gradient = ft.LinearGradient(
+      begin=ft.alignment.center_left,
+      end=ft.alignment.center_right,
+      colors=[constants.BLACK, constants.BROWN]
+    )
+    self.page = page
+    self.border_radius = ft.border_radius.only(top_right=20, bottom_right=20)
+    self.shadow = ft.BoxShadow(
+      spread_radius = 1,
+      blur_radius = 20,
+      color = "#555555"
+    ) 
+    self.width=70
+    self.animate = ft.animation.Animation(
+      duration=300, 
+      curve=ft.AnimationCurve.EASE_IN_OUT,
+    )
+    
+    self.openButton = ft.IconButton(
+      icon=ft.icons.ARROW_RIGHT,
+      # icon_color=constants.WHITE,
+      selected_icon=ft.icons.ARROW_LEFT,
+      on_click=self.toggleIconButton,
+      icon_size=50,
+      selected=False,
+      style=ft.ButtonStyle(
+        color={
+          "selected": constants.ORANGE_OVERLAY,
+          "": constants.WHITE
+        }
+      )
+    )
+    
+    self.home = CustomNavigationOptions(icon=ft.icons.HOME_WORK_ROUNDED, text="Inicio", function=self.selectOne, default=True)
+    self.sales = CustomNavigationOptions(icon=ft.icons.SELL_ROUNDED, text="Ventas", function=self.selectOne)
+    self.payments = CustomNavigationOptions(icon=ft.icons.WALLET_ROUNDED, text="Pagos", function=self.selectOne)
+    self.users = CustomNavigationOptions(icon=ft.icons.SECURITY_ROUNDED, text="Usuarios", function=self.selectOne)
+    self.clients = CustomNavigationOptions(icon=ft.icons.PEOPLE_ROUNDED, text="Clientes", function=self.selectOne)
+    self.employees = CustomNavigationOptions(icon=ft.icons.WORK_ROUNDED, text="Empleados", function=self.selectOne)
+    self.closings = CustomNavigationOptions(icon=ft.icons.MONEY_ROUNDED, text="Cierres", function=self.selectOne)
+    self.statistics = CustomNavigationOptions(icon=ft.icons.SSID_CHART_ROUNDED, text="Estadísticas", function=self.selectOne)
+    self.inventory = CustomNavigationOptions(icon=ft.icons.INVENTORY_2_ROUNDED, text="Inventario", function=self.selectOne)
+    
+    
+    self.navigationOptions = [
+      self.home,
+      self.users,
+      self.clients,
+      self.employees,
+      self.sales,
+      self.inventory,
+      self.payments,
+      self.closings,
+      self.statistics
+    ]
+    
+    self.content = ft.Column(
+      alignment=ft.MainAxisAlignment.CENTER,
+      horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+      controls=[
+        ft.Row(
+          alignment=ft.MainAxisAlignment.CENTER,
+          vertical_alignment=ft.CrossAxisAlignment.CENTER,
+          controls=[self.openButton]
+        ),
+        ft.Column(
+          expand=True,
+          alignment=ft.MainAxisAlignment.CENTER,
+          scroll=ft.ScrollMode.AUTO,
+          controls=[
+            ft.Row([self.home]),
+            ft.Row([self.users]),
+            ft.Row([self.clients]),
+            ft.Row([self.employees]),
+            ft.Row([self.sales]),
+            ft.Row([self.inventory]),
+            ft.Row([self.payments]),
+            ft.Row([self.closings]),
+            ft.Row([self.statistics])
+          ]
+        ),
+      ]
+    )
+    self.selected = self.home
+  
+  def toggleIconButton(self, e):
+    self.openButton.selected = not e.control.selected
+    self.openContainer()
+    self.openButton.update()
+  
+  def selectOne(self, e):
+    if not self.selected == e.control:
+      self.selected.deselectOption()
+      self.selected = e.control
+      self.selected.selectOption()
+      
+      if e.control == self.home:
+        from Modules.Sections.HomeSection.home import Home
+        self.updateMainContent(Home())
+      elif e.control == self.users:
+        from Modules.Sections.UsersSection.users import Users
+        self.updateMainContent(Users())  
+      elif e.control == self.clients:
+        from Modules.Sections.ClientsSection.clients import Clients
+        self.updateMainContent(Clients())
+      elif e.control == self.employees:
+        from Modules.Sections.EmployeesSection.employees import Employees
+        self.updateMainContent(Employees())
+      elif e.control == self.sales:
+        from Modules.Sections.SalesSection.sales import Sales
+        self.updateMainContent(Sales())
+      elif e.control == self.inventory:
+        from Modules.Sections.InventorySection.inventory import Inventory
+        self.updateMainContent(Inventory())
+      elif e.control == self.payments:
+        from Modules.Sections.PaymentsSection.payments import Payments 
+        self.updateMainContent(Payments())
+      elif e.control == self.closings:
+        from Modules.Sections.ClosingsSection.closings import Closings
+        self.updateMainContent(Closings())
+      elif e.control == self.statistics:
+        from Modules.Sections.StatisticsSection.statistics import Statistics
+        self.updateMainContent(Statistics())
+    
+  def openContainer(self):
+    if self.width == 70:
+      self.width = 200
+    else:
+      self.width = 70  
+    for option in self.navigationOptions:
+        option.animateOpacityText()
+    self.update()
+    
+  def updateMainContent(self, newContent):
+    if hasattr(self.page, "mainContainer"):
+      self.page.mainContainer.setNewContent(newContent)
+    
+class CustomNavigationOptions(ft.Container):
+  def __init__(self, icon, text, function, color = constants.WHITE, highlightColor="white10", inkColor="#666666", focusedColor = constants.ORANGE_OVERLAY, contentAlignment=ft.MainAxisAlignment.START, opacityInitial:int=0, default:bool=False):
+    super().__init__()
+    self.expand = True
+    self.on_hover = self.highlight
+    self.padding = ft.padding.symmetric(vertical=15, horizontal=20)
+    self.border_radius = 10
+    self.on_click = function
+    self.margin = 0
+    self.ink = True
+    self.ink_color = inkColor
+    self.color = color
+    self.focusedColor = focusedColor
+    self.highlightColor = highlightColor
+    self.default = default
+    
+    if not default:
+      self.optionIcon = ft.Icon(name=icon, color=self.color, size=24)
+      self.optionText = ft.Text(value=text, color=self.color, size=18, animate_opacity=300, opacity=opacityInitial)
+    else:
+      self.optionIcon = ft.Icon(name=icon, color=self.focusedColor, size=24,)
+      self.optionText = ft.Text(value=text, color=self.focusedColor, size=18, animate_opacity=300, opacity=opacityInitial)
+    
+    self.content = ft.Row(
+      alignment=contentAlignment,
+      vertical_alignment=ft.CrossAxisAlignment.CENTER,
+      controls=[
+        self.optionIcon,
+        self.optionText,
+      ]
+    )
+    
+  def animateOpacityText(self):
+    self.optionText.opacity = 1 if self.optionText.opacity == 0 else 0
+    self.update()
+    
+  def selectOption(self):
+    self.optionIcon.color = self.focusedColor
+    self.optionText.color = self.focusedColor
+    self.update()
+    
+  def deselectOption(self):
+    self.optionIcon.color = self.color
+    self.optionText.color = self.color
+    self.update()
+  
+  def highlight(self, e):
+    if e.data == "true":
+      e.control.bgcolor = self.highlightColor
+      e.control.update()
+    else:
+      e.control.bgcolor = None
+      e.control.update()
+  
+class CustomMainContainer(ft.Container):
+  def __init__(self, content):
+    super().__init__()
+    self.expand = True
+    self.padding = 0
+    self.margin = 5
+    
+    self.switcher = CustomAnimatedContainer(
+      actualContent=content,
+      transition=ft.AnimatedSwitcherTransition.FADE,
+      duration=400,
+      reverse_duration=200,
+    )
+    
+    self.content = self.switcher
+    
+  def setNewContent(self, newContent):
+    self.switcher.content = newContent
+    self.switcher.update()
+    
+class CustomAlertDialog(ft.AlertDialog):
+  def __init__(self, modal: bool, title, content, actions: list = []):
+    super().__init__()
+    self.title = ft.Text(title)
+    self.content = ft.Text(content)
+    self.actions = actions
+    self.actions_alignment = ft.MainAxisAlignment.END,
+    self.modal = modal   

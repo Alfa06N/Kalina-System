@@ -3,7 +3,7 @@ from DataBase.models import Category
 
 from DataBase.errorHandling import handleDatabaseErrors
 from sqlalchemy.exc import SQLAlchemyError
-from exceptions import DataNotFoundError
+from exceptions import DataNotFoundError, DataAlreadyExists
 
 def createCategory(db: Session, name: str, description: str):
   try:
@@ -21,7 +21,7 @@ def createCategory(db: Session, name: str, description: str):
       db.refresh(category)
       return category
     else:
-      pass
+      raise DataAlreadyExists("Esta categoría ya existe")
   except DataNotFoundError:
     raise
   except SQLAlchemyError as e:

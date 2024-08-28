@@ -1,5 +1,6 @@
 import flet as ft
 import constants
+from Modules.customControls import CustomAnimatedContainer
   
 def initApp(page: ft.Page):
   from Modules.customControls import CustomPrincipalContainer
@@ -14,11 +15,10 @@ def initApp(page: ft.Page):
     container,
     ft.Column(
       expand=True,
+      alignment=ft.MainAxisAlignment.CENTER,
       controls=[
         ft.Text("© 2024 Kariña System. Todos los derechos reservados.", color="#222222", size=16)
-      ],
-      alignment=ft.MainAxisAlignment.END,
-      horizontal_alignment=ft.CrossAxisAlignment.CENTER
+      ]
     )
   )
   
@@ -42,6 +42,33 @@ def showRecovery(page: ft.Page):
   
   recovery = Recovery(page)
   updateContainerContent(page, recovery)
+  
+def showPrincipal(page: ft.Page):
+  from Modules.customControls import CustomAppBar, CustomSidebar, CustomAnimatedContainer, CustomMainContainer
+  from Modules.Sections.HomeSection.home import Home
+  
+  appBar = CustomAppBar("Kariña System", page)
+  sideBar = CustomSidebar(page)
+  mainContainer = CustomMainContainer(Home())
+  
+  page.mainContainer = mainContainer
+  
+  page.controls.clear()
+  page.add(
+    appBar,
+    ft.Row(
+      expand=True,
+      spacing=0,
+      controls=[
+        sideBar,
+        mainContainer,
+      ]
+    )
+  )
+  
+def logout(page: ft.Page):
+  page.controls.clear()
+  initApp(page)
   
 def updateContainerContent(page: ft.Page, newContent):
   if hasattr(page, "customContainer"):

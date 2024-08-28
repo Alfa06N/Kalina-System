@@ -43,7 +43,7 @@ def getUserByUsername(db: Session, username: str):
       func
     )
   except Exception as e:
-    return None
+    raise
 
 def getUserById(db: Session, idUser: int):
   try:
@@ -60,39 +60,35 @@ def getUserById(db: Session, idUser: int):
 def getUsers(db: Session):
   try:
     def func():
-      return db.query(User).all()
+      return db.query(User).offset(1).all()
     return handleDatabaseErrors(
       db,
       func
     )
-  except SQLAlchemyError as e:
-    return None
+  except Exception:
+    raise
 
-def updateUser(db: Session, idUser: int, username: str, password: str):
+def updateUser(db: Session, user, username: str, password: str):
   try:
-    usernameExists = getUserByUsername(db, username)
-    if usernameExists:
-      raise Exception("Nombre de usuario no disponible")
-    else:
-      user = getUserById(db, idUser)
-      
-      def func():
-        if user:
-          if username:
-            user.username = username
-          if password:
-            user.password = password
+    if not user.username == username:
+      usernameExists = getUserByUsername(db, username)
+      if usernameExists:
+        raise Exception("Nombre de usuario no disponible")
+    def func():
+      if user:
+        if username:
+          user.username = username
+        if password:
+          user.password = password
           
-          db.commit()
-          db.refresh(user)
-        return user
+        db.commit()
+        db.refresh(user)
+      return user
       
-      return handleDatabaseErrors(
-        db,
-        func
-      )
-  except SQLAlchemyError as e:
-    return None
+    return handleDatabaseErrors(
+      db,
+      func
+    )
   except Exception as e:
     raise
   
@@ -110,8 +106,8 @@ def removeUser(db: Session, idUser: int):
     )
     
     return user
-  except:
-    raise Exception("Error al eliminar el usuario")
+  except Exception:
+    raise
   
 
 def removeUserByUsername(db: Session, username:str):

@@ -31,8 +31,8 @@ def getRecoveryByUserId(db: Session, idUser: int):
     
     return handleDatabaseErrors(db, func)
     
-  except SQLAlchemyError as e:
-    return None
+  except Exception as e:
+    raise
   
 def updateRecovery(db, idUser, questionOne, answerOne, questionTwo, answerTwo):
   try:
