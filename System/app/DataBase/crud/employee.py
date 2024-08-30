@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from DataBase.models import Employee
 from DataBase.errorHandling import handleDatabaseErrors
 from datetime import datetime
+from exceptions import DataAlreadyExists
 
 def createEmployee(db: Session, ciEmployee: int, name: str, surname: str, secondSurname: str, birthdate: str):
   try:
@@ -27,7 +28,7 @@ def createEmployee(db: Session, ciEmployee: int, name: str, surname: str, second
       )
       return employee
     else:
-      raise Exception("Cédula de identidad ya existente")
+      raise DataAlreadyExists("Cédula de identidad ya existente")
   except Exception as e:
     db.rollback()
     raise
@@ -36,6 +37,15 @@ def getEmployeeById(db: Session, ciEmployee: int):
   def func():
     return db.query(Employee).filter(Employee.ciEmployee == ciEmployee).first()
     
+  return handleDatabaseErrors(
+    db,
+    func
+  )
+  
+def getEmployeeByName(db: Session, name: str):
+  def func():
+    return db.query(Employee).filter(Employee.name == name).first()
+  
   return handleDatabaseErrors(
     db,
     func

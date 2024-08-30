@@ -8,7 +8,7 @@ from utils.pathUtils import getImagePath
 
 class RecoveryForm(CustomSimpleContainer):
   def __init__(self, page):
-    super().__init__(width=450, height=500, gradient=False)
+    super().__init__()
     self.spacing = 10
     self.page = page
     self.horizontal_alignment = ft.CrossAxisAlignment.CENTER
@@ -237,7 +237,7 @@ class RecoveryForm(CustomSimpleContainer):
     
 class RecoveryPresentation(CustomSimpleContainer):
   def __init__(self, page):
-    super().__init__(width=450, height=500, gradient=True)
+    super().__init__(gradient=True)
     self.page = page
     
     self.title = ft.Text(

@@ -2,8 +2,9 @@ import flet as ft
 import constants
 
 class Closings(ft.Row):
-  def __init__(self):
+  def __init__(self, page):
     super().__init__()
+    self.page = page
     self.expand = True
     self.alignment = ft.MainAxisAlignment.CENTER
     self.vertical_alignment = ft.CrossAxisAlignment.CENTER

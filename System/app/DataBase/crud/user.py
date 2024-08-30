@@ -3,11 +3,14 @@ from DataBase.models import User
 from DataBase.crud.employee import getEmployeeById
 from DataBase.errorHandling import handleDatabaseErrors
 from sqlalchemy.exc import SQLAlchemyError
-from exceptions import DataNotFoundError
+from exceptions import DataNotFoundError, DataAlreadyExists
 
 def createUser(db: Session, username: str, password: str, role: str, ciEmployee: int):
   try:
+    if not getEmployeeById(db, ciEmployee):
+      raise DataNotFoundError(f"No existe el empleado propietario de la cédula V-{ciEmployee}")
     if not getUserByUsername(db, username):
+      
       user = User(
         username=username,
         password=password,
@@ -27,7 +30,7 @@ def createUser(db: Session, username: str, password: str, role: str, ciEmployee:
       db.refresh(user)
       return user
     else:
-      raise Exception("Nombre de usuario no disponible")
+      raise DataAlreadyExists("Nombre de usuario no disponible")
   except SQLAlchemyError as e:
     return None
   except Exception as e:
@@ -73,7 +76,7 @@ def updateUser(db: Session, user, username: str, password: str):
     if not user.username == username:
       usernameExists = getUserByUsername(db, username)
       if usernameExists:
-        raise Exception("Nombre de usuario no disponible")
+        raise DataAlreadyExists("Nombre de usuario no disponible")
     def func():
       if user:
         if username:

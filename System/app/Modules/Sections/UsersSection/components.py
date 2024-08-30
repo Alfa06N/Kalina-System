@@ -1,10 +1,12 @@
 import flet as ft
 import constants
-from Modules.customControls import CustomUserIcon, CustomOperationContainer, CustomTextField, CustomAnimatedContainer, CustomNavigationOptions, CustomFilledButton
+from Modules.customControls import CustomUserIcon, CustomOperationContainer, CustomTextField, CustomAnimatedContainer, CustomNavigationOptions, CustomFilledButton, CustomDropdown
 from config import getDB
 from DataBase.crud.user import getUserByUsername, getUsers, updateUser
+from DataBase.crud.recovery import getRecoveryByUserId, updateRecovery
 import time
 from validation import evaluateForm
+from exceptions import DataAlreadyExists
 
 class UserContainer(ft.Container):
   def __init__(self, initial, username, fullname, role, infoContainer):
@@ -14,12 +16,13 @@ class UserContainer(ft.Container):
     self.fullname = fullname
     self.role = role
     self.infoContainer = infoContainer
+    self.spacing = 0
     
     self.padding = ft.padding.all(10)
     self.bgcolor=ft.colors.TRANSPARENT
     self.border_radius = ft.border_radius.all(30)
     self.ink = True
-    self.ink_color = "#888888"
+    self.ink_color = constants.BLACK_INK
     self.on_click = self.showUserInfo
     
     self.usernameTitle = CustomAnimatedContainer(
@@ -67,7 +70,14 @@ class UserContainer(ft.Container):
       role=self.role,
       animatedUserContainer=self
     )
-    self.infoContainer.setNewContent(newContent)
+    if self.infoContainer.height == 150:
+      self.infoContainer.changeStyle(height=600, width=300, shadow=ft.BoxShadow(
+        blur_radius=5,
+        spread_radius=1,
+        color=constants.BLACK_GRAY,
+      ))
+      time.sleep(0.3)
+    self.infoContainer.setNewContent(newContent=newContent)
     
   def updateUsername(self, newUsername):
     self.username = newUsername
@@ -103,9 +113,9 @@ class UserInfo(ft.Column):
     
     self.usernameTitle = CustomAnimatedContainer(
       actualContent=ft.Text(
-        value=username,
+        value=self.username,
         color=constants.BLACK,
-        size=32,
+        size=24,
         weight=ft.FontWeight.W_700,
         text_align=ft.TextAlign.CENTER,
       ),
@@ -168,7 +178,7 @@ class UserInfo(ft.Column):
     self.selectedContainer = ft.Container(
       # border=ft.border.all(1, constants.BLACK),
       width=700,
-      height=350,
+      height=300,
       alignment=ft.alignment.center,
       content=CustomAnimatedContainer(
         actualContent=EditContainer(self.username, infoContainer=self),
@@ -221,7 +231,7 @@ class UserInfo(ft.Column):
         self.editContainer.setNewOperation(ft.Text(
           value="Ingresa aquí el siguiente paso",
           color=constants.BLACK,
-          size=32,
+          size=18,
         ))
         return True
       else:
@@ -235,7 +245,7 @@ class UserInfo(ft.Column):
     self.usernameTitle.setNewContent(ft.Text(
       value=newUsername,
         color=constants.BLACK,
-        size=32,
+        size=24,
         weight=ft.FontWeight.W_700,
         text_align=ft.TextAlign.CENTER,
     ))
@@ -245,6 +255,7 @@ class EditContainer(CustomOperationContainer):
   def __init__(self, username, infoContainer):
     self.username = username
     self.infoContainer = infoContainer
+    
     self.validPasswordField = CustomTextField(
       label="Contraseña",
       revealPassword=True,
@@ -305,12 +316,6 @@ class EditContainer(CustomOperationContainer):
       submitFunction=None,
     )
     
-    self.showIcon = ft.IconButton(
-      icon=ft.icons.VISIBILITY_OFF_ROUNDED,
-      icon_color=constants.BLACK,
-      on_click=self.showPasswordTemporarily,
-    )
-    
     with getDB() as db:
       user = getUserByUsername(db, self.username)
       if user:
@@ -323,8 +328,8 @@ class EditContainer(CustomOperationContainer):
       alignment=ft.alignment.center,
       content=ft.Column(
         expand=True,
-        spacing=25,
-        alignment=ft.MainAxisAlignment.CENTER,
+        spacing=0,
+        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         controls=[
           ft.Row(
@@ -350,14 +355,89 @@ class EditContainer(CustomOperationContainer):
               self.passwordField,
             ]
           ),
-          CustomFilledButton(
-            text="Enviar",
-            overlay=constants.BROWN_OVERLAY,
-            bgcolor=constants.BROWN,
-            color=constants.WHITE,
-            size=24,
-            clickFunction=self.submitForm
-          )
+          ft.Row(
+            alignment=ft.MainAxisAlignment.CENTER,
+            height=70,
+            controls=[
+              CustomFilledButton(
+                text="Enviar",
+                overlay=constants.BROWN_OVERLAY,
+                bgcolor=constants.BROWN,
+                color=constants.WHITE,
+                size=18,
+                clickFunction=self.submitForm
+              )
+            ]
+          ) 
+        ]
+      )
+    )
+    
+    self.questionOne = CustomDropdown(
+      label="Pregunta 1",
+      options=constants.dropdownOne,
+      mode="light",
+    )
+    self.answerOne = CustomTextField(
+      label="Respuesta",
+      field="others",
+      revealPassword=True,
+      submitFunction=None,
+      expand=True,
+    )
+    self.questionTwo = CustomDropdown(
+      label="Pregunta 2",
+      options=constants.dropdownTwo,
+      mode="light",
+    )
+    self.answerTwo = CustomTextField(
+      label="Respuesta",
+      field="others",
+      revealPassword=True,
+      submitFunction=None,
+      expand=True,
+    )
+    self.finishButton = CustomFilledButton(
+      text="Guardar cambios",
+      clickFunction=self.submitSecretQuestions,
+    )
+    self.editSecretQuestions = ft.Container(
+      height=400,
+      width=600,
+      content=ft.Column(
+        expand=True,
+        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        controls=[
+          ft.Row(
+            alignment=ft.MainAxisAlignment.CENTER,
+            controls=[
+              ft.Icon(
+                name=ft.icons.HELP_OUTLINED,
+                color=constants.BLACK,
+              ),
+              ft.Text(
+                value="Preguntas de seguridad",
+                size=18,
+                color=constants.BLACK,
+              )
+            ]
+          ),
+          ft.Row(
+            alignment=ft.MainAxisAlignment.CENTER,
+            controls=[
+              self.questionOne,
+              self.answerOne,
+            ]
+          ),
+          ft.Row(
+            alignment=ft.MainAxisAlignment.CENTER,
+            controls=[
+              self.questionTwo,
+              self.answerTwo,
+            ]
+          ),
+          self.finishButton
         ]
       )
     )
@@ -365,11 +445,27 @@ class EditContainer(CustomOperationContainer):
     self.operationContent = self.validateUser
     super().__init__(self.operationContent, "light")
     
+  def submitSecretQuestions(self, e):
+    try:
+      if evaluateForm(others=[self.questionOne, self.answerOne, self.questionTwo, self.answerTwo]):
+        with getDB() as db:
+          user = getUserByUsername(db, self.username)
+          newRecovery = updateRecovery(db, user.idUser, self.questionOne.value, self.answerOne.value, self.questionTwo.value, self.answerTwo.value)
+          
+          if newRecovery:
+            self.actionSuccess("Preguntas de seguridad actualizadas")
+            time.sleep(1.5)
+            self.setNewOperation(newContent=self.validateUser)
+    except Exception as e:
+      print(e)
+      self.actionFailed("Algo salió mal")
+      time.sleep(1.5)
+      self.restartContainer()
+    
   def submitPassword(self, password):
     with getDB() as db:
       user = getUserByUsername(db, self.username)
-      
-      print(user.password)
+
       if password == user.password:
         self.actionSuccess("Usuario validado")
         time.sleep(1.5)
@@ -381,20 +477,6 @@ class EditContainer(CustomOperationContainer):
         time.sleep(1.5)
         self.restartContainer()
         return False
-      
-  def showPasswordTemporarily(self, e):
-    print("Button clicked")
-    self.passwordField.password=False
-    # self.showIcon.icon = ft.icons.VISIBILITY_ROUNDED
-    self.passwordField.update()
-    # self.showIcon.update()
-      
-    time.sleep(2)
-      
-    self.passwordField.password = True
-    # self.showIcon.icon = ft.icons.VISIBILITY_OFF_ROUNDED
-    self.passwordField.update()
-    # self.showIcon.update()
     
   def submitForm(self, e):
     with getDB() as db:
@@ -403,20 +485,18 @@ class EditContainer(CustomOperationContainer):
       try:
         if evaluateForm(username=[self.usernameField], password=[self.passwordField]):
           updatedUser = updateUser(db, user, self.usernameField.value, self.passwordField.value) 
-          print(updatedUser)
           
           if updatedUser:
-            print(updatedUser.username)
             self.infoContainer.updateUsername(updatedUser.username)
             self.actionSuccess("Usuario editado")
+            time.sleep(1.5)
+            self.setNewOperation(newContent=self.editSecretQuestions)
+      except DataAlreadyExists as err:
+        self.actionFailed(err)
+        time.sleep(1.5)
+        self.restartContainer()
       except Exception as ex:
         print(f"Ocurrió un error: {ex}")
         self.actionFailed("Ocurrió un error")
         time.sleep(1.5)
         self.restartContainer()
-      
-class NavigationTabs(ft.Container):
-  def __init__(self, editContainer, activityContainer):
-    super().__init__()
-    self.height = 80
-     

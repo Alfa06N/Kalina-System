@@ -2,9 +2,10 @@ import flet as ft
 import constants
 
 class Sales(ft.Row):
-  def __init__(self):
+  def __init__(self, page):
     super().__init__()
     self.expand = True
+    self.page = page
     self.alignment = ft.MainAxisAlignment.CENTER
     self.vertical_alignment = ft.CrossAxisAlignment.CENTER
     

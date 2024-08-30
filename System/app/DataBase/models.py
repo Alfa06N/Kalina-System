@@ -24,7 +24,7 @@ class Employee(Base):
   ciEmployee = Column(Integer, primary_key=True, index=True)
   name = Column(String(50), nullable=False)
   surname = Column(String(50), nullable=False)
-  secondSurname = Column(String(50))
+  secondSurname = Column(String(50), default="")
   birthdate = Column(Date, nullable=False)
   
   user = relationship("User", back_populates="employee", uselist=False)

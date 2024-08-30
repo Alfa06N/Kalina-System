@@ -2,17 +2,18 @@ import flet as ft
 import constants
 from DataBase.crud.user import getUsers, getUserByUsername, createUser
 from config import getDB
-from Modules.customControls import CustomUserIcon, CustomAnimatedContainer, CustomOperationContainer, CustomTextField
+from Modules.customControls import CustomUserIcon, CustomAnimatedContainer, CustomOperationContainer, CustomTextField, CustomAnimatedContainerSwitcher
 from Modules.Sections.UsersSection.components import UserContainer
 import time
 
 class Users(ft.ResponsiveRow):
-  def __init__(self):
+  def __init__(self, page):
     super().__init__()
     self.expand = True
+    self.page = page
     self.alignment = ft.MainAxisAlignment.CENTER
-    self.vertical_alignment = ft.MainAxisAlignment.START
-    self.run_spacing = 20
+    self.vertical_alignment = ft.CrossAxisAlignment.CENTER
+    self.run_spacing = 10
     
     self.users = None
     self.usersContainer = ft.Container(
@@ -33,30 +34,15 @@ class Users(ft.ResponsiveRow):
       )
     )
     
-    self.infoContainer = ft.Container(
-      col={"sm": 12, "md": 6, "xl": 8},
-      padding=ft.padding.all(20),
-      border_radius=ft.border_radius.all(30),
-      margin=ft.margin.symmetric(horizontal=20, vertical=20),
-      expand=True,
-      bgcolor=constants.WHITE,
-      shadow=ft.BoxShadow(
-        blur_radius=5,
-        spread_radius=1,
-        color=constants.BLACK_GRAY,
+    self.infoContainer = CustomAnimatedContainerSwitcher(
+      content=ft.Column(
+        controls=[
+          ft.Text(value="Selecciona un usuario para ver más información", color=constants.BLACK, size=32, weight=ft.FontWeight.BOLD, text_align=ft.TextAlign.CENTER),
+        ],
+        alignment=ft.MainAxisAlignment.CENTER,
+        expand=True
       ),
-      content=CustomAnimatedContainer(
-        actualContent=ft.Column(
-          controls=[
-            ft.Text(value="Selecciona un usuario para ver su información", color=constants.BLACK, size=32, weight=ft.FontWeight.BOLD, text_align=ft.TextAlign.CENTER),
-          ],
-          alignment=ft.MainAxisAlignment.CENTER,
-          expand=True
-        ),
-        transition=ft.AnimatedSwitcherTransition.FADE,
-        duration=400,
-        reverse_duration=200,
-      )
+      col={"sm": 12, "md": 6, "xl": 8},
     )
     
     try:
@@ -73,7 +59,7 @@ class Users(ft.ResponsiveRow):
               username=user.username,
               fullname=userFullName,
               role=user.role,
-              infoContainer=self.infoContainer.content
+              infoContainer=self.infoContainer
             )
             
             self.usersContainer.content.controls.append(user)

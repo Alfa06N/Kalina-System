@@ -1,14 +1,18 @@
 import flet as ft 
 from Modules.customControls import CustomFilledButton, CustomOutlinedButton, CustomCheckbox, CustomReturnButton, CustomSimpleContainer, CustomTextField, CustomDropdown, CustomAnimatedContainer, CustomOperationContainer
-from validation import evaluateForm, validateUsername, validatePassword, validateCI
+from validation import evaluateForm
 import constants
 from interface import showLogin
 import time
 from utils.pathUtils import getImagePath
+from DataBase.crud.user import createUser
+from DataBase.crud.recovery import createRecovery
+from config import getDB
+from exceptions import DataNotFoundError, DataAlreadyExists, InvalidData
 
 class RegisterForm(CustomSimpleContainer):
   def __init__(self, page):
-    super().__init__(height=500, width=450, gradient=False)
+    super().__init__()
     self.page = page
     
     self.button = ft.Row(
@@ -168,7 +172,7 @@ class RegisterForm(CustomSimpleContainer):
           vertical_alignment=ft.CrossAxisAlignment.CENTER,
         ),
         self.questionsInputs,
-        self.finishButton
+        self.button
       ],
       alignment=ft.MainAxisAlignment.CENTER,
       spacing=20,
@@ -188,7 +192,70 @@ class RegisterForm(CustomSimpleContainer):
       ]
     )
     
-    self.formList = [self.formFirst, self.formSecond]
+    #####
+    
+    self.adminUsernameField = CustomTextField(
+      label="Nombre de usuario",
+      field="username",
+      submitFunction=None,
+    )
+    self.adminPasswordField = CustomTextField(
+      label="Contraseña",
+      field="password",
+      submitFunction=None
+    )
+    self.thirdContent = ft.Column(
+      expand=True,
+      controls=[
+        ft.Column(
+          expand=True,
+          alignment=ft.MainAxisAlignment.CENTER,
+          spacing=20,
+          controls=[
+            ft.Row(
+              alignment=ft.MainAxisAlignment.CENTER,
+              controls=[
+                ft.Icon(
+                  name=ft.icons.HELP_OUTLINED,
+                  color=constants.BLACK,
+                ),
+                ft.Text(
+                  value="Confirmación de un usuario administrador",
+                  color=constants.BLACK,
+                  size=18,
+                )
+              ]
+            ),
+            ft.Column(
+              controls=[
+                self.adminUsernameField,
+                self.adminPasswordField,
+              ]
+            ),
+          ]
+        ),
+        self.finishButton,
+      ],
+      alignment=ft.MainAxisAlignment.CENTER,
+    )
+    
+    self.formThird = ft.Stack(
+      expand=True,
+      controls=[
+        self.thirdContent,
+        ft.Container(
+          content=self.backButton,
+          margin=ft.margin.only(top=0, left=0),
+          alignment=ft.alignment.top_left,
+          width=60,
+          height=60,
+        )
+      ]
+    )
+    
+    # Final
+    
+    self.formList = [self.formFirst, self.formSecond, self.formThird]
     self.currentForm = 0
     
     self.animatedContainer = CustomAnimatedContainer(
@@ -208,30 +275,60 @@ class RegisterForm(CustomSimpleContainer):
     
   def advance(self, e):
     isValid = True
-    if self.animatedContainer.content == self.formFirst:
-      isValid = evaluateForm(username=[self.newUserName], ci=[self.userCI], password=[self.password, self.passwordConfirmation])
-      
-      if isValid and not self.password.value == self.passwordConfirmation.value:
-        isValid = False
-        self.operation.actionFailed("Las contraseñas no coinciden")
-        time.sleep(2)
-        self.operation.restartContainer()
-        return False
+    try:
+      if self.animatedContainer.content == self.formFirst:
+        isValid = evaluateForm(username=[self.newUserName], ci=[self.userCI], password=[self.password, self.passwordConfirmation])
+        
+        if isValid and not self.password.value == self.passwordConfirmation.value:
+          isValid = False
+          self.operation.actionFailed("Las contraseñas no coinciden")
+          time.sleep(1.5)
+          self.operation.restartContainer()
 
-    else:
-      isValid = evaluateForm(others=[self.questionOne, self.questionTwo, self.answerOne, self.answerTwo])
-      
-      if isValid:
-        self.operation.actionSuccess("Nuevo usuario añadido")
-        return True
-    
-    if not isValid:
-      print("Campos no válidos")
-    else:
-      print("Campos Válidos")
-      if self.currentForm < len(self.formList) - 1:
-        self.currentForm += 1
-        self.animatedContainer.setNewContent(self.formList[self.currentForm])
+      elif self.animatedContainer.content == self.formSecond:
+        isValid = evaluateForm(others=[self.questionOne, self.questionTwo, self.answerOne, self.answerTwo])
+      else:
+        isValid = evaluateForm(username=[self.adminUsernameField], password=[self.adminPasswordField])
+        
+        if isValid:
+          with getDB() as db:
+            role = "Administrador" if self.checkbox.value == True else "Colaborador"
+            
+            user = createUser(
+              db=db,
+              username=self.newUserName.value,
+              password=self.password.value,
+              role=role,
+              ciEmployee=self.userCI.value, 
+            )
+            recovery = createRecovery(
+              db=db,
+              questionOne=self.questionOne.value,
+              answerOne=self.answerOne.value,
+              questionTwo=self.questionTwo.value,
+              answerTwo=self.answerTwo.value,
+              idUser=user.idUser,
+            )
+            self.operation.actionSuccess("Usuario creado")
+            
+      if not isValid:
+        print("Campos inválidos")
+      else:
+        print("Campos válidos")
+        if self.currentForm < len(self.formList) - 1:
+          self.currentForm += 1
+          self.animatedContainer.setNewContent(self.formList[self.currentForm])
+    except DataAlreadyExists as err:
+      self.operation.actionFailed(err)
+      time.sleep(1.5)
+      self.operation.restartContainer()
+    except DataNotFoundError as err:
+      self.operation.actionFailed(err)
+      time.sleep(1.5)
+      self.operation.restartContainer()
+    except Exception as err:
+      print(err)
+      raise
     
   def back(self, e):
     if self.currentForm > 0:
@@ -240,7 +337,7 @@ class RegisterForm(CustomSimpleContainer):
 
 class RegisterPresentation(CustomSimpleContainer):
   def __init__(self, page):
-    super().__init__(height=500, width=450, gradient=True)
+    super().__init__(gradient=True)
     self.spacing = 20
     self.page = page
     

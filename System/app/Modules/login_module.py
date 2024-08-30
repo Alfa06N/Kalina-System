@@ -12,7 +12,7 @@ from exceptions import DataNotFoundError
 
 class LoginForm(CustomSimpleContainer):
   def __init__(self, page, containerFather):
-    super().__init__(height=500, width=450, gradient=False)
+    super().__init__()
     self.page = page 
     self.containerFather = containerFather
     
@@ -109,7 +109,7 @@ class LoginForm(CustomSimpleContainer):
 
 class LoginPresentation(CustomSimpleContainer):
   def __init__(self, page):
-    super().__init__(height=500, width=450, gradient=True)
+    super().__init__(gradient=True)
     self.spacing = 10
     self.page = page
     

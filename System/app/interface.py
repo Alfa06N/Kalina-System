@@ -8,7 +8,7 @@ def initApp(page: ft.Page):
   
   login = Login(page)
   
-  container = CustomPrincipalContainer(width=900, height=500, containerContent=login)
+  container = CustomPrincipalContainer(containerContent=login)
   
   page.add(
     ft.Column(expand=True),
@@ -49,7 +49,7 @@ def showPrincipal(page: ft.Page):
   
   appBar = CustomAppBar("Kariña System", page)
   sideBar = CustomSidebar(page)
-  mainContainer = CustomMainContainer(Home())
+  mainContainer = CustomMainContainer(Home(page))
   
   page.mainContainer = mainContainer
   

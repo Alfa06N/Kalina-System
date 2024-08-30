@@ -2,9 +2,10 @@ import flet as ft
 import constants 
 import time
 from validation import validateCI, validateEmptyField, validatePassword, validateUsername
+from datetime import datetime
 
 class CustomPrincipalContainer(ft.Container):
-  def __init__(self, width, height, containerContent):
+  def __init__(self, containerContent, width=900, height=550):
     super().__init__()
     self.width = width
     self.height = height
@@ -28,7 +29,7 @@ class CustomPrincipalContainer(ft.Container):
     self.animatedContainer.update()
     
 class CustomSimpleContainer(ft.Container):
-  def __init__(self, height, width, gradient):
+  def __init__(self, gradient=False, height=550, width=450):
     super().__init__()
     self.height = height
     self.width = width
@@ -45,7 +46,7 @@ class CustomSimpleContainer(ft.Container):
       )
 
 class CustomOperationContainer(ft.Container):
-  def __init__(self, operationContent, mode):
+  def __init__(self, operationContent, mode="light"):
     super().__init__()
     self.originalHeight = operationContent.height
     self.height = self.originalHeight
@@ -58,8 +59,8 @@ class CustomOperationContainer(ft.Container):
     self.operationContent = operationContent
     
     self.animate = ft.animation.Animation(
-      duration=800, 
-      curve=ft.AnimationCurve.ELASTIC_OUT
+      duration=300, 
+      curve=ft.AnimationCurve.EASE_IN_OUT
     )
     
     self.content = operationContent
@@ -186,7 +187,7 @@ class CustomOperationContainer(ft.Container):
     self.restartContainer()
   
 class CustomAnimatedContainer(ft.AnimatedSwitcher):
-  def __init__(self, actualContent, transition, duration, reverse_duration):
+  def __init__(self, actualContent, transition=ft.AnimatedSwitcherTransition.FADE, duration=400, reverse_duration=200):
     super().__init__(content=actualContent)
     self.height = self.content.height if self.content.height else "auto"
     self.width = self.content.width if self.content.width else "auto"
@@ -198,8 +199,44 @@ class CustomAnimatedContainer(ft.AnimatedSwitcher):
     self.content = newContent
     self.update()
 
+class CustomAnimatedContainerSwitcher(ft.Container):
+  def __init__(self, content, height:int=150, width:int=300, padding=ft.padding.all(20), margin=ft.margin.all(20), border_radius=ft.border_radius.all(30), bgcolor=constants.WHITE, shadow=None, alignment=ft.alignment.center, duration:int=300, animationCurve=ft.AnimationCurve.EASE_IN_OUT, col=None):
+    super().__init__(col=col)
+    # self.col = None
+    self.height = height
+    self.width = width
+    self.shadow = shadow
+    self.duration = duration
+    self.animationCurve = animationCurve
+    self.bgcolor = bgcolor
+    self.margin = margin
+    self.border_radius = border_radius
+    self.padding = padding
+    self.alignment = alignment
+    
+    self.animate = ft.animation.Animation(self.duration, self.animationCurve)
+    
+    self.content = ft.AnimatedSwitcher(
+      content=content,
+      transition=ft.AnimatedSwitcherTransition.FADE,
+      duration=400,
+      reverse_duration=200,
+    )
+    
+  def setNewContent(self, newContent):
+    self.content.content = newContent
+    self.content.update()
+    
+  def changeStyle(self, height, width, shadow=None, bgcolor=constants.WHITE):
+    self.height = height
+    self.width = width
+    self.shadow = shadow
+    self.bgcolor = bgcolor
+    self.update()
+  
+
 class CustomFilledButton(ft.FilledButton):
-  def __init__(self, text, overlay, bgcolor, color, size, clickFunction):
+  def __init__(self, text, overlay=constants.BROWN_OVERLAY, bgcolor=constants.BROWN, color=constants.WHITE, size=18, clickFunction=None):
     super().__init__()
     self.text = text
     self.size = size
@@ -237,6 +274,21 @@ class CustomFilledButton(ft.FilledButton):
       ft.ControlState.SELECTED: 0,},
       padding=ft.padding.symmetric(horizontal=50, vertical=20),
       animation_duration=2000,
+    )
+
+class CustomFloatingActionButton(ft.FloatingActionButton):
+  def __init__(self, icon=ft.icons.ADD, height:int=70, width:int=70, bgcolor=constants.BROWN, color=constants.WHITE, on_click=None):
+    super().__init__()
+    self.height = height
+    self.width = width
+    self.bgcolor = bgcolor
+    self.color = constants.WHITE
+    self.on_click = on_click
+    
+    self.content = ft.Icon(
+      name=icon, 
+      size=24, 
+      color=self.color
     )
 
 class CustomOutlinedButton(ft.OutlinedButton):
@@ -339,6 +391,7 @@ class CustomTextField(ft.TextField):
       self.on_change = lambda e: validatePassword(self)
     
     elif field == "ci":
+      self.prefix_text = "V-"
       self.input_filter=ft.NumbersOnlyInputFilter()
       self.on_change = lambda e: validateCI(self)
     
@@ -404,16 +457,6 @@ class CustomAppBar(ft.AppBar):
       expand=True
     )
     
-    # self.logoutDialog = CustomAlertDialog(
-    #   modal=True,
-    #   title="¿Deseas cerrar sesión?",
-    #   content="",
-    #   actions=[
-    #     ft.TextButton("Sí", on_click=self.logout),
-    #     ft.TextButton("No", on_click=lambda e: self.page.close(self.dialog))
-    #   ]
-    # )
-    
     self.leading_width = 70
     self.title = ft.Text(title, color=constants.BLACK, weight=ft.FontWeight.BOLD, size=32)
     self.toolbar_height = 70
@@ -455,7 +498,6 @@ class CustomAppBar(ft.AppBar):
 class CustomSidebar(ft.Container):
   def __init__(self, page):
     super().__init__()
-    # self.expand = True
     self.margin = ft.margin.all(0)
     self.gradient = ft.LinearGradient(
       begin=ft.alignment.center_left,
@@ -546,40 +588,72 @@ class CustomSidebar(ft.Container):
     self.openButton.selected = not e.control.selected
     self.openContainer()
     self.openButton.update()
+    
+  def switchPage(self, pageName):
+    if pageName == "Home":
+      self.updateMainContent(Home(self.page))
+      self.switchButton(self.home)
+    elif pageName == "Users":
+      self.updateMainContent(Users(self.page))
+      self.switchButton(self.users)
+    elif pageName == "Clients":
+      self.updateMainContent(Clients(self.page))
+      self.switchButton(self.clients)
+    elif pageName == "Employees":
+      self.updateMainContent(Employees(self.page))
+      self.switchButton(self.employees)
+    elif pageName == "Sales":
+      self.updateMainContent(Sales(self.page))
+      self.switchButton(self.sales)
+    elif pageName == "Inventory":
+      self.updateMainContent(Inventory(self.page))
+      self.switchButton(self.inventory)
+    elif pageName == "Payments":
+      self.updateMainContent(Payments(self.page))
+      self.switchButton(self.payments)
+    elif pageName == "Closings":
+      self.updateMainContent(Closings(self.page))
+      self.switchButton(self.closings)
+    elif pageName == "Statistics":
+      self.updateMainContent(Statistics(self.page))
+      self.switchButton(self.statistics)
+      
+  def switchButton(self, newSelected):
+    self.selected.deselectOption()
+    self.selected = newSelected
+    self.selected.selectOption()
   
   def selectOne(self, e):
     if not self.selected == e.control:
-      self.selected.deselectOption()
-      self.selected = e.control
-      self.selected.selectOption()
+      self.switchButton(e.control)
       
       if e.control == self.home:
         from Modules.Sections.HomeSection.home import Home
-        self.updateMainContent(Home())
+        self.updateMainContent(Home(self.page))
       elif e.control == self.users:
         from Modules.Sections.UsersSection.users import Users
-        self.updateMainContent(Users())  
+        self.updateMainContent(Users(self.page))  
       elif e.control == self.clients:
         from Modules.Sections.ClientsSection.clients import Clients
-        self.updateMainContent(Clients())
+        self.updateMainContent(Clients(self.page))
       elif e.control == self.employees:
         from Modules.Sections.EmployeesSection.employees import Employees
-        self.updateMainContent(Employees())
+        self.updateMainContent(Employees(self.page))
       elif e.control == self.sales:
         from Modules.Sections.SalesSection.sales import Sales
-        self.updateMainContent(Sales())
+        self.updateMainContent(Sales(self.page))
       elif e.control == self.inventory:
         from Modules.Sections.InventorySection.inventory import Inventory
-        self.updateMainContent(Inventory())
+        self.updateMainContent(Inventory(self.page))
       elif e.control == self.payments:
         from Modules.Sections.PaymentsSection.payments import Payments 
-        self.updateMainContent(Payments())
+        self.updateMainContent(Payments(self.page))
       elif e.control == self.closings:
         from Modules.Sections.ClosingsSection.closings import Closings
-        self.updateMainContent(Closings())
+        self.updateMainContent(Closings(self.page))
       elif e.control == self.statistics:
         from Modules.Sections.StatisticsSection.statistics import Statistics
-        self.updateMainContent(Statistics())
+        self.updateMainContent(Statistics(self.page))
     
   def openContainer(self):
     if self.width == 70:
@@ -676,3 +750,57 @@ class CustomAlertDialog(ft.AlertDialog):
     self.actions = actions
     self.actions_alignment = ft.MainAxisAlignment.END,
     self.modal = modal   
+    
+class CustomCardInfo(ft.Card):
+  def __init__(self, icon, title, subtitle="", width:int=300, height:int=150, spacing:int=0, containerClickFunction=None, TextButtons=[], variant=ft.CardVariant.ELEVATED):
+    super().__init__(variant=variant)
+    self.width = width
+    self.height = height
+    self.spacing = spacing
+    self.icon = icon
+    self.title = title
+    self.subtitle = subtitle
+    self.textButtons = []
+    self.containerClickFunction = containerClickFunction
+    
+    self.content = ft.Column(
+      width=self.width,
+      height=self.height,
+      expand=True,
+      spacing=self.spacing,
+      controls=[
+        ft.Container(
+          padding=ft.padding.all(5),
+          ink=True,
+          border_radius=ft.border_radius.all(10),
+          margin=ft.margin.all(10),
+          on_click=containerClickFunction,
+          ink_color=constants.BLACK_INK,
+          content=ft.ListTile(
+            leading=ft.Icon(
+              name=self.icon, 
+              size=24, 
+              color=constants.BLACK
+            ),
+            title=ft.Text(
+              value=self.title,
+            ),
+            subtitle=ft.Text(
+              self.subtitle,
+            )
+          )
+        ),
+      ]
+    )
+    
+class CustomDatePicker(ft.DatePicker):
+  def __init__(self, firstDate=datetime(year=1940, month=1, day=1), lastDate=datetime(year=datetime.now().year-18, month=datetime.now().month, day=datetime.now().day), on_change=None, on_dismiss=None):
+    super().__init__()
+    self.first_date = firstDate
+    self.last_date = lastDate
+    self.on_change = on_change
+    self.on_dismiss = on_dismiss
+    
+    self.date_picker_entry_mode = ft.DatePickerEntryMode.CALENDAR
+    self.confirm_text = "Confirmar"
+    self.cancel_text = "Cancelar"
