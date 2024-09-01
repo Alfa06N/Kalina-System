@@ -32,7 +32,7 @@ python -m venv myenv
 - Activar el entorno virtual:
 
 ```bash
-# Puedes necesitar ejecutar este comando para permitir la ejecución de scripts no firmador
+# Puedes necesitar ejecutar este comando para permitir la ejecución de scripts no confirmados
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 venv\Scripts\activate
 
@@ -52,9 +52,9 @@ pip install -r requirements.txt
 flet main.py
 ```
 
-- Nota: Es importante activar el entorno virtual para asegurarte de que las dependencias se instales y se utilicen conrrectamente dentro de ese entorno.
+- Nota: Es importante activar el entorno virtual para asegurarte de que las dependencias se instalen y se utilicen correctamente dentro de ese entorno.
 
-## Requisitor:
+## Requisitos:
 
 - Python 3.11+
 - SQLAlchemy
