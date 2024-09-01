@@ -37,4 +37,4 @@ if __name__ == "__main__":
   ft.app(target=main)
   
   
-# Los empleados parecen no tener usuarios, corrige eso 
+# Agregar submitFunctions a las entradas que lo necesiten
