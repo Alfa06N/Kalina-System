@@ -1,5 +1,6 @@
-from DataBase.models import Base
+from DataBase.models import Base, User
 from config import engine, getDB
+from DataBase.errorHandling import handleDatabaseErrors
 # import os
 
 def init_db():
@@ -13,13 +14,19 @@ def createDefaultUser(db):
   from DataBase.crud.user import createUser, getUserByUsername
   
   if not getUserByUsername(db, "Alfa"):
-    # masterUsername = os.getenv("KS_MASTER_USERNAME")
-    # masterPassword = os.getenv("KS_MASTER_PASSWORD")
-    createUser(
-      db=db,
-      username="Alfa",
-      password="informatica2024",
-      role="Administrador",
-      ciEmployee=None
-    )
+    try: 
+      user = User(
+        username="Alfa",
+        password="informatica2024",
+        role="Administrador",
+      )
+      
+      def func():
+        db.add(user)
+        db.commit()
+        return user
+      
+      return handleDatabaseErrors(db, func)
+    except Exception as err:
+      raise
     print("Master User created")

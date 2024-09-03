@@ -743,7 +743,7 @@ class CustomMainContainer(ft.Container):
     self.switcher.update()
     
 class CustomAlertDialog(ft.AlertDialog):
-  def __init__(self, modal: bool, title, content, actions: list = []):
+  def __init__(self, title, content, modal:bool=True, actions: list = []):
     super().__init__()
     self.title = ft.Text(title)
     self.content = ft.Text(content)
@@ -804,3 +804,47 @@ class CustomDatePicker(ft.DatePicker):
     self.date_picker_entry_mode = ft.DatePickerEntryMode.CALENDAR
     self.confirm_text = "Confirmar"
     self.cancel_text = "Cancelar"
+  
+class CustomDeleteButton(ft.OutlinedButton):
+  def __init__(self, page, function=None, mode="light", size=24):
+    super().__init__()
+    self.mode = mode
+    self.size = size
+    self.page = page
+    self.function = function
+    self.color = constants.BLACK if self.mode == "light" else constants.ORANGE_LIGHT
+    
+    self.style = ft.ButtonStyle(
+      color=self.color,
+      padding=0,
+      side=ft.BorderSide(
+        width=2,
+        color=self.color
+      )
+    )
+    
+    self.content = ft.Icon(
+      name=ft.icons.DELETE_ROUNDED,
+      color=self.color,
+      size=self.size
+    )
+    
+    self.on_click = self.showWarningDialog if not self.function == None else None
+    
+  def showWarningDialog(self, e):
+    self.newDialog = CustomAlertDialog(
+      title="¿Estás seguro de llevar a cabo esta acción?",
+      content="Los datos se eliminarán permanentemente",
+      actions=[
+        ft.TextButton("Eliminar", on_click=self.executeFunction),
+        ft.TextButton("Cancelar", on_click=self.closeDialog)
+      ]
+    )
+    self.page.open(self.newDialog)
+  
+  def executeFunction(self, e):
+    self.page.close(self.newDialog)
+    self.function()
+    
+  def closeDialog(self, e):
+    self.page.close(self.newDialog)

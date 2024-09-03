@@ -27,7 +27,7 @@ class Employee(Base):
   secondSurname = Column(String(50), default="")
   birthdate = Column(Date, nullable=False)
   
-  user = relationship("User", back_populates="employee", uselist=False)
+  user = relationship("User", back_populates="employee", uselist=False, cascade="all, delete-orphan")
   phones = relationship("Phone", back_populates="employee", cascade="all, delete-orphan")
 
 class User(Base):
@@ -37,7 +37,7 @@ class User(Base):
   username = Column(String(50), nullable=False)
   password = Column(String(255), nullable=False)
   role = Column(Enum("Administrador", "Colaborador"), nullable=False)
-  ciEmployee = Column(Integer, ForeignKey("Employee.ciEmployee"))
+  ciEmployee = Column(Integer, ForeignKey("Employee.ciEmployee", ondelete="CASCADE"))
   
   employee = relationship("Employee", back_populates="user", uselist=False)
   sales = relationship("Sale", back_populates="user")

@@ -118,6 +118,8 @@ class Employees(ft.Stack):
               surname=employee.surname,
               infoContainer=self.infoContainer,
               secondSurname=employee.secondSurname,
+              page=self.page,
+              principalContainer=self
             )
             self.employeesContainer.content.controls.append(employee)
     except Exception as e:

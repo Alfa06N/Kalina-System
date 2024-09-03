@@ -85,17 +85,18 @@ def updateEmployee(db: Session, ciEmployee: int, name: str, surname: str, second
   db.refresh(employee)
   return employee
 
-def removeEmployee(db: Session, ciEmployee: int):
-  employee = db.query(Employee).filter(Employee.ciEmployee == ciEmployee).first()
-  
-  def func():
-    db.delete(employee)
-  
-  handleDatabaseErrors(
-    db,
-    func
-  )
-  
-  db.commit()
-      
-  return employee
+def removeEmployee(db: Session, employee):
+  try:
+    def func():
+      db.delete(employee)
+    
+    handleDatabaseErrors(
+      db,
+      func
+    )
+    
+    db.commit()
+        
+    return employee
+  except Exception as err:
+    raise

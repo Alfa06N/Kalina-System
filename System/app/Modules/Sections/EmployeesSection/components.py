@@ -1,13 +1,13 @@
 import flet as ft 
-from Modules.customControls import CustomAnimatedContainer, CustomOperationContainer, CustomUserIcon, CustomCardInfo
+from Modules.customControls import CustomAnimatedContainer, CustomOperationContainer, CustomUserIcon, CustomCardInfo, CustomDeleteButton
 import constants
-from DataBase.crud.employee import getEmployeeById
+from DataBase.crud.employee import getEmployeeById, removeEmployee
 from config import getDB
 import time
 from exceptions import DataAlreadyExists, DataNotFoundError
 
 class EmployeeContainer(ft.Container):
-  def __init__(self, ciEmployee, initial, name, surname, infoContainer, secondSurname=""):
+  def __init__(self, page, ciEmployee, initial, name, surname, infoContainer, principalContainer, secondSurname=""):
     super().__init__()
     self.initial = initial
     self.ciEmployee = ciEmployee
@@ -15,6 +15,8 @@ class EmployeeContainer(ft.Container):
     self.surname = surname
     self.secondSurname = secondSurname
     self.infoContainer = infoContainer
+    self.principalContainer = principalContainer
+    self.page = page
     
     self.padding = ft.padding.all(10)
     self.bgcolor = ft.colors.TRANSPARENT
@@ -68,7 +70,9 @@ class EmployeeContainer(ft.Container):
       name=self.name,
       surname=self.surname,
       secondSurname=self.secondSurname,
+      page=self.page,
       employeeContainer=self,
+      principalContainer=self.principalContainer
     )
     if not self.infoContainer.height == 400:
       self.infoContainer.changeStyle(height=400, width=700, shadow=ft.BoxShadow(
@@ -79,9 +83,8 @@ class EmployeeContainer(ft.Container):
       time.sleep(0.3)
     self.infoContainer.setNewContent(newContent=newContent)
     
-    
-class EmployeeInfo(ft.Column):
-  def __init__(self, ciEmployee, initial, name, surname, secondSurname, employeeContainer):
+class EmployeeInfo(ft.Stack):
+  def __init__(self, page, ciEmployee, initial, name, surname, secondSurname, employeeContainer, principalContainer):
     super().__init__()
     self.initial = initial
     self.ciEmployee = ciEmployee
@@ -89,11 +92,10 @@ class EmployeeInfo(ft.Column):
     self.surname = surname
     self.secondSurname = secondSurname
     self.employeeContainer = employeeContainer
+    self.page = page
+    self.principalContainer = principalContainer
     
-    self.scroll = ft.ScrollMode.AUTO 
     self.expand = True
-    self.alignment = ft.MainAxisAlignment.START
-    self.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     
     self.employeeIcon = CustomUserIcon(
       initial=self.initial,
@@ -164,23 +166,60 @@ class EmployeeInfo(ft.Column):
         
     except Exception as e:
       print(e)
-      # raise
+      
+    self.columnContent = ft.Column(
+      scroll=ft.ScrollMode.AUTO,
+      expand=True,
+      alignment=ft.MainAxisAlignment.START,
+      horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+      controls=[
+        ft.Row(
+          alignment=ft.MainAxisAlignment.CENTER,
+          expand=False,
+          vertical_alignment=ft.CrossAxisAlignment.CENTER,
+          controls=[
+            self.employeeIcon,
+            ft.Column(
+              alignment=ft.MainAxisAlignment.CENTER,
+              controls=[
+                self.employeeTitle,
+                self.employeeCi,
+              ]
+            )
+          ]
+        ), 
+        ft.Divider(color=constants.BLACK_GRAY),
+        self.userInfo,
+      ]
+    )
+    
+    self.deleteButton = CustomDeleteButton(
+      page=self.page,
+      function=self.deleteUser,
+    )
+    
+    # Stack controls
     self.controls = [
-      ft.Row(
-        alignment=ft.MainAxisAlignment.CENTER,
-        expand=False,
-        vertical_alignment=ft.CrossAxisAlignment.CENTER,
-        controls=[
-          self.employeeIcon,
-          ft.Column(
-            alignment=ft.MainAxisAlignment.CENTER,
-            controls=[
-              self.employeeTitle,
-              self.employeeCi,
-            ]
-          )
-        ]
-      ), 
-      ft.Divider(color=constants.BLACK_GRAY),
-      self.userInfo,
+      self.columnContent,
+      ft.Container(
+        content=self.deleteButton,
+        right=10,
+        top=10,
+      )
     ]
+  
+  def deleteUser(self):
+    try:
+      with getDB() as db:
+        employee = getEmployeeById(db, self.ciEmployee)
+        
+        if employee:
+          employee = removeEmployee(db, employee)
+          self.principalContainer.resetEmployeesContainer()
+          self.principalContainer.resetInfoContainer()
+        else: 
+          raise DataNotFoundError(f"Can't delete employee V-{self.ciEmployee}")
+    except DataNotFoundError:
+      raise
+    except Exception as err:
+      print(f"Error deleting employee V-{self.ciEmployee}: {err}")
