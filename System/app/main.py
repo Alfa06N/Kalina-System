@@ -27,9 +27,10 @@ def main(page: ft.Page):
   page.padding = 0 
   
   init_db()
-  # showPrincipal(page)
   
-  initApp(page)
+  showPrincipal(page)
+  
+  # initApp(page)
   
 
 if __name__ == "__main__":

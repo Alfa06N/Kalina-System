@@ -46,8 +46,22 @@ def showRecovery(page: ft.Page):
 def showPrincipal(page: ft.Page):
   from Modules.customControls import CustomAppBar, CustomSidebar, CustomAnimatedContainer, CustomMainContainer
   from Modules.Sections.HomeSection.home import Home
+  from config import getDB
+  from DataBase.crud.user import getUserByUsername
+  from utils.sessionManager import getCurrentUser
   
-  appBar = CustomAppBar("Kariña System", page)
+  user = None
+  initial = ""
+  
+  with getDB() as db:
+    try:
+      user = getUserByUsername(db, getCurrentUser())
+      if user:
+        initial = f"{user.employee.name[0]}{user.employee.surname[0]}"
+    except Exception as err:
+      print(f"Error {err}")
+  
+  appBar = CustomAppBar("Kariña System", page, initial)
   sideBar = CustomSidebar(page)
   mainContainer = CustomMainContainer(Home(page))
   

@@ -100,3 +100,13 @@ def removeEmployee(db: Session, employee):
     return employee
   except Exception as err:
     raise
+  
+def calculateAge(employee):
+  try:
+    birthdate = employee.birthdate
+    today = datetime.today().date()
+    
+    age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
+    return age
+  except Exception as err:
+    raise

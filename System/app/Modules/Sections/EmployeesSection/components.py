@@ -1,7 +1,7 @@
 import flet as ft 
 from Modules.customControls import CustomAnimatedContainer, CustomOperationContainer, CustomUserIcon, CustomCardInfo, CustomDeleteButton
 import constants
-from DataBase.crud.employee import getEmployeeById, removeEmployee
+from DataBase.crud.employee import getEmployeeById, removeEmployee, calculateAge
 from config import getDB
 import time
 from exceptions import DataAlreadyExists, DataNotFoundError
@@ -119,48 +119,110 @@ class EmployeeInfo(ft.Stack):
       size=24,
     )
     
-    self.userInfo = None
+    self.birthdateText = ft.Text(
+      size=18,
+      color=constants.BLACK,
+    )
+    self.ageText = ft.Text(
+      size=18,
+      color=constants.BLACK,
+    )
+    self.birthdateIcon = ft.Icon(
+      name=ft.icons.CALENDAR_MONTH_OUTLINED,
+      size=28, 
+      color=constants.BLACK
+    )
+    self.birthdateField = ft.Container(
+      padding=ft.padding.all(20),
+      border_radius=ft.border_radius.all(10),
+      margin=ft.margin.all(10),
+      content=ft.Row(
+        alignment=ft.MainAxisAlignment.CENTER,
+        vertical_alignment=ft.CrossAxisAlignment.CENTER,
+        controls=[
+          self.birthdateIcon, 
+          ft.Column(
+            controls=[
+              ft.Row(
+                controls=[
+                  ft.Text(
+                    value="Fecha de nacimiento:",
+                    size=18,
+                    color=constants.BLACK,
+                    weight=ft.FontWeight.BOLD,
+                  ),
+                  self.birthdateText
+                ]
+              ),
+              ft.Row(
+                controls=[
+                  ft.Text(
+                    value="Edad:",
+                    size=18,
+                    color=constants.BLACK,
+                    weight=ft.FontWeight.BOLD,
+                  ),
+                  self.ageText
+                ]
+              ),
+            ]
+          ),
+        ]
+      )
+    )
+    
+    self.employeeInfo = ft.Column(
+      alignment=ft.MainAxisAlignment.CENTER,
+      horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+      height=200,
+      controls=[
+        self.birthdateField,
+        # Also add the userInfo
+      ]
+    )
     
     try:
       with getDB() as db:
         employee = getEmployeeById(db, self.ciEmployee)
         
         if employee:
+          
+          self.birthdateText.value = f"{employee.birthdate.strftime("%Y-%m-%d")}"
+          self.ageText.value = f"{calculateAge(employee)} años"
+          
           if employee.user:
-            self.userInfo = ft.Column(
-              alignment=ft.MainAxisAlignment.CENTER,
-              horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-              height=200,
-              controls=[
-                ft.Text(
-                  value=f"Usuario de {self.name}",
-                  color=constants.BLACK,
-                  size=18,
-                ),
-                CustomCardInfo(
-                  icon=ft.icons.SECURITY_ROUNDED,
-                  title=employee.user.username,
-                  subtitle=employee.user.role,
-                  containerClickFunction=None,
-                  variant=ft.CardVariant.OUTLINED,
-                )
-              ]
-            )
+            self.employeeInfo.controls.append(ft.Container(
+              padding=10,
+              content=ft.Row(
+                alignment=ft.MainAxisAlignment.CENTER,
+                controls=[
+                  ft.Icon(
+                    name=ft.icons.SECURITY_ROUNDED,
+                    color=constants.BLACK,
+                    size=28,
+                  ),
+                  ft.Text(
+                    value=f"Usuario:",
+                    size=18,
+                    color=constants.BLACK,
+                    weight=ft.FontWeight.BOLD,
+                  ),
+                  ft.Text(
+                    value=f"{employee.user.username} ({employee.user.role})",
+                    size=18,
+                    color=constants.BLACK,
+                  )
+                ]
+                
+              ),
+            ))
             print("Si tiene usuario")
           else:
-            self.userInfo = ft.Column(
-              alignment=ft.MainAxisAlignment.CENTER,
-              horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-              height=200,
-              controls=[
-                ft.Text(
-                  value=f"El empleado no posee un usuario",
-                  size=18,
-                  color=constants.BLACK,
-                ),
-              ]
-            )
-            print("No tiene usuario")
+            self.employeeInfo.controls.append(ft.Text(
+              value=f"Este empleado no posee un usuario",
+              size=18,
+              color=constants.BLACK,
+            ))
         else:
           raise DataNotFoundError("No se encontró el empleado")
         
@@ -189,7 +251,7 @@ class EmployeeInfo(ft.Stack):
           ]
         ), 
         ft.Divider(color=constants.BLACK_GRAY),
-        self.userInfo,
+        self.employeeInfo,
       ]
     )
     

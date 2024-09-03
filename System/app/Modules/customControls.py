@@ -445,17 +445,20 @@ class CustomUserIcon(ft.Container):
       self.content = ft.Text(value=initial, size=self.fontSize, weight=ft.FontWeight.BOLD, color=constants.BLACK)
     
 class CustomAppBar(ft.AppBar):
-  def __init__(self, title, page):
+  def __init__(self, title, page, initial=""):
     super().__init__()
     self.page = page
-    self.leading = ft.Column(
-      alignment=ft.MainAxisAlignment.CENTER,
-      horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-      controls=[
-        CustomUserIcon(initial="NA", gradient=True)
-      ],
-      expand=True
-    )
+    self.initial = initial
+    
+    if not initial == "":
+      self.leading = ft.Column(
+        alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        controls=[
+          CustomUserIcon(initial=self.initial, gradient=True)
+        ],
+        expand=True
+      )
     
     self.leading_width = 70
     self.title = ft.Text(title, color=constants.BLACK, weight=ft.FontWeight.BOLD, size=32)
