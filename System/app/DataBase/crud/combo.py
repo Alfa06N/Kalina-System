@@ -4,13 +4,14 @@ from DataBase.models import Combo
 from DataBase.errorHandling import handleDatabaseErrors
 from exceptions import DataAlreadyExists, DataNotFoundError
 
-def createCombo(db: Session, name: str):
+def createCombo(db: Session, name: str, imgPath: str = None):
   try:
     if getComboByName(db, name):
       raise DataAlreadyExists("Nombre de combo ya existente")
     
     combo = Combo(
       name=name,
+      imgPath=imgPath
     )
     
     def func():

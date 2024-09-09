@@ -197,12 +197,12 @@ class RegisterForm(CustomSimpleContainer):
     self.adminUsernameField = CustomTextField(
       label="Nombre de usuario",
       field="username",
-      submitFunction=None,
+      submitFunction=self.advance,
     )
     self.adminPasswordField = CustomTextField(
       label="Contraseña",
       field="password",
-      submitFunction=None
+      submitFunction=self.advance
     )
     self.thirdContent = ft.Column(
       expand=True,

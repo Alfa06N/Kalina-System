@@ -72,6 +72,7 @@ class Category(Base):
   idCategory = Column(Integer, primary_key=True, autoincrement=True)
   name = Column(String(50), nullable=False)
   description = Column(Text)
+  imgPath = Column(String(50), default=None)
   
   products = relationship("Product", back_populates="category")
 
@@ -86,6 +87,7 @@ class Product(Base):
   gain = Column(DECIMAL(10, 3), nullable=False)
   iva = Column(DECIMAL(5, 3), nullable=False)
   description = Column(Text)
+  imgPath = Column(String(50), default=None)
   idCategory = Column(Integer, ForeignKey("Category.idCategory"))
   
   users = relationship("UserProduct", back_populates="product")
@@ -175,6 +177,7 @@ class Combo(Base):
   name = Column(String(50), nullable=False)
   cost = Column(DECIMAL(10, 3), nullable=False, default=0.0)
   price = Column(DECIMAL(10, 3), default=None)
+  imgPath = Column(String(50), default=None)
   sales = relationship("SaleCombo", back_populates="combo")
   products = relationship("ProductCombo", back_populates="combo", cascade="all, delete-orphan")
   

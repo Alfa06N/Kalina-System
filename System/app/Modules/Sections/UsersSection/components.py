@@ -1,22 +1,25 @@
 import flet as ft
 import constants
-from Modules.customControls import CustomUserIcon, CustomOperationContainer, CustomTextField, CustomAnimatedContainer, CustomNavigationOptions, CustomFilledButton, CustomDropdown
+from Modules.customControls import CustomUserIcon, CustomOperationContainer, CustomTextField, CustomAnimatedContainer, CustomNavigationOptions, CustomFilledButton, CustomDropdown, CustomDeleteButton, CustomAlertDialog
 from config import getDB
-from DataBase.crud.user import getUserByUsername, getUsers, updateUser
+from DataBase.crud.user import getUserByUsername, getUsers, updateUser, removeUser
 from DataBase.crud.recovery import getRecoveryByUserId, updateRecovery
 import time
 from validation import evaluateForm
-from exceptions import DataAlreadyExists
+from exceptions import DataAlreadyExists, DataNotFoundError
+from utils.sessionManager import getCurrentUser, setUser
 
 class UserContainer(ft.Container):
-  def __init__(self, initial, username, fullname, role, infoContainer):
+  def __init__(self, page, initial, username, fullname, role, infoContainer, principalContainer):
     super().__init__()
     self.initial = initial
     self.username = username
     self.fullname = fullname
     self.role = role
+    self.page = page
     self.infoContainer = infoContainer
     self.spacing = 0
+    self.principalContainer = principalContainer
     
     self.padding = ft.padding.all(10)
     self.bgcolor=ft.colors.TRANSPARENT
@@ -65,10 +68,12 @@ class UserContainer(ft.Container):
   def showUserInfo(self, e):
     newContent = UserInfo(
       initial=self.initial,
+      page=self.page,
       username=self.username,
       fullname=self.fullname,
       role=self.role,
-      animatedUserContainer=self
+      principalContainer=self.principalContainer,
+      userContainer=self
     )
     if self.infoContainer.height == 150:
       self.infoContainer.changeStyle(height=600, width=300, shadow=ft.BoxShadow(
@@ -89,19 +94,16 @@ class UserContainer(ft.Container):
         overflow=ft.TextOverflow.ELLIPSIS,
     ))
 
-class UserInfo(ft.Column):
-  def __init__(self, initial, username, fullname, role, animatedUserContainer):
+class UserInfo(ft.Stack):
+  def __init__(self, page, initial, username, fullname, role, userContainer, principalContainer):
     super().__init__()
     self.initial = initial
     self.username = username
     self.fullname = fullname
     self.role = role
-    self.animatedUserContainer = animatedUserContainer
-    
-    self.scroll = ft.ScrollMode.AUTO
-    self.expand = True
-    self.alignment = ft.MainAxisAlignment.START
-    self.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+    self.page = page
+    self.userContainer = userContainer
+    self.principalContainer = principalContainer
     
     self.userIcon = CustomUserIcon(
       initial=self.initial, 
@@ -188,26 +190,70 @@ class UserInfo(ft.Column):
       )
     )
     
+    self.columnContent = ft.Column(
+      scroll=ft.ScrollMode.AUTO,
+      expand=True,
+      alignment=ft.MainAxisAlignment.START,
+      horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+      controls=[
+        ft.Row(
+          alignment=ft.MainAxisAlignment.CENTER,
+          vertical_alignment=ft.CrossAxisAlignment.CENTER,
+          controls=[
+            self.userIcon,
+            ft.Column(
+              alignment=ft.MainAxisAlignment.CENTER,
+              controls=[
+                self.usernameTitle,
+                self.userRole
+              ]
+            )
+            
+          ]
+        ),
+        ft.Divider(color=constants.BLACK_GRAY),
+        self.navigation,
+        self.selectedContainer,
+      ]
+    )
+    
+    self.deleteButton = CustomDeleteButton(
+      page=self.page,
+      function=self.deleteUser
+    )
+    
     self.controls = [
-      ft.Row(
-        alignment=ft.MainAxisAlignment.CENTER,
-        vertical_alignment=ft.CrossAxisAlignment.CENTER,
-        controls=[
-          self.userIcon,
-          ft.Column(
-            alignment=ft.MainAxisAlignment.CENTER,
-            controls=[
-              self.usernameTitle,
-              self.userRole
-            ]
-          )
-          
-        ]
-      ),
-      ft.Divider(color=constants.BLACK_GRAY),
-      self.navigation,
-      self.selectedContainer,
+      self.columnContent,
+      ft.Container(
+        content=self.deleteButton,
+        right=10,
+        top=10,
+      )
     ]
+    
+  def deleteUser(self):
+    try:
+      if self.username == getCurrentUser():
+        dialog = CustomAlertDialog(
+          title="Usuario no eliminado",
+          content=f"No puedes eliminar a \"{self.username}\" en este momento",
+          modal=False,
+        )
+        self.page.open(dialog)
+      else:
+        with getDB() as db:
+          user = getUserByUsername(db, self.username)
+          
+          if user:
+            user = removeUser(db, user)
+            self.principalContainer.resetUsersContainer()
+            self.principalContainer.resetInfoContainer()
+          else:
+            raise DataNotFoundError(f"Can't delete user '{self.username}'")
+    except DataNotFoundError:
+      raise
+    except Exception as err:
+      raise
   
   def selectOption(self, e):
     if not self.selected == e.control:
@@ -249,7 +295,7 @@ class UserInfo(ft.Column):
         weight=ft.FontWeight.W_700,
         text_align=ft.TextAlign.CENTER,
     ))
-    self.animatedUserContainer.updateUsername(newUsername)
+    self.userContainer.updateUsername(newUsername)
       
 class EditContainer(CustomOperationContainer):
   def __init__(self, username, infoContainer):
@@ -481,6 +527,7 @@ class EditContainer(CustomOperationContainer):
   def submitForm(self, e):
     with getDB() as db:
       user = getUserByUsername(db, self.username)
+      currentSessionUser = getCurrentUser()
       
       try:
         if evaluateForm(username=[self.usernameField], password=[self.passwordField]):
@@ -491,6 +538,8 @@ class EditContainer(CustomOperationContainer):
             self.actionSuccess("Usuario editado")
             time.sleep(1.5)
             self.setNewOperation(newContent=self.editSecretQuestions)
+            if user.username == currentSessionUser:
+              setUser(updatedUser.username)
       except DataAlreadyExists as err:
         self.actionFailed(err)
         time.sleep(1.5)

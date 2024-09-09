@@ -28,28 +28,28 @@ class EmployeesForm(CustomOperationContainer):
     self.ciField = CustomTextField(
       label="Cédula de Identidad",
       field="ci",
-      submitFunction=None,
+      submitFunction=self.submitForm,
       expand=True,
     )
     
     self.nameField = CustomTextField(
       label="Nombre",
       field="others",
-      submitFunction=None,
+      submitFunction=self.submitForm,
       expand=True
     )
     
     self.surnameField = CustomTextField(
       label="Apellido",
       field="others",
-      submitFunction=None,
+      submitFunction=self.submitForm,
       expand=True
     )
     
     self.secondSurnameField = CustomTextField(
-      label="Segundo Apellido",
+      label="Segundo Apellido (opcional)",
       field="others",
-      submitFunction=None,
+      submitFunction=self.submitForm,
       expand=True
     )
     

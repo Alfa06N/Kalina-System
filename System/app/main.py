@@ -2,10 +2,13 @@ import flet as ft
 from interface import initApp, showPrincipal
 import constants
 from initialization import init_db
-from Modules.customControls import CustomAppBar, CustomUserIcon, CustomSidebar, CustomCardInfo, CustomDatePicker, CustomFilledButton
+from Modules.customControls import CustomAppBar, CustomUserIcon, CustomSidebar, CustomCardInfo, CustomDatePicker, CustomFilledButton, CustomAnimatedContainer, CustomAutoComplete
 from utils.sessionManager import getCurrentUser, setUser
 from config import getDB
 from DataBase.crud.user import getUsers
+from utils.imageManager import ImageManager
+import time
+from Modules.products_module import ProductImageSelection
 
 def main(page: ft.Page):
   page.title = "Kariña System"
@@ -31,11 +34,7 @@ def main(page: ft.Page):
   showPrincipal(page)
   
   # initApp(page)
-  
 
 if __name__ == "__main__":
   
   ft.app(target=main)
-  
-  
-# Agregar submitFunctions a las entradas que lo necesiten

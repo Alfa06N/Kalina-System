@@ -2,6 +2,7 @@ import flet as ft
 import constants 
 import time
 from validation import validateCI, validateEmptyField, validatePassword, validateUsername
+from utils.imageManager import ImageManager
 from datetime import datetime
 
 class CustomPrincipalContainer(ft.Container):
@@ -20,8 +21,8 @@ class CustomPrincipalContainer(ft.Container):
     self.content = self.animatedContainer
     self.shadow = ft.BoxShadow(
       spread_radius = 1,
-      blur_radius = 20,
-      color = "#444444"
+      blur_radius = 5,
+      color = constants.BLACK_INK
     ) 
       
   def updateContent(self, newContent):
@@ -202,7 +203,6 @@ class CustomAnimatedContainer(ft.AnimatedSwitcher):
 class CustomAnimatedContainerSwitcher(ft.Container):
   def __init__(self, content, height:int=150, width:int=300, padding=ft.padding.all(20), margin=ft.margin.all(20), border_radius=ft.border_radius.all(30), bgcolor=constants.WHITE, shadow=None, alignment=ft.alignment.center, duration:int=300, animationCurve=ft.AnimationCurve.EASE_IN_OUT, col=None):
     super().__init__(col=col)
-    # self.col = None
     self.height = height
     self.width = width
     self.shadow = shadow
@@ -535,15 +535,15 @@ class CustomSidebar(ft.Container):
       )
     )
     
-    self.home = CustomNavigationOptions(icon=ft.icons.HOME_WORK_ROUNDED, text="Inicio", function=self.selectOne, default=True)
-    self.sales = CustomNavigationOptions(icon=ft.icons.SELL_ROUNDED, text="Ventas", function=self.selectOne)
-    self.payments = CustomNavigationOptions(icon=ft.icons.WALLET_ROUNDED, text="Pagos", function=self.selectOne)
-    self.users = CustomNavigationOptions(icon=ft.icons.SECURITY_ROUNDED, text="Usuarios", function=self.selectOne)
-    self.clients = CustomNavigationOptions(icon=ft.icons.PEOPLE_ROUNDED, text="Clientes", function=self.selectOne)
-    self.employees = CustomNavigationOptions(icon=ft.icons.WORK_ROUNDED, text="Empleados", function=self.selectOne)
-    self.closings = CustomNavigationOptions(icon=ft.icons.MONEY_ROUNDED, text="Cierres", function=self.selectOne)
-    self.statistics = CustomNavigationOptions(icon=ft.icons.SSID_CHART_ROUNDED, text="Estadísticas", function=self.selectOne)
-    self.inventory = CustomNavigationOptions(icon=ft.icons.INVENTORY_2_ROUNDED, text="Inventario", function=self.selectOne)
+    self.home = CustomNavigationOptions(icon=ft.icons.HOME_WORK_ROUNDED, text="Inicio", function=self.selectOne, inkColor="#666666", default=True)
+    self.sales = CustomNavigationOptions(icon=ft.icons.SELL_ROUNDED, text="Ventas", function=self.selectOne, inkColor="#666666",)
+    self.payments = CustomNavigationOptions(icon=ft.icons.WALLET_ROUNDED, text="Pagos", function=self.selectOne, inkColor="#666666",)
+    self.users = CustomNavigationOptions(icon=ft.icons.SECURITY_ROUNDED, text="Usuarios", function=self.selectOne, inkColor="#666666",)
+    self.clients = CustomNavigationOptions(icon=ft.icons.PEOPLE_ROUNDED, text="Clientes", function=self.selectOne, inkColor="#666666",)
+    self.employees = CustomNavigationOptions(icon=ft.icons.WORK_ROUNDED, text="Empleados", function=self.selectOne, inkColor="#666666",)
+    self.closings = CustomNavigationOptions(icon=ft.icons.MONEY_ROUNDED, text="Cierres", function=self.selectOne, inkColor="#666666",)
+    self.statistics = CustomNavigationOptions(icon=ft.icons.SSID_CHART_ROUNDED, text="Estadísticas", function=self.selectOne, inkColor="#666666",)
+    self.inventory = CustomNavigationOptions(icon=ft.icons.INVENTORY_2_ROUNDED, text="Inventario", function=self.selectOne, inkColor="#666666")
     
     
     self.navigationOptions = [
@@ -672,7 +672,7 @@ class CustomSidebar(ft.Container):
       self.page.mainContainer.setNewContent(newContent)
     
 class CustomNavigationOptions(ft.Container):
-  def __init__(self, icon, text, function, color = constants.WHITE, highlightColor="white10", inkColor="#666666", focusedColor = constants.ORANGE_OVERLAY, contentAlignment=ft.MainAxisAlignment.START, opacityInitial:int=0, default:bool=False):
+  def __init__(self, icon, text, function, color = constants.WHITE, highlightColor="white10", inkColor="#888888", focusedColor = constants.ORANGE_OVERLAY, contentAlignment=ft.MainAxisAlignment.START, opacityInitial:int=0, default:bool=False):
     super().__init__()
     self.expand = True
     self.on_hover = self.highlight
@@ -689,10 +689,10 @@ class CustomNavigationOptions(ft.Container):
     
     if not default:
       self.optionIcon = ft.Icon(name=icon, color=self.color, size=24)
-      self.optionText = ft.Text(value=text, color=self.color, size=18, animate_opacity=300, opacity=opacityInitial)
+      self.optionText = ft.Text(value=text, color=self.color, size=18, animate_opacity=300, opacity=opacityInitial, weight=ft.FontWeight.NORMAL)
     else:
       self.optionIcon = ft.Icon(name=icon, color=self.focusedColor, size=24,)
-      self.optionText = ft.Text(value=text, color=self.focusedColor, size=18, animate_opacity=300, opacity=opacityInitial)
+      self.optionText = ft.Text(value=text, color=self.focusedColor, size=18, animate_opacity=300, opacity=opacityInitial, weight=ft.FontWeight.W_600)
     
     self.content = ft.Row(
       alignment=contentAlignment,
@@ -710,11 +710,13 @@ class CustomNavigationOptions(ft.Container):
   def selectOption(self):
     self.optionIcon.color = self.focusedColor
     self.optionText.color = self.focusedColor
+    self.optionText.weight = ft.FontWeight.W_600
     self.update()
     
   def deselectOption(self):
     self.optionIcon.color = self.color
-    self.optionText.color = self.color
+    self.optionText.color = self.color 
+    self.optionText.weight = ft.FontWeight.NORMAL 
     self.update()
   
   def highlight(self, e):
@@ -808,6 +810,31 @@ class CustomDatePicker(ft.DatePicker):
     self.confirm_text = "Confirmar"
     self.cancel_text = "Cancelar"
   
+class CustomEditButton(ft.OutlinedButton):
+  def __init__(self, function=None, mode="light", size=24):
+    super().__init__()
+    self.mode = mode
+    self.size = size
+    self.function = function
+    self.color = constants.BLACK if self.mode == "light" else constants.ORANGE_LIGHT
+    
+    self.style = ft.ButtonStyle(
+      color=self.color,
+      padding=0,
+      side=ft.BorderSide(
+        width=2,
+        color=self.color
+      )
+    )
+    
+    self.content = ft.Icon(
+      name=ft.icons.EDIT_ROUNDED,
+      color=self.color,
+      size=self.size
+    )
+    
+    self.on_click = self.function
+
 class CustomDeleteButton(ft.OutlinedButton):
   def __init__(self, page, function=None, mode="light", size=24):
     super().__init__()
@@ -851,3 +878,169 @@ class CustomDeleteButton(ft.OutlinedButton):
     
   def closeDialog(self, e):
     self.page.close(self.newDialog)
+    
+class CustomImageSelectionContainer(ft.Container):
+  def __init__(self, page, height:int=200, width:int=200):
+    super().__init__()
+    self.height = height
+    self.width = width
+    self.page = page
+    self.border_radius = ft.border_radius.all(20)
+    
+    self.selectedImagePath = None
+    
+    self.imageIcon = ft.Container(
+      bgcolor=ft.colors.TRANSPARENT,
+      height=150,
+      width=150,
+      alignment=ft.alignment.center,
+      content=ft.Column(
+        expand=True,
+        alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        spacing=10,
+        controls=[
+          ft.Icon(
+            name=ft.icons.IMAGE_ROUNDED,
+            color=constants.BLACK,
+            size=32,
+          ),
+          ft.Text(
+            value="Seleccionar imagen",
+            color=constants.BLACK,
+            size=14,
+          )
+        ]
+      )
+    )
+    
+    self.editImageContainer = CustomAnimatedContainer(
+      actualContent=self.imageIcon
+    )
+    
+    self.selectImage = ft.Container(
+      border_radius=ft.border_radius.all(20),
+      border=ft.border.all(2, constants.WHITE_GRAY),
+      height=150,
+      width=150,
+      alignment=ft.alignment.center,
+      content=self.editImageContainer,
+      ink=True,
+      ink_color=constants.BLACK_INK,
+      on_click=self.openFilePicker
+    )
+    
+    self.deleteButton = ft.Container(
+      visible=False,
+      content=ft.TextButton(
+        content=ft.Text(
+          "Eliminar",
+          color=constants.RED_FAILED,
+          size=18,
+        ),
+        on_click=self.deleteImage,
+      )
+    )
+    
+    self.filePicker = ft.FilePicker(
+      on_result=self.updateImage
+    )
+    
+    self.content = ft.Column(
+      expand=True,
+      alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+      horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+      controls=[
+        self.selectImage,
+        self.deleteButton
+      ]
+    )
+    
+  def turnOnButtonVisibility(self):
+    self.deleteButton.visible = True
+    self.deleteButton.update()
+    
+  def turnOffButtonVisibility(self):
+    self.deleteButton.visible = False
+    self.deleteButton.update()
+    
+  def openFilePicker(self, e):
+    try:
+      if self.filePicker not in self.page.overlay:
+        self.page.overlay.append(self.filePicker)
+      self.page.update()
+      self.filePicker.pick_files(
+        allow_multiple=False
+      )
+    except Exception as err:
+      print(err)
+      
+  def validFileExtension(self, filePath):
+    import os
+    allowedExtensions = [".jpg", ".jpeg", ".png"]
+    fileExtension = os.path.splitext(filePath)[1].lower()
+    return fileExtension in allowedExtensions
+    
+  def updateImage(self, e:ft.FilePickerResultEvent):
+    try:
+      if e.files:
+        for file in e.files:
+          if self.validFileExtension(file.path):
+            image = CustomImageContainer(
+              src=file.path
+            )
+            
+            self.selectImage.border = None
+            self.selectImage.update()
+            self.selectedImagePath = file.path
+            self.editImageContainer.setNewContent(image)
+            self.turnOnButtonVisibility()
+          else:
+            print("Archivo no permitido")
+      else:
+        print("No se seleccionó ningún archivo")
+    except Exception as err:
+      raise
+    
+  def deleteImage(self, e):
+    if self.selectedImagePath:
+      self.editImageContainer.setNewContent(self.imageIcon)
+      self.selectImage.border = ft.border.all(2, constants.WHITE_GRAY)
+      self.selectImage.update()
+      self.selectedImagePath = None
+      self.turnOffButtonVisibility()
+      
+class CustomImageContainer(ft.Container):
+  def __init__(self, src, border_radius=10, fit=ft.ImageFit.FIT_HEIGHT, width:int=200, height:int=200):
+    super().__init__()
+    self.height = height
+    self.width = width
+    self.bgcolor = ft.colors.TRANSPARENT
+    self.alignment = ft.alignment.center
+    self.border_radius = border_radius
+    
+    if src:
+      self.content = ft.Image(
+        src=src,
+        fit=fit,
+        width=self.width,
+        height=self.height,
+      )
+    else:
+      self.border = ft.border.all(2, constants.WHITE_GRAY)
+      self.content = ft.Icon(
+        name=ft.icons.IMAGE_ROUNDED,
+        color=constants.BLACK,
+        size=32,
+      )
+    
+class CustomAutoComplete(ft.Container):
+  def __init__(self, height=60, width=200, on_select=None, suggestions:list=[]):
+    super().__init__()
+    self.height = height
+    self.width = width
+    self.alignment = ft.alignment.center
+    self.content = ft.AutoComplete(
+      suggestions=suggestions,
+      on_select=on_select,
+    )

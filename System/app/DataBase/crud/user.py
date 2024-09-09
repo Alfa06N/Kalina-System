@@ -95,10 +95,8 @@ def updateUser(db: Session, user, username: str, password: str):
   except Exception as e:
     raise
   
-def removeUser(db: Session, idUser: int):
+def removeUser(db: Session, user):
   try:
-    user = getUserById(db, idUser)
-    
     def func():
       db.delete(user)
       db.commit()

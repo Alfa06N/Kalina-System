@@ -27,7 +27,7 @@ class LoginForm(CustomSimpleContainer):
     self.titleLogin = ft.Row(
       height=80,
       controls=[
-        ft.Text("Iniciar Sesión", size=42, color=constants.BROWN, weight=ft.FontWeight.BOLD),
+        ft.Text("Inicio de Sesión", size=42, color=constants.BLACK, weight=ft.FontWeight.BOLD),
       ],
       alignment=ft.MainAxisAlignment.CENTER,
       vertical_alignment=ft.CrossAxisAlignment.CENTER,
@@ -57,34 +57,48 @@ class LoginForm(CustomSimpleContainer):
     self.passwordRecovery = ft.Row(
       controls=[
         ft.GestureDetector(
-         content=ft.Text("Ha olvidado su contraseña?", size=18, color=constants.BLACK, text_align=ft.TextAlign.CENTER),
+         content=ft.Text("¿Has olvidado tu contraseña? Haz click aquí", size=18, color=constants.BLACK, text_align=ft.TextAlign.CENTER),
          on_tap=lambda e: showRecovery(self.page),
          mouse_cursor="click",
         )
       ],
       alignment=ft.MainAxisAlignment.CENTER
     )
-    self.content = CustomOperationContainer(
+    
+    self.operationContent = CustomOperationContainer(
+      mode="light",
       operationContent=ft.Column(
+        alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        # expand=True,
+        height=400,
+        spacing=20,
         controls=[
-          self.titleLogin,
           ft.Column(
-            expand=True,
+            height=200,
+            spacing=10,
+            alignment=ft.MainAxisAlignment.CENTER,
+            # expand=True,
             controls=[
               self.usernameInput,
               self.passwordInput,
               self.passwordRecovery,
-            ],
-            spacing=10,
-            height=180,
-            alignment=ft.MainAxisAlignment.CENTER
+            ]
           ),
           self.loginButton,
-        ],
-        alignment=ft.MainAxisAlignment.CENTER,
-        spacing=40,
-      ),
-      mode="light"
+        ]
+      )
+    )
+    self.content = ft.Column(
+      expand=True,
+      controls=[
+        self.titleLogin,
+        ft.Column(
+          expand=True,
+          alignment=ft.MainAxisAlignment.CENTER,
+          controls=[self.operationContent]
+        )
+      ]
     )
   
   def login(self, e):
@@ -93,17 +107,17 @@ class LoginForm(CustomSimpleContainer):
         with getDB() as db:
           if queryUserData(db, self.usernameInput.value, self.passwordInput.value):
             setUser(self.usernameInput.value)
-            self.content.actionSuccess(f"Bienvenido {self.usernameInput.value}")
+            self.operationContent.actionSuccess(f"Bienvenido {self.usernameInput.value}")
             time.sleep(1.5)
             showPrincipal(self.page)
           else:
-            self.content.actionFailed("Contraseña incorrecta")
+            self.operationContent.actionFailed("Contraseña incorrecta")
             time.sleep(1.5)
-            self.content.restartContainer()
+            self.operationContent.restartContainer()
       except DataNotFoundError as e:
-        self.content.actionFailed(e)
+        self.operationContent.actionFailed(e)
         time.sleep(1.5)
-        self.content.restartContainer()
+        self.operationContent.restartContainer()
       except Exception as e:
         print("Unexpected Error:", e)
 

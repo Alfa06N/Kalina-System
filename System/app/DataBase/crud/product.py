@@ -8,7 +8,7 @@ from DataBase.crud.user import getUserByUsername
 from DataBase.crud.user_product import registerOperation
 from datetime import datetime
 
-def createProduct(db: Session, name: str, description: str, stock: int, minStock: int, cost: float, gain: float, iva: float, idCategory: int ):
+def createProduct(db: Session, name: str, description: str, stock: int, minStock: int, cost: float, gain: float, iva: float, idCategory: int, imgPath: str):
   try:
     
     product = Product(
@@ -19,6 +19,7 @@ def createProduct(db: Session, name: str, description: str, stock: int, minStock
       cost=cost,
       gain=gain,
       iva=iva,
+      imgPath=imgPath,
       idCategory=idCategory
     )
     

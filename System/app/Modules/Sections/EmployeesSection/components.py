@@ -257,7 +257,7 @@ class EmployeeInfo(ft.Stack):
     
     self.deleteButton = CustomDeleteButton(
       page=self.page,
-      function=self.deleteUser,
+      function=self.deleteEmployee,
     )
     
     # Stack controls
@@ -270,7 +270,7 @@ class EmployeeInfo(ft.Stack):
       )
     ]
   
-  def deleteUser(self):
+  def deleteEmployee(self):
     try:
       with getDB() as db:
         employee = getEmployeeById(db, self.ciEmployee)

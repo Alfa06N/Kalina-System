@@ -5,15 +5,13 @@ from config import getDB
 from Modules.customControls import CustomUserIcon, CustomAnimatedContainer, CustomOperationContainer, CustomTextField, CustomAnimatedContainerSwitcher
 from Modules.Sections.UsersSection.components import UserContainer
 import time
+from Modules.register_module import RegisterForm
 
-class Users(ft.ResponsiveRow):
+class Users(ft.Stack):
   def __init__(self, page):
     super().__init__()
     self.expand = True
     self.page = page
-    self.alignment = ft.MainAxisAlignment.CENTER
-    self.vertical_alignment = ft.CrossAxisAlignment.CENTER
-    self.run_spacing = 10
     
     self.users = None
     self.usersContainer = ft.Container(
@@ -45,28 +43,66 @@ class Users(ft.ResponsiveRow):
       col={"sm": 12, "md": 6, "xl": 8},
     )
     
+    self.fillUsersContainer()
+      
+    self.usersViews = ft.ResponsiveRow(
+      expand=True,
+      alignment=ft.MainAxisAlignment.CENTER,
+      vertical_alignment=ft.CrossAxisAlignment.CENTER,
+      run_spacing=10,
+      controls=[
+        self.usersContainer,
+        self.infoContainer,
+      ]
+    )
+    
+    self.controls = [
+      self.usersViews
+    ]
+    
+  def resetInfoContainer(self):
+    self.infoContainer.setNewContent(
+      newContent=ft.Column(
+        alignment=ft.MainAxisAlignment.CENTER,
+        expand=True,
+        controls=[
+          ft.Text(
+            value="Selecciona un usuario para ver más información",
+            color=constants.BLACK, size=32, weight=ft.FontWeight.BOLD, text_align=ft.TextAlign.CENTER
+          )
+        ],
+      )
+    )
+    time.sleep(0.3)
+    self.infoContainer.changeStyle(height=150, width=700, shadow=None)
+    
+  def resetUsersContainer(self):
+    try:
+      self.usersContainer.content.controls.clear()
+      self.fillUsersContainer()
+      self.usersContainer.update()
+    except Exception as err:
+      raise
+    
+  def fillUsersContainer(self):
     try:
       with getDB() as db:
         self.users = getUsers(db)
         if self.users:
           for user in self.users:
-            userInitials = user.employee.name[0] + user.employee.surname[0]
+            initial = user.employee.name[0] + user.employee.surname[0]
             
-            userFullName = f"{user.employee.name} {user.employee.surname} {user.employee.secondSurname}"
+            fullname = f"{user.employee.name} {user.employee.surname} {user.employee.secondSurname}"
             
             user = UserContainer(
-              initial=userInitials,
+              initial=initial,
               username=user.username,
-              fullname=userFullName,
+              fullname=fullname,
               role=user.role,
+              page=self.page,
+              principalContainer=self,
               infoContainer=self.infoContainer
             )
-            
             self.usersContainer.content.controls.append(user)
-    except Exception as e:
-      print(f"Error loading users: {e}")
-    
-    self.controls = [
-      self.usersContainer,
-      self.infoContainer,
-    ]
+    except Exception as err:
+      print(f"Error loading users: {err}")
