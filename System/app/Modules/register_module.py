@@ -1,26 +1,30 @@
 import flet as ft 
 from Modules.customControls import CustomFilledButton, CustomOutlinedButton, CustomCheckbox, CustomReturnButton, CustomSimpleContainer, CustomTextField, CustomDropdown, CustomAnimatedContainer, CustomOperationContainer
-from validation import evaluateForm, validateUsername, validatePassword, validateCI
+from validation import evaluateForm
 import constants
 from interface import showLogin
 import time
 from utils.pathUtils import getImagePath
+from DataBase.crud.user import createUser
+from DataBase.crud.recovery import createRecovery
+from config import getDB
+from exceptions import DataNotFoundError, DataAlreadyExists, InvalidData
 
 class RegisterForm(CustomSimpleContainer):
   def __init__(self, page):
-    super().__init__(height=500, width=450, gradient=True)
+    super().__init__()
     self.page = page
     
     self.button = ft.Row(
       controls=[
-        CustomOutlinedButton(text="Siguiente", color=constants.WHITE, size=18, icon=None, clickFunction=self.advance),
+        CustomOutlinedButton(text="Siguiente", color=constants.BLACK, size=18, icon=None, clickFunction=self.advance),
       ], 
       alignment=ft.MainAxisAlignment.CENTER
     )
 
     self.titleRegister = ft.Row(
       controls=[
-        ft.Text(value="Nuevo Usuario", size=42, color=constants.WHITE, weight=ft.FontWeight.BOLD)
+        ft.Text(value="Nuevo Usuario", size=42, color=constants.BLACK, weight=ft.FontWeight.BOLD)
       ],
       alignment=ft.MainAxisAlignment.CENTER
     )
@@ -28,7 +32,7 @@ class RegisterForm(CustomSimpleContainer):
     self.newUserName = CustomTextField(
       label="Nombre de nuevo usuario",
       revealPassword=True,
-      mode="gradient",
+      mode="light",
       hint_text=None,
       field="username",
       expand=False,
@@ -38,7 +42,7 @@ class RegisterForm(CustomSimpleContainer):
     self.password = CustomTextField(
       label="Contraseña",
       revealPassword=True,
-      mode="gradient",
+      mode="light",
       hint_text=None,
       field="password",
       expand=1,
@@ -48,7 +52,7 @@ class RegisterForm(CustomSimpleContainer):
     self.passwordConfirmation = CustomTextField(
       label="Contraseña",
       revealPassword=False,
-      mode="gradient",
+      mode="light",
       hint_text=None,
       field="password",
       expand=1,
@@ -58,7 +62,7 @@ class RegisterForm(CustomSimpleContainer):
     self.userCI = CustomTextField(
       label="Documento de Empleado",
       revealPassword=True,
-      mode="gradient",
+      mode="light",
       hint_text=None,
       field="ci",
       expand=False,
@@ -82,7 +86,7 @@ class RegisterForm(CustomSimpleContainer):
     )
     
     # checkbox
-    self.checkbox = CustomCheckbox(label="Usuario Administrador", fill_color=constants.ORANGE, color=constants.WHITE)
+    self.checkbox = CustomCheckbox(label="Usuario Administrador", fill_color=constants.BROWN, color=constants.BLACK)
     
     self.formFirst = ft.Column(
       expand=True,
@@ -104,12 +108,12 @@ class RegisterForm(CustomSimpleContainer):
     self.questionOne = CustomDropdown(
       label="Primera pregunta",
       options=constants.dropdownOne,
-      mode="gradient"
+      mode="light"
     )
     
     self.answerOne = CustomTextField(
       label="Respuesta",
-      mode="gradient",
+      mode="light",
       hint_text=None,
       revealPassword=True,
       field="others",
@@ -120,12 +124,12 @@ class RegisterForm(CustomSimpleContainer):
     self.questionTwo = CustomDropdown(
       label="Segunda pregunta",
       options=constants.dropdownTwo,
-      mode="gradient"
+      mode="light"
     )
     
     self.answerTwo = CustomTextField(
       label="Respuesta",
-      mode="gradient",
+      mode="light",
       hint_text=None,
       revealPassword=True,
       field="others",
@@ -144,11 +148,11 @@ class RegisterForm(CustomSimpleContainer):
       alignment=ft.MainAxisAlignment.CENTER
     )
     
-    self.backButton = CustomReturnButton(function=self.back, color=constants.WHITE, size=30)
+    self.backButton = CustomReturnButton(function=self.back, color=constants.BLACK, size=30)
 
     self.finishButton = ft.Row(
       controls=[
-        CustomFilledButton(text="Crear Usuario", size=18, bgcolor=constants.ORANGE, color=constants.BLACK, overlay=constants.ORANGE_OVERLAY, clickFunction=self.advance)
+        CustomFilledButton(text="Crear Usuario", size=18, bgcolor=constants.BROWN, color=constants.WHITE, overlay=constants.BROWN_OVERLAY, clickFunction=self.advance)
       ],
       alignment=ft.MainAxisAlignment.CENTER
     )
@@ -160,15 +164,15 @@ class RegisterForm(CustomSimpleContainer):
           controls=[
             ft.Icon(
               name=ft.icons.HELP_OUTLINED,
-              color=constants.WHITE,
+              color=constants.BROWN,
             ),
-            ft.Text(value="Preguntas de Seguridad", size=18, color=constants.WHITE),
+            ft.Text(value="Preguntas de Seguridad", size=18, color=constants.BLACK),
           ],
           alignment=ft.MainAxisAlignment.CENTER,
           vertical_alignment=ft.CrossAxisAlignment.CENTER,
         ),
         self.questionsInputs,
-        self.finishButton
+        self.button
       ],
       alignment=ft.MainAxisAlignment.CENTER,
       spacing=20,
@@ -188,19 +192,82 @@ class RegisterForm(CustomSimpleContainer):
       ]
     )
     
-    self.formList = [self.formFirst, self.formSecond]
+    #####
+    
+    self.adminUsernameField = CustomTextField(
+      label="Nombre de usuario",
+      field="username",
+      submitFunction=self.advance,
+    )
+    self.adminPasswordField = CustomTextField(
+      label="Contraseña",
+      field="password",
+      submitFunction=self.advance
+    )
+    self.thirdContent = ft.Column(
+      expand=True,
+      controls=[
+        ft.Column(
+          expand=True,
+          alignment=ft.MainAxisAlignment.CENTER,
+          spacing=20,
+          controls=[
+            ft.Row(
+              alignment=ft.MainAxisAlignment.CENTER,
+              controls=[
+                ft.Icon(
+                  name=ft.icons.HELP_OUTLINED,
+                  color=constants.BLACK,
+                ),
+                ft.Text(
+                  value="Confirmación de un usuario administrador",
+                  color=constants.BLACK,
+                  size=18,
+                )
+              ]
+            ),
+            ft.Column(
+              controls=[
+                self.adminUsernameField,
+                self.adminPasswordField,
+              ]
+            ),
+          ]
+        ),
+        self.finishButton,
+      ],
+      alignment=ft.MainAxisAlignment.CENTER,
+    )
+    
+    self.formThird = ft.Stack(
+      expand=True,
+      controls=[
+        self.thirdContent,
+        ft.Container(
+          content=self.backButton,
+          margin=ft.margin.only(top=0, left=0),
+          alignment=ft.alignment.top_left,
+          width=60,
+          height=60,
+        )
+      ]
+    )
+    
+    # Final
+    
+    self.formList = [self.formFirst, self.formSecond, self.formThird]
     self.currentForm = 0
     
     self.animatedContainer = CustomAnimatedContainer(
       actualContent=self.formList[self.currentForm],
-      transition=ft.AnimatedSwitcherTransition.SCALE,
+      transition=ft.AnimatedSwitcherTransition.FADE,
       duration=300,
       reverse_duration=200,
     )
     
     self.operation = CustomOperationContainer(
       operationContent=self.animatedContainer,
-      mode="gradient"
+      mode="light"
     )
     
     # content
@@ -208,30 +275,60 @@ class RegisterForm(CustomSimpleContainer):
     
   def advance(self, e):
     isValid = True
-    if self.animatedContainer.content == self.formFirst:
-      isValid = evaluateForm(username=[self.newUserName], ci=[self.userCI], password=[self.password, self.passwordConfirmation])
-      
-      if isValid and not self.password.value == self.passwordConfirmation.value:
-        isValid = False
-        self.operation.actionFailed("Las contraseñas no coinciden")
-        time.sleep(2)
-        self.operation.restartContainer()
-        return False
+    try:
+      if self.animatedContainer.content == self.formFirst:
+        isValid = evaluateForm(username=[self.newUserName], ci=[self.userCI], password=[self.password, self.passwordConfirmation])
+        
+        if isValid and not self.password.value == self.passwordConfirmation.value:
+          isValid = False
+          self.operation.actionFailed("Las contraseñas no coinciden")
+          time.sleep(1.5)
+          self.operation.restartContainer()
 
-    else:
-      isValid = evaluateForm(others=[self.questionOne, self.questionTwo, self.answerOne, self.answerTwo])
-      
-      if isValid:
-        self.operation.actionSuccess("Nuevo usuario añadido al sistema")
-        return True
-    
-    if not isValid:
-      print("Campos no válidos")
-    else:
-      print("Campos Válidos")
-      if self.currentForm < len(self.formList) - 1:
-        self.currentForm += 1
-        self.animatedContainer.setNewContent(self.formList[self.currentForm])
+      elif self.animatedContainer.content == self.formSecond:
+        isValid = evaluateForm(others=[self.questionOne, self.questionTwo, self.answerOne, self.answerTwo])
+      else:
+        isValid = evaluateForm(username=[self.adminUsernameField], password=[self.adminPasswordField])
+        
+        if isValid:
+          with getDB() as db:
+            role = "Administrador" if self.checkbox.value == True else "Colaborador"
+            
+            user = createUser(
+              db=db,
+              username=self.newUserName.value,
+              password=self.password.value,
+              role=role,
+              ciEmployee=self.userCI.value, 
+            )
+            recovery = createRecovery(
+              db=db,
+              questionOne=self.questionOne.value,
+              answerOne=self.answerOne.value,
+              questionTwo=self.questionTwo.value,
+              answerTwo=self.answerTwo.value,
+              idUser=user.idUser,
+            )
+            self.operation.actionSuccess("Usuario creado")
+            
+      if not isValid:
+        print("Campos inválidos")
+      else:
+        print("Campos válidos")
+        if self.currentForm < len(self.formList) - 1:
+          self.currentForm += 1
+          self.animatedContainer.setNewContent(self.formList[self.currentForm])
+    except DataAlreadyExists as err:
+      self.operation.actionFailed(err)
+      time.sleep(1.5)
+      self.operation.restartContainer()
+    except DataNotFoundError as err:
+      self.operation.actionFailed(err)
+      time.sleep(1.5)
+      self.operation.restartContainer()
+    except Exception as err:
+      print(err)
+      raise
     
   def back(self, e):
     if self.currentForm > 0:
@@ -240,7 +337,7 @@ class RegisterForm(CustomSimpleContainer):
 
 class RegisterPresentation(CustomSimpleContainer):
   def __init__(self, page):
-    super().__init__(height=500, width=450, gradient=False)
+    super().__init__(gradient=True)
     self.spacing = 20
     self.page = page
     
@@ -254,14 +351,14 @@ class RegisterPresentation(CustomSimpleContainer):
     self.title = ft.Text(
       value="Bienvenido a bordo", 
       size=42, 
-      color=constants.BROWN, 
+      color=constants.WHITE, 
       weight=ft.FontWeight.BOLD,
       text_align=ft.TextAlign.CENTER
     )
     
     self.description = ft.Text(
       value="Regístrate y disfruta de una experiencia personalizada. Nos alegra tenerte aquí",
-      color=constants.BLACK, 
+      color=constants.WHITE, 
       size=18,
       weight=ft.FontWeight.BOLD,
       text_align=ft.TextAlign.CENTER
@@ -269,9 +366,9 @@ class RegisterPresentation(CustomSimpleContainer):
     
     self.button = CustomFilledButton(
       text="¿Ya tienes un usuario?",
-      bgcolor=constants.BROWN,
-      color=constants.WHITE, size=18,
-      overlay=constants.BROWN_OVERLAY,
+      bgcolor=constants.ORANGE,
+      color=constants.BLACK, size=18,
+      overlay=constants.ORANGE_OVERLAY,
       clickFunction=lambda e: showLogin(self.page)
     )
     

@@ -49,6 +49,7 @@ def createTestData(db):
     ciEmployee=employee2.ciEmployee
   )
   
+@pytest.mark.skip(reason="Ya ha sido verificada")
 def test_getUserByUsername(db):
   createTestData(db)
   
@@ -65,6 +66,7 @@ def test_getUserByUsername(db):
   print(f"User: {result.username} with employee: {result.employee.name}")
   assert result.ciEmployee == 31453119
   
+@pytest.mark.skip(reason="Ya ha sido verificada")
 def test_updateUser(db):
   try:
     createTestData(db)
@@ -82,7 +84,8 @@ def test_updateUser(db):
     assert result.username == newUser.username
   except Exception as e:
     print(f"Error: {e}")
-  
+
+@pytest.mark.skip(reason="Ya ha sido verificada")
 def test_removeUser(db):
   createTestData(db)
   

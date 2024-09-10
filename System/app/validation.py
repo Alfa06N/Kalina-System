@@ -2,12 +2,14 @@ import flet as ft
 import time
 import constants
 import exceptions
+from config import getDB
+from DataBase.crud.employee import getEmployeeById
 
 def validateField(field, condition):
   
   if not field.error_text == None and condition(field.value):
     field.error_text = None
-    field.focused_border_color = constants.ORANGE_LIGHT
+    field.focused_border_color = constants.BLACK
     field.update()
   
   return condition(field.value)
@@ -50,7 +52,8 @@ def evaluateForm(username=[], password=[], ci=[], others=[]):
       field.update()
       isValid = False
   
-  print("Campos válidos")
+  # print("Campos válidos")
+  print(isValid)
   return isValid
 
 def queryUserData(db, username, password):

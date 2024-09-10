@@ -1,14 +1,14 @@
 import flet as ft 
 import constants
 import time
-from Modules.customControls import CustomPrincipalContainer, CustomFilledButton, CustomSimpleContainer, CustomOutlinedButton, CustomAnimatedContainer, CustomOperationContainer
+from Modules.customControls import CustomPrincipalContainer, CustomFilledButton, CustomSimpleContainer, CustomOutlinedButton, CustomAnimatedContainer, CustomOperationContainer, CustomTextField, CustomDropdown
 from interface import showLogin
 from validation import validateUsername, validatePassword, validateCI, validateEmptyField, evaluateForm
 from utils.pathUtils import getImagePath
 
 class RecoveryForm(CustomSimpleContainer):
   def __init__(self, page):
-    super().__init__(width=450, height=500, gradient=True)
+    super().__init__()
     self.spacing = 10
     self.page = page
     self.horizontal_alignment = ft.CrossAxisAlignment.CENTER
@@ -16,7 +16,7 @@ class RecoveryForm(CustomSimpleContainer):
     self.title = CustomAnimatedContainer(
       actualContent=ft.Row(
         controls=[
-          ft.Text(value="¿Quién eres?", color=constants.WHITE, size=42, weight=ft.FontWeight.BOLD),
+          ft.Text(value="¿Quién eres?", color=constants.BLACK, size=42, weight=ft.FontWeight.BOLD),
         ],
         alignment=ft.MainAxisAlignment.CENTER,
         expand=True
@@ -26,27 +26,33 @@ class RecoveryForm(CustomSimpleContainer):
       reverse_duration=200,
     )
     
-    self.username = ft.TextField(
-      label="Nombre de Usuario", border_color=constants.WHITE_GRAY,
-      border_width=2,
-      focused_border_color=constants.ORANGE_LIGHT, 
-      label_style=ft.TextStyle(
-        color=constants.ORANGE_LIGHT
-      ),
-      on_change=lambda e: validateUsername(self.username),
+    self.username = CustomTextField(
+      label="Nombre de Usuario",
+      revealPassword=False,
+      mode="light",
+      hint_text=None,
+      field="username",
+      expand=False,
+      submitFunction=self.nextStep,
     )
     
     self.nextButton = CustomOutlinedButton(
       text="Siguiente", 
-      color=constants.WHITE, 
+      color=constants.BLACK, 
       size=18, 
       icon=None, 
       clickFunction=self.nextStep
     )
     
-    self.userCI = ft.TextField(label="Documento de Empleado", border_color=constants.WHITE_GRAY, border_width=2, on_change=lambda e: validateCI(self.userCI), input_filter=ft.NumbersOnlyInputFilter(), focused_border_color=constants.ORANGE_LIGHT, label_style=ft.TextStyle(
-      color=constants.ORANGE_LIGHT
-    ))
+    self.userCI = CustomTextField(
+      label="Documento de Empleado",
+      revealPassword=False,
+      mode="light",
+      hint_text=None,
+      field="ci",
+      expand=False, 
+      submitFunction=self.nextStep,
+    )
     
     self.identifyUser = ft.Column(
       expand=True,
@@ -59,13 +65,14 @@ class RecoveryForm(CustomSimpleContainer):
           controls=[
             ft.Icon(
               name=ft.icons.HELP_OUTLINED,
-              color=constants.WHITE,
+              color=constants.BROWN,
             ),
-            ft.Text(value="Identifica tu usuario", size=18, color=constants.WHITE)
+            ft.Text(value="Identifica tu usuario", size=18, color=constants.BLACK)
           ],
           alignment=ft.MainAxisAlignment.CENTER,
         ),
         ft.Column(
+          expand=True,
           controls=[
             self.username,
             self.userCI,
@@ -76,20 +83,21 @@ class RecoveryForm(CustomSimpleContainer):
       ]
     )
     
-    self.questionField = ft.Dropdown(
+    self.questionField = CustomDropdown(
       label="Pregunta de Seguridad",
       options=constants.dropdownOne,
-      border_color=constants.WHITE_GRAY, border_width=2,
-      focused_border_color=constants.ORANGE_LIGHT,
-      label_style=ft.TextStyle(
-        color=constants.ORANGE_LIGHT
-      ),
-      on_change=lambda e: validateEmptyField(self.questionField)
+      mode="light"
     )
     
-    self.responseField = ft.TextField(label="Respuesta", border_color=constants.WHITE_GRAY, border_width=2, focused_border_color=constants.ORANGE_LIGHT, password=True, can_reveal_password=True, label_style=ft.TextStyle(
-      color=constants.ORANGE_LIGHT
-    ), on_change=lambda e: validateEmptyField(self.responseField))
+    self.responseField = CustomTextField(
+      label="Respuesta",
+      revealPassword=False,
+      mode="light",
+      hint_text=None,
+      field="others",
+      expand=False,
+      submitFunction=self.nextStep,
+    )
     
     self.verifyUser = ft.Column(
       spacing=20,
@@ -101,13 +109,14 @@ class RecoveryForm(CustomSimpleContainer):
           controls=[
             ft.Icon(
               name=ft.icons.HELP_OUTLINED,
-              color=constants.WHITE,
+              color=constants.BROWN,
             ),
-            ft.Text(value="Responde para verificar tu identidad", size=18, color=constants.WHITE),
+            ft.Text(value="Responde para verificar tu identidad", size=18, color=constants.BLACK),
           ],
           alignment=ft.MainAxisAlignment.CENTER
         ),
         ft.Column(
+          expand=True,
           controls=[
             self.questionField,
             self.responseField,
@@ -118,13 +127,18 @@ class RecoveryForm(CustomSimpleContainer):
       ]
     )
     
-    self.passwordField = ft.TextField(label="Contraseña", border_color=constants.WHITE_GRAY, border_width=2, password=True, can_reveal_password=True, on_change=lambda e: validatePassword(self.passwordField), focused_border_color=constants.ORANGE_LIGHT, label_style=ft.TextStyle(
-      color=constants.ORANGE_LIGHT
-    ))
+    self.passwordField = CustomTextField(
+      label="Contraseña",
+      revealPassword=True,
+      field="password",
+      submitFunction=self.nextStep,
+    )
     
-    self.passwordConfirmationField = ft.TextField(label="Confirmar Contraseña", border_color=constants.WHITE_GRAY, border_width=2, password=True, on_change=lambda e: validatePassword(self.passwordConfirmationField), can_reveal_password=False, focused_border_color=constants.ORANGE_LIGHT, label_style=ft.TextStyle(
-      color=constants.ORANGE_LIGHT
-    ))
+    self.passwordConfirmationField = CustomTextField(
+      label="Confirmar Contraseña",
+      field="password",
+      submitFunction=self.nextStep,
+    )
     
     self.passwordChange = ft.Column(
       spacing=20,
@@ -136,13 +150,14 @@ class RecoveryForm(CustomSimpleContainer):
           controls=[
             ft.Icon(
               name=ft.icons.HELP_OUTLINED,
-              color=constants.WHITE,
+              color=constants.BROWN,
             ),
-            ft.Text(value="Establece tu nueva contraseña", size=18, color=constants.WHITE)
+            ft.Text(value="Establece tu nueva contraseña", size=18, color=constants.BLACK)
           ],
           alignment=ft.MainAxisAlignment.CENTER,
         ),
         ft.Column(
+          expand=True,
           controls=[
             self.passwordField,
             self.passwordConfirmationField,
@@ -155,7 +170,7 @@ class RecoveryForm(CustomSimpleContainer):
     
     self.animatedContainer = CustomOperationContainer(
       operationContent=self.identifyUser,
-      mode="gradient"
+      mode="light"
     )
     
     self.recoveryContent = ft.Column(
@@ -189,7 +204,7 @@ class RecoveryForm(CustomSimpleContainer):
         message = "Usuario Identificado"
         self.title.setNewContent(ft.Row(
           controls=[
-            ft.Text(value=self.username.value, size=42, weight=ft.FontWeight.BOLD, color=constants.WHITE)
+            ft.Text(value=self.username.value, size=42, weight=ft.FontWeight.BOLD, color=constants.BLACK)
           ],
           alignment=ft.MainAxisAlignment.CENTER
         ))
@@ -222,7 +237,7 @@ class RecoveryForm(CustomSimpleContainer):
     
 class RecoveryPresentation(CustomSimpleContainer):
   def __init__(self, page):
-    super().__init__(width=450, height=500, gradient=False)
+    super().__init__(gradient=True)
     self.page = page
     
     self.title = ft.Text(
@@ -230,15 +245,15 @@ class RecoveryPresentation(CustomSimpleContainer):
       size=42,
       text_align=ft.TextAlign.CENTER,
       weight=ft.FontWeight.BOLD,
-      color=constants.BROWN
+      color=constants.WHITE
     )
     
     self.button = CustomFilledButton(
       text="Iniciar Sesión",
       size=18,
-      color=constants.WHITE,
-      bgcolor=constants.BROWN,
-      overlay=constants.BROWN_OVERLAY,
+      color=constants.BLACK,
+      bgcolor=constants.ORANGE,
+      overlay=constants.ORANGE_OVERLAY,
       clickFunction=lambda e: showLogin(self.page)
     )
     
@@ -253,7 +268,7 @@ class RecoveryPresentation(CustomSimpleContainer):
       value="No te preocupes, todos olvidamos cosas a veces.",
       text_align=ft.TextAlign.CENTER,
       size=18, 
-      color=constants.BLACK,
+      color=constants.WHITE,
       weight=ft.FontWeight.BOLD
     )
     

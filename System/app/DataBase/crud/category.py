@@ -1,16 +1,17 @@
 from sqlalchemy.orm import Session
 from DataBase.models import Category
-
+from sqlalchemy import asc, desc
 from DataBase.errorHandling import handleDatabaseErrors
 from sqlalchemy.exc import SQLAlchemyError
-from exceptions import DataNotFoundError
+from exceptions import DataNotFoundError, DataAlreadyExists
 
-def createCategory(db: Session, name: str, description: str):
+def  createCategory(db: Session, name: str, description: str="", imgPath: str = None):
   try:
     if not getCategoryByName(db, name): 
       category = Category(
         name=name,
         description=description,
+        imgPath=imgPath,
       )
       def func():
         db.add(category)
@@ -21,7 +22,7 @@ def createCategory(db: Session, name: str, description: str):
       db.refresh(category)
       return category
     else:
-      pass
+      raise DataAlreadyExists("Esta categoría ya existe")
   except DataNotFoundError:
     raise
   except SQLAlchemyError as e:
@@ -49,45 +50,43 @@ def getCategoryById(db: Session, idCategory: str):
   except Exception:
     raise
   
-def getCategories(db: Session, name: str):
+def getCategories(db: Session):
   try:
     def func():
-      return db.query(Category).all()
+      return db.query(Category).order_by(asc(Category.name)).all()
     return handleDatabaseErrors(db, func)
   except Exception as e:
     return None
   
-def updateCategory(db: Session, idCategory: int, name: str, description: str):
+def updateCategory(db: Session, category, name: str, description: str="", imgPath=None):
   try:
     categoryExists = getCategoryByName(db, name)
     
     if categoryExists:
-      raise Exception("Esta categoría ya existe")
+      raise DataAlreadyExists("Esta categoría ya existe")
     else:
-      category = getCategoryById(db, idCategory)
-      
       def func():
         if category:
           if name:
             category.name = name
-          if description:
-            category.description = description
+          category.description = description
+          category.imgPath = imgPath
             
           db.commit()
           db.refresh(category)
         return category
       
-      handleDatabaseErrors(db, func)
+      return handleDatabaseErrors(db, func)
     
+  except DataAlreadyExists:
+    raise
   except SQLAlchemy as e:
     return None
   except Exception as e:
     raise
   
-def removeCategory(db: Session, idCategory: int):
+def removeCategory(db: Session, category):
   try:
-    category = getCategoryById(db, idCategory)
-    
     def func():
       db.delete(category)
       db.commit()
@@ -96,11 +95,9 @@ def removeCategory(db: Session, idCategory: int):
       db, func
     )
     
-    return user
+    return category
   except Exception as e:
     raise
-  
-  ##### Eliminar comentarios de excepciones. Ya handleDatabaseErrors lo hace
   
 def removeCategoryByName(db: Session, name):
   try:
@@ -113,5 +110,6 @@ def removeCategoryByName(db: Session, name):
     handleDatabaseErrors(
       db, func
     )
+    return category
   except Exception as e:
     raise

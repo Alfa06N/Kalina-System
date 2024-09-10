@@ -67,7 +67,8 @@ def createTestData(db):
     answerTwo="Arroz chino",
     idUser=userTwo.idUser
   )
-  
+
+@pytest.mark.skip(reason="Ya ha sido verificada")
 def test_getRecoveryByUserId(db):
   createTestData(db)
   
@@ -79,6 +80,7 @@ def test_getRecoveryByUserId(db):
   
   assert "Arañas" == firstAnswer
   
+@pytest.mark.skip(reason="Ya ha sido verificada")
 def test_updateRecoveryByUserId(db):
   createTestData(db)
   

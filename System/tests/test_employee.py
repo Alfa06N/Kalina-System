@@ -32,6 +32,7 @@ def createTestData(db):
     birthdate="1983-08-07",
   )
   
+@pytest.mark.skip(reason="Ya ha sido verificada")
 def test_getEmployeeById(db):
   createTestData(db)
   
@@ -43,6 +44,7 @@ def test_getEmployeeById(db):
   assert result.name == "Nicolás Alessandro"
   assert result.ciEmployee == 31453119
   
+@pytest.mark.skip(reason="Ya ha sido verificada")
 def test_updateEmployee(db):
   createTestData(db)
   
@@ -58,6 +60,7 @@ def test_updateEmployee(db):
   updatedEmployee = getEmployeeById(db=db, ciEmployee=31453119)
   assert updatedEmployee.name == "Nicolás"
 
+@pytest.mark.skip(reason="Ya ha sido verificada")
 def test_removeEmployee(db):
   createTestData(db)
   

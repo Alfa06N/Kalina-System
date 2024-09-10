@@ -30,6 +30,7 @@ test_engine = create_engine(TEST_DATABASE_URL)
 
 TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
+@contextmanager
 def getTestDB():
   db = TestSessionLocal()
   try:
