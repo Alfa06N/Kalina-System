@@ -221,14 +221,26 @@ class Inventory(ft.Stack):
     elif self.selected == self.comboButton:
       pass
       
-    if not self.infoContainer.height == 600:
-      self.infoContainer.changeStyle(height=600, width=700, shadow=ft.BoxShadow(
+    if not self.infoContainer.height == 800:
+      self.infoContainer.changeStyle(height=800, width=700, shadow=ft.BoxShadow(
         blur_radius=5,
         spread_radius=1,
         color=constants.BLACK_GRAY,
       ))
     if self.newContent:
       self.infoContainer.setNewContent(self.newContent)
+      
+  def editItemForm(self, newContent):
+    self.infoContainer.changeStyle(
+      height=800,
+      width=700,
+      shadow=ft.BoxShadow(
+        spread_radius=1,
+        blur_radius=5,
+        color=constants.BLACK_GRAY,
+      )
+    )
+    self.infoContainer.setNewContent(newContent)
 
   
   def fillItemsContainer(self):

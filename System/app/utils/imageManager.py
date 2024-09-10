@@ -14,7 +14,7 @@ class ImageManager():
     fileExtension = os.path.splitext(filePath)[1].lower()
     print(fileExtension)
     
-    return fileExtension in [".jpeg", ".jpg", ".png"]
+    return fileExtension in [".jpeg", ".jpg", ".png", ".jfif"]
   
   def storageImage(self, idData, filePath):
     try:
@@ -48,7 +48,15 @@ class ImageManager():
   def getImagePath(self, filePath):
     try:
       destinationPath = os.path.join(self.storage_path, filePath)
+      os.remove(destinationPath)
       return destinationPath
+    except Exception as err:
+      print(err)
+      return None
+
+  def removeOldImage(self, filePath):
+    try:
+      destinationPath = os.path.join(self.storage_path, filePath)
     except Exception as err:
       print(err)
       return None

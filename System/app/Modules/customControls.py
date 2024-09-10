@@ -4,6 +4,7 @@ import time
 from validation import validateCI, validateEmptyField, validatePassword, validateUsername
 from utils.imageManager import ImageManager
 from datetime import datetime
+import os
 
 class CustomPrincipalContainer(ft.Container):
   def __init__(self, containerContent, width=900, height=550):
@@ -201,7 +202,7 @@ class CustomAnimatedContainer(ft.AnimatedSwitcher):
     self.update()
 
 class CustomAnimatedContainerSwitcher(ft.Container):
-  def __init__(self, content, height:int=150, width:int=300, padding=ft.padding.all(20), margin=ft.margin.all(20), border_radius=ft.border_radius.all(30), bgcolor=constants.WHITE, shadow=None, alignment=ft.alignment.center, duration:int=300, animationCurve=ft.AnimationCurve.EASE_IN_OUT, col=None):
+  def __init__(self, content, height:int=150, width:int=300, padding=ft.padding.all(20), margin=ft.margin.all(20), border_radius=ft.border_radius.all(30), bgcolor=constants.WHITE, shadow=None, alignment=ft.alignment.center, expand=False, duration:int=300, animationCurve=ft.AnimationCurve.EASE_IN_OUT, col=None):
     super().__init__(col=col)
     self.height = height
     self.width = width
@@ -213,6 +214,7 @@ class CustomAnimatedContainerSwitcher(ft.Container):
     self.border_radius = border_radius
     self.padding = padding
     self.alignment = alignment
+    self.expand = expand
     
     self.animate = ft.animation.Animation(self.duration, self.animationCurve)
     
@@ -227,9 +229,11 @@ class CustomAnimatedContainerSwitcher(ft.Container):
     self.content.content = newContent
     self.content.update()
     
-  def changeStyle(self, height, width, shadow=None, bgcolor=constants.WHITE):
-    self.height = height
-    self.width = width
+  def changeStyle(self, height=None, width=None, shadow=None, bgcolor=constants.WHITE):
+    if height:
+      self.height = height
+    if width:
+      self.width = width
     self.shadow = shadow
     self.bgcolor = bgcolor
     self.update()
@@ -880,14 +884,15 @@ class CustomDeleteButton(ft.OutlinedButton):
     self.page.close(self.newDialog)
     
 class CustomImageSelectionContainer(ft.Container):
-  def __init__(self, page, height:int=200, width:int=200):
+  def __init__(self, page, src=None,  height:int=200, width:int=200):
     super().__init__()
     self.height = height
     self.width = width
     self.page = page
     self.border_radius = ft.border_radius.all(20)
+    self.src = src
     
-    self.selectedImagePath = None
+    self.selectedImagePath = self.src
     
     self.imageIcon = ft.Container(
       bgcolor=ft.colors.TRANSPARENT,
@@ -914,13 +919,19 @@ class CustomImageSelectionContainer(ft.Container):
       )
     )
     
-    self.editImageContainer = CustomAnimatedContainer(
-      actualContent=self.imageIcon
-    )
+    if not self.selectedImagePath:
+      self.editImageContainer = CustomAnimatedContainer(
+        actualContent=self.imageIcon
+      )
+    else:
+      self.editImageContainer = CustomAnimatedContainer(
+        actualContent=CustomImageContainer(
+          src=self.selectedImagePath,
+        )
+      )
     
     self.selectImage = ft.Container(
       border_radius=ft.border_radius.all(20),
-      border=ft.border.all(2, constants.WHITE_GRAY),
       height=150,
       width=150,
       alignment=ft.alignment.center,
@@ -931,7 +942,7 @@ class CustomImageSelectionContainer(ft.Container):
     )
     
     self.deleteButton = ft.Container(
-      visible=False,
+      visible=False if self.src == None else True,
       content=ft.TextButton(
         content=ft.Text(
           "Eliminar",
@@ -976,8 +987,7 @@ class CustomImageSelectionContainer(ft.Container):
       print(err)
       
   def validFileExtension(self, filePath):
-    import os
-    allowedExtensions = [".jpg", ".jpeg", ".png"]
+    allowedExtensions = [".jpg", ".jpeg", ".png", ".jfif"]
     fileExtension = os.path.splitext(filePath)[1].lower()
     return fileExtension in allowedExtensions
     
@@ -990,13 +1000,11 @@ class CustomImageSelectionContainer(ft.Container):
               src=file.path
             )
             
-            self.selectImage.border = None
-            self.selectImage.update()
             self.selectedImagePath = file.path
             self.editImageContainer.setNewContent(image)
             self.turnOnButtonVisibility()
           else:
-            print("Archivo no permitido")
+            print(f"Tipo de archivo no permitido: {os.path.splitext(file.path)[1].lower()}")
       else:
         print("No se seleccionó ningún archivo")
     except Exception as err:
@@ -1005,13 +1013,11 @@ class CustomImageSelectionContainer(ft.Container):
   def deleteImage(self, e):
     if self.selectedImagePath:
       self.editImageContainer.setNewContent(self.imageIcon)
-      self.selectImage.border = ft.border.all(2, constants.WHITE_GRAY)
-      self.selectImage.update()
       self.selectedImagePath = None
       self.turnOffButtonVisibility()
       
 class CustomImageContainer(ft.Container):
-  def __init__(self, src, border_radius=10, fit=ft.ImageFit.FIT_HEIGHT, width:int=200, height:int=200):
+  def __init__(self, src, border_radius=10, fit=ft.ImageFit.COVER, width:int=200, height:int=200):
     super().__init__()
     self.height = height
     self.width = width

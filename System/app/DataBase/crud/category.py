@@ -1,11 +1,11 @@
 from sqlalchemy.orm import Session
 from DataBase.models import Category
-
+from sqlalchemy import asc, desc
 from DataBase.errorHandling import handleDatabaseErrors
 from sqlalchemy.exc import SQLAlchemyError
 from exceptions import DataNotFoundError, DataAlreadyExists
 
-def  createCategory(db: Session, name: str, description: str, imgPath: str = None):
+def  createCategory(db: Session, name: str, description: str="", imgPath: str = None):
   try:
     if not getCategoryByName(db, name): 
       category = Category(
@@ -53,33 +53,33 @@ def getCategoryById(db: Session, idCategory: str):
 def getCategories(db: Session):
   try:
     def func():
-      return db.query(Category).all()
+      return db.query(Category).order_by(asc(Category.name)).all()
     return handleDatabaseErrors(db, func)
   except Exception as e:
     return None
   
-def updateCategory(db: Session, category, name: str, description: str, imgPath=None):
+def updateCategory(db: Session, category, name: str, description: str="", imgPath=None):
   try:
     categoryExists = getCategoryByName(db, name)
     
     if categoryExists:
-      raise Exception("Esta categoría ya existe")
+      raise DataAlreadyExists("Esta categoría ya existe")
     else:
       def func():
         if category:
           if name:
             category.name = name
-          if description:
-            category.description = description
-          if imgPath:
-            category.imgPath = imgPath
+          category.description = description
+          category.imgPath = imgPath
             
           db.commit()
           db.refresh(category)
         return category
       
-      handleDatabaseErrors(db, func)
+      return handleDatabaseErrors(db, func)
     
+  except DataAlreadyExists:
+    raise
   except SQLAlchemy as e:
     return None
   except Exception as e:

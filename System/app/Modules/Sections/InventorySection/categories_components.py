@@ -1,9 +1,12 @@
 import flet as ft 
 import constants
-from Modules.customControls import CustomUserIcon, CustomOperationContainer, CustomTextField, CustomAnimatedContainer, CustomNavigationOptions, CustomFilledButton, CustomDropdown, CustomDeleteButton, CustomAlertDialog, CustomImageContainer, CustomEditButton
+from Modules.customControls import CustomUserIcon, CustomOperationContainer, CustomTextField, CustomAnimatedContainer, CustomNavigationOptions, CustomFilledButton, CustomDropdown, CustomDeleteButton, CustomAlertDialog, CustomImageContainer, CustomEditButton, CustomImageSelectionContainer
 from config import getDB
 import time
 from DataBase.crud.category import getCategoryById, updateCategory, removeCategory
+from utils.imageManager import ImageManager
+from exceptions import DataAlreadyExists
+from validation import evaluateForm
 
 class CategoryContainer(ft.Container):
   def __init__(self, idCategory, name, description, infoContainer, mainContainer, imgPath=None):
@@ -104,7 +107,6 @@ class CategoryInfo(ft.Stack):
     self.imageContainer = CustomImageContainer(
       src=self.imgPath,
       border_radius=10,
-      fit=ft.ImageFit.FIT_HEIGHT,
     )
     
     self.nameText = ft.Text(
@@ -123,7 +125,7 @@ class CategoryInfo(ft.Stack):
     )
     
     self.editButton = CustomEditButton(
-      function=None
+      function=self.editCategory
     )
     
     self.deleteButton = CustomDeleteButton(
@@ -163,5 +165,153 @@ class CategoryInfo(ft.Stack):
         
         if removeCategory(db, category):
           self.mainContainer.resetCurrentView()
+    except Exception as err:
+      print(err)
+      
+  def editCategory(self, e):
+    try:
+      self.mainContainer.editItemForm(
+        CategoryEdit(
+          page=self.page,
+          idCategory=self.idCategory,
+          name=self.name,
+          description=self.description,
+          imgPath=self.imgPath,
+          mainContainer=self.mainContainer,
+        )
+      )
+    except Exception as err:
+      print(err)
+      
+class CategoryEdit(ft.Stack):
+  def __init__(self, page, idCategory, name, description, imgPath, mainContainer):
+    super().__init__()
+    self.page = page
+    self.idCategory = idCategory
+    self.name = name
+    self.description = description
+    self.imgPath = imgPath
+    self.mainContainer = mainContainer
+    
+    self.titleText = ft.Row(
+      alignment=ft.MainAxisAlignment.CENTER,
+      controls=[
+        ft.Text(
+          value=self.name,
+          size=32,
+          weight=ft.FontWeight.W_700,
+          text_align=ft.TextAlign.CENTER,
+          color=constants.BLACK,
+        )
+      ]
+    )
+    
+    self.imageEditContainer = CustomImageSelectionContainer(
+      page=self.page,
+      src=self.imgPath,
+    )
+    
+    self.nameField = CustomTextField(
+      label="Nombre de la categoría",
+      field="others",
+      expand=True,
+      submitFunction=self.submitForm,
+    )
+    
+    self.descriptionField = CustomTextField(
+      label="Descripción (opcional)",
+      field="others",
+      expand=True,
+      submitFunction=self.submitForm,
+    )
+    
+    self.finishButton = ft.Row(
+      alignment=ft.MainAxisAlignment.CENTER,
+      controls=[
+        CustomFilledButton(
+          text="Guardar cambios",
+          clickFunction=self.submitForm,
+        )
+      ]
+    )
+    
+    self.operationContainer = CustomOperationContainer(
+      operationContent=ft.Column(
+        alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.MainAxisAlignment.CENTER,
+        spacing=10,
+        height=320,
+        width=700,
+        controls=[
+          ft.Row(
+            alignment=ft.MainAxisAlignment.CENTER,
+            width=700,
+            controls=[
+              self.imageEditContainer,
+            ]
+          ),
+          ft.Row(
+            width=700,
+            controls=[
+              self.nameField,
+              self.descriptionField
+            ]
+          ),
+        ]
+      )
+    )
+    
+    self.controls = [
+      ft.Column(
+        scroll=ft.ScrollMode.AUTO,
+        alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        spacing=20,
+        expand=True,
+        controls=[
+          self.titleText,
+          self.operationContainer,
+          self.finishButton,
+        ]
+      ),
+    ]
+  
+  def submitForm(self, e):
+    try:
+      with getDB() as db:
+        if evaluateForm(others=[self.nameField]):
+          currentCategory = getCategoryById(db, self.idCategory)
+          oldImgPath = currentCategory.imgPath
+          updatedCategory = updateCategory(
+            db=db, 
+            category=currentCategory, 
+            name=self.nameField.value,
+            description=self.descriptionField.value,
+            imgPath=None,
+          )
+          
+          if updatedCategory:
+            if self.imageEditContainer.selectedImagePath:
+              imageManager = ImageManager()
+              
+              # ELiminamos la antigua para liberar memoria
+              if oldImgPath:
+                imageManager.removeOldImage(oldImgPath)
+                
+              destinationPath = imageManager.storageImage(self.idCategory, self.imageEditContainer.selectedImagePath)
+              updatedCategory.imgPath = destinationPath
+              db.commit()
+          
+            self.operationContainer.actionSuccess("Categoría Actualizada")
+            time.sleep(1.5)
+            self.mainContainer.resetCurrentView()
+          else:
+            self.operationContainer.actionFailed("Algo salió mal")
+            time.sleep(1.5)
+            self.operationContainer.resetContainer()
+    except DataAlreadyExists as err:
+      self.operationContainer.actionFailed(err)
+      time.sleep(1.5)
+      self.operationContainer.restartContainer()
     except Exception as err:
       print(err)
