@@ -7,10 +7,10 @@ from utils.sessionManager import getCurrentUser
 from DataBase.crud.user import getUserByUsername
 from DataBase.crud.user_product import registerOperation
 from datetime import datetime
+from sqlalchemy import asc, desc
 
 def createProduct(db: Session, name: str, description: str, stock: int, minStock: int, cost: float, gain: float, iva: float, idCategory: int, imgPath: str):
   try:
-    
     product = Product(
       name=name,
       description=description,
@@ -59,7 +59,7 @@ def getProductByName(db: Session, name: str):
 def getProducts(db: Session):
   try:
     def func():
-      return db.query(Product).all()
+      return db.query(Product).order_by(asc(Product.name)).all()
     
     return handleDatabaseErrors(db, func)
   except Exception:
@@ -101,6 +101,27 @@ def updateProduct(db: Session, idProduct: int, name: str, description: str, minS
   except Exception:
     raise
 
+def updateProductInfo(db: Session, product, name:str, description:str, idCategory:int):
+  try:
+    if not product:
+      raise DataNotFoundError("Producto no encontrado")
+    
+    def func():
+      if name:
+        product.name = name
+      product.description = description
+      if idCategory:
+        product.idCategory = idCategory
+      db.commit()
+    
+    handleDatabaseErrors(db, func)
+    db.refresh(product)
+    return product
+  except DataNotFoundError:
+    raise
+  except Exception as err:
+    raise
+
 def removeProduct(db: Session, idProduct: int):
   try:
     product = getProductById(db, idProduct)
@@ -129,13 +150,10 @@ def removeProductByName(db: Session, name: str):
   except Exception:
     raise
 
-def calculatePrice(product):
+def calculatePrice(cost, iva, gain):
   try: 
-    if product:
-      price = product.cost + (product.cost*product.iva) + (product.cost*product.gain)
-      return round(price, 3) 
-    else:
-      raise DataNotFoundError(f"Producto no encontrado")
+      price = cost + (cost*(iva/100)) + (cost*(gain/100))
+      return round(price, 2) 
   except DataNotFoundError as e:
     print(e)
     raise
@@ -149,16 +167,11 @@ def updateProductStock(db: Session, product, quantityAdded: int):
     
     if not product:
       raise DataNotFoundError(f"No se encontró el producto {name}")
-    # elif not user:
-    #   raise DataNotFoundError(f"No se encontró el usuario {username}")
+    elif not user:
+      raise DataNotFoundError(f"No se encontró el usuario {username}")
     
-    # def updateProduct():
-    #   product.stock += quantityAdded
-    #   db.refresh(product)
-    
-    # handleDatabaseErrors(db, updateProduct)
-    
-    def createOperation():
+    def func():
+      product.stock += quantityAdded
       register = registerOperation(
         db=db,
         idUser=user.idUser,
@@ -166,11 +179,14 @@ def updateProductStock(db: Session, product, quantityAdded: int):
         productQuantity=quantityAdded
       )
       db.add(register)
-      db.refresh(register)
-      
-    handleDatabaseErrors(db, createOperation)
+      db.commit()
+      return register
     
-    db.commit()
-    return product
+    
+    register = handleDatabaseErrors(db, func)
+    db.refresh(product)
+    db.refresh(register)
+    return product, register
   except Exception:
+    db.rollback()
     raise

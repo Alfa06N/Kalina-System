@@ -105,9 +105,9 @@ class LoginForm(CustomSimpleContainer):
     if evaluateForm(username=[self.usernameInput], password=[self.passwordInput]):
       try:
         with getDB() as db:
-          if queryUserData(db, self.usernameInput.value, self.passwordInput.value):
-            setUser(self.usernameInput.value)
-            self.operationContent.actionSuccess(f"Bienvenido {self.usernameInput.value}")
+          if queryUserData(db, self.usernameInput.value.strip(), self.passwordInput.value):
+            setUser(self.usernameInput.value.strip())
+            self.operationContent.actionSuccess(f"Bienvenido {self.usernameInput.value.strip()}")
             time.sleep(1.5)
             showPrincipal(self.page)
           else:

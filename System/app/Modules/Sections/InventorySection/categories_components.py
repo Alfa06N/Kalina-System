@@ -118,7 +118,7 @@ class CategoryInfo(ft.Stack):
     
     self.descriptionText = ft.Text(
       value=self.description,
-      size=24,
+      size=18,
       color=constants.BLACK,
       max_lines=2,
       overflow=ft.TextOverflow.ELLIPSIS,
@@ -216,6 +216,7 @@ class CategoryEdit(ft.Stack):
       field="others",
       expand=True,
       submitFunction=self.submitForm,
+      value=self.name
     )
     
     self.descriptionField = CustomTextField(
@@ -223,6 +224,7 @@ class CategoryEdit(ft.Stack):
       field="others",
       expand=True,
       submitFunction=self.submitForm,
+      value=self.description,
     )
     
     self.finishButton = ft.Row(

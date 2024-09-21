@@ -110,8 +110,7 @@ class CategoryForm(CustomOperationContainer):
 
         self.actionSuccess("Categoría creada")
         time.sleep(1.5)
-        self.mainContainer.resetInfoContainer()
-        self.mainContainer.fillItemsContainer()
+        self.mainContainer.resetCurrentView()
     except Exception as err:
       print(err)
       raise

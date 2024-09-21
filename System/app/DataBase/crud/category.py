@@ -35,7 +35,7 @@ def getCategoryByName(db: Session, name: str):
     def func():
       return db.query(Category).filter(Category.name == name).first()
     
-    handleDatabaseErrors(db, func)
+    return handleDatabaseErrors(db, func)
   except Exception as e:
     return None 
 

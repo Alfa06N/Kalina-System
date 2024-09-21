@@ -1,10 +1,11 @@
 import flet as ft
 import constants 
 import time
-from validation import validateCI, validateEmptyField, validatePassword, validateUsername
+from validation import validateCI, validateEmptyField, validatePassword, validateUsername, validateNumber
 from utils.imageManager import ImageManager
 from datetime import datetime
 import os
+import re
 
 class CustomPrincipalContainer(ft.Container):
   def __init__(self, containerContent, width=900, height=550):
@@ -328,7 +329,7 @@ class CustomOutlinedButton(ft.OutlinedButton):
     )
     
 class CustomReturnButton(ft.OutlinedButton):
-  def __init__(self, function, color, size):
+  def __init__(self, function, size=32, color=constants.BLACK):
     super().__init__()
     self.on_click = function
     self.color = color
@@ -361,13 +362,18 @@ class CustomCheckbox(ft.Checkbox):
     self.active_color = fill_color
     
 class CustomTextField(ft.TextField):
-  def __init__(self, label, field, revealPassword=False,  mode="light",  hint_text=None,  expand=False, submitFunction=None, disabled:bool=False):
+  def __init__(self, label, field, revealPassword=False,  mode="light",  hint_text=None, on_changeFunction=None, expand=False, submitFunction=None, value="", suffix_text=None, disabled:bool=False):
     super().__init__()
     self.label = label
     self.border_width = 2
     self.expand = expand
     self.on_submit = submitFunction
     self.disabled = disabled
+    self.hint_text = hint_text
+    self.suffix_text = suffix_text
+    self.value = value
+    self.on_changeFunction = on_changeFunction
+    self.field = field
     
     if mode == "gradient":
       self.color = constants.WHITE
@@ -385,29 +391,60 @@ class CustomTextField(ft.TextField):
         color=constants.BLACK
       )
       self.cursor_color = constants.BLACK
-    
-    if field == "username":
-      self.on_change = lambda e: validateUsername(self)
       
-    elif field == "password":
+    if self.field == "password":
       self.password = True
       self.can_reveal_password = revealPassword
-      self.on_change = lambda e: validatePassword(self)
+      
+    elif self.field == "number":
+      self.text_align = ft.TextAlign.RIGHT
+      self.keyboard_type = ft.KeyboardType.NUMBER
+      self.value = "0.00"
+      self.on_blur = self.onBlurNumbers
     
-    elif field == "ci":
+    elif self.field == "ci":
       self.prefix_text = "V-"
       self.input_filter=ft.NumbersOnlyInputFilter()
-      self.on_change = lambda e: validateCI(self)
+      
+    self.on_change = lambda e: self.functionOnChange()
+  
+  def onBlurNumbers(self, e):
+    if self.value == "":
+      self.value = "0"
+      self.update()
+  
+  def functionOnChange(self):
+    try:
+      if self.on_changeFunction:
+        self.on_changeFunction()
+        
+      if self.field == "username":
+        validateUsername(self)
+      
+      elif self.field == "password":
+        validatePassword(self)
+      
+      elif self.field == "number":
+        validateNumber(self)
     
-    elif field == "others":
-      self.on_change = lambda e: validateEmptyField(self)
+      elif self.field == "ci":
+        validateCI(self)
+    
+      elif self.field == "others":
+        validateEmptyField(self)
+    except Exception as err:
+      raise
 
 class CustomDropdown(ft.Dropdown):
-  def __init__(self, label, options, mode):
+  def __init__(self, label, expand=False, options:list=[], mode="light", value=None):
     super().__init__()
     self.label = label
     self.options = options
     self.border_width = 2
+    self.expand = expand
+    self.value = value
+    
+    self.text_size = 16
     
     if mode == "gradient":
       self.color = constants.WHITE
@@ -889,12 +926,14 @@ class CustomImageSelectionContainer(ft.Container):
     self.height = height
     self.width = width
     self.page = page
-    self.border_radius = ft.border_radius.all(20)
     self.src = src
+    self.border_radius = ft.border_radius.all(20)
     
     self.selectedImagePath = self.src
     
     self.imageIcon = ft.Container(
+      border=ft.border.all(2, constants.WHITE_GRAY),
+      border_radius=ft.border_radius.all(20),
       bgcolor=ft.colors.TRANSPARENT,
       height=150,
       width=150,
@@ -1050,3 +1089,88 @@ class CustomAutoComplete(ft.Container):
       suggestions=suggestions,
       on_select=on_select,
     )
+    
+class CustomNumberField(ft.Container):
+  def __init__(self, label, expand=False, helper_text=None, value=0):
+    super().__init__()
+    self.width = 220
+    self.height = 80
+    self.expand = True
+    self.label = label
+    self.alignment = ft.alignment.center
+    
+    self.fieldValue = 0
+    
+    self.field = ft.TextField(
+      expand=expand,
+      label=self.label,
+      value=value,
+      color=constants.BLACK,
+      border_color=constants.BLACK_GRAY,
+      focused_border_color=constants.BLACK,
+      helper_text=helper_text,
+      border_width=2,
+      input_filter=ft.NumbersOnlyInputFilter(),
+      label_style=ft.TextStyle(
+        color=constants.BLACK,
+      ),
+      cursor_color=constants.BLACK,
+      text_align=ft.TextAlign.CENTER,
+      text_size=18,
+      on_blur=self.onBlurFunction,
+    )
+    
+    self.content = ft.Row(
+      alignment=ft.MainAxisAlignment.CENTER,
+      spacing=5,
+      controls=[
+        ft.IconButton(
+          icon=ft.icons.REMOVE_ROUNDED,
+          icon_color=constants.BLACK,
+          icon_size=24,
+          on_click=self.removeOne,
+        ),
+        self.field,
+        ft.IconButton(
+          icon=ft.icons.ADD_ROUNDED,
+          icon_color=constants.BLACK,
+          icon_size=24,
+          on_click=self.addOne,
+        )
+      ]
+    )
+  
+  def addOne(self, e):
+    self.field.value = int(self.field.value) + 1
+    self.updateField()
+  
+  def removeOne(self, e):
+    if not int(self.field.value) == 0:
+      self.field.value = int(self.field.value) - 1
+      self.updateField()
+  
+  def updateField(self):
+    self.field.update()
+    self.fieldValue = self.field.value
+    
+  def onBlurFunction(self, e):
+    if self.field.value == "":
+      self.field.value = "0"
+      self.updateField()
+    
+class CustomTooltip(ft.Tooltip):
+  def __init__(self, message, content, border_radius=10, padding=20, bgcolor=constants.WHITE,):
+    super().__init__(message=message, content=content)
+    self.border_radius = border_radius
+    self.padding = padding
+    self.bgcolor = bgcolor
+    
+    self.text_style=ft.TextStyle(size=18, color=constants.BLACK)
+    
+    self.text_align = ft.TextAlign.CENTER
+    
+    self.border = ft.border.all(2, constants.BLACK_GRAY)
+    
+    self.prefer_below = False
+    
+    self.enable_feedback = True
