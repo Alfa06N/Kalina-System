@@ -4,6 +4,7 @@ from sqlalchemy import asc, desc
 from DataBase.errorHandling import handleDatabaseErrors
 from sqlalchemy.exc import SQLAlchemyError
 from exceptions import DataNotFoundError, DataAlreadyExists
+from utils.imageManager import ImageManager
 
 def  createCategory(db: Session, name: str, description: str="", imgPath: str = None):
   try:
@@ -62,15 +63,24 @@ def updateCategory(db: Session, category, name: str, description: str="", imgPat
   try:
     categoryExists = getCategoryByName(db, name)
     
-    if categoryExists:
+    if categoryExists and not category.name == name:
       raise DataAlreadyExists("Esta categoría ya existe")
     else:
+      imageManager = ImageManager()
+      
       def func():
         if category:
           if name:
             category.name = name
           category.description = description
-          category.imgPath = imgPath
+          
+          updatedImgPath = imageManager.updateImage(
+            idData=category.idCategory, 
+            oldImage=category.imgPath,
+            newImage=imgPath,
+          )
+          
+          category.imgPath = updatedImgPath
             
           db.commit()
           db.refresh(category)

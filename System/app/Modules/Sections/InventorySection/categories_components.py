@@ -106,7 +106,7 @@ class CategoryInfo(ft.Stack):
     
     self.imageContainer = CustomImageContainer(
       src=self.imgPath,
-      border_radius=10,
+      border_radius=30,
     )
     
     self.nameText = ft.Text(
@@ -283,26 +283,26 @@ class CategoryEdit(ft.Stack):
       with getDB() as db:
         if evaluateForm(others=[self.nameField]):
           currentCategory = getCategoryById(db, self.idCategory)
-          oldImgPath = currentCategory.imgPath
+          
           updatedCategory = updateCategory(
             db=db, 
             category=currentCategory, 
             name=self.nameField.value,
             description=self.descriptionField.value,
-            imgPath=None,
+            imgPath=self.imageEditContainer.selectedImagePath,
           )
           
           if updatedCategory:
-            if self.imageEditContainer.selectedImagePath:
-              imageManager = ImageManager()
+            # if self.imageEditContainer.selectedImagePath:
+            #   imageManager = ImageManager()
               
-              # ELiminamos la antigua para liberar memoria
-              if oldImgPath:
-                imageManager.removeOldImage(oldImgPath)
+            #   # ELiminamos la antigua para liberar memoria
+            #   if oldImgPath:
+            #     imageManager.removeOldImage(oldImgPath)
                 
-              destinationPath = imageManager.storageImage(self.idCategory, self.imageEditContainer.selectedImagePath)
-              updatedCategory.imgPath = destinationPath
-              db.commit()
+            #   destinationPath = imageManager.storageImage(self.idCategory, self.imageEditContainer.selectedImagePath)
+            #   updatedCategory.imgPath = destinationPath
+            #   db.commit()
           
             self.operationContainer.actionSuccess("Categoría Actualizada")
             time.sleep(1.5)

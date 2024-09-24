@@ -74,7 +74,7 @@ class Category(Base):
   description = Column(Text)
   imgPath = Column(String(50), default=None)
   
-  products = relationship("Product", back_populates="category")
+  products = relationship("Product", back_populates="category", cascade="all, delete-orphan")
 
 class Product(Base):
   __tablename__ = "Product"
@@ -88,7 +88,7 @@ class Product(Base):
   iva = Column(DECIMAL(5, 3), nullable=False)
   description = Column(Text)
   imgPath = Column(String(50), default=None)
-  idCategory = Column(Integer, ForeignKey("Category.idCategory"))
+  idCategory = Column(Integer, ForeignKey("Category.idCategory", ondelete="CASCADE"))
   
   users = relationship("UserProduct", back_populates="product")
   category = relationship("Category", back_populates="products")

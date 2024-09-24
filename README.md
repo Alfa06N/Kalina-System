@@ -73,7 +73,7 @@ flet main.py
 
 ## Autores:
 
-- Desarrollado por mi persona, Alfa06N.
+- Desarrollado por mi persona, Nicolás Alfaro/Alfa06N.
 
 ## Contacto:
 

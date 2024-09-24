@@ -3,7 +3,7 @@ from Modules.customControls import CustomPrincipalContainer, CustomSimpleContain
 import constants
 from config import getDB
 from validation import evaluateForm
-from DataBase.crud.product import createProduct, getProductByName, getProductById, calculatePrice, updateProductStock, updateProductInfo
+from DataBase.crud.product import createProduct, getProductByName, getProductById, calculatePrice, updateProductStock, updateProductInfo, updateProductPrices
 from DataBase.crud.category import getCategories, getCategoryByName
 import time
 from utils.imageManager import ImageManager
@@ -312,11 +312,13 @@ class ProductForm(CustomOperationContainer):
         name = self.nameField.value.strip()
         category = getCategoryByName(db, self.categoryField.value.strip())
         description = self.descriptionField.value.strip()
-        stock = int(self.stockField.field.value)
-        minimStock = int(self.minimStockField.field.value)
+        stock = int(self.stockField.fieldValue)
+        minimStock = int(self.minimStockField.fieldValue)
         cost = float(self.costField.value)
         iva = float(self.ivaField.value)
         gain = float(self.gainField.value)
+        
+        print(f"Stock: {stock} - {type(stock)}, MinimStock: {minimStock} - {type(minimStock)}")
         
         product = createProduct(
           db=db,
@@ -331,6 +333,8 @@ class ProductForm(CustomOperationContainer):
           imgPath=None
         )
         
+        print(product.stock, product.minStock)
+        
         if not self.image.selectedImagePath == None:
           imageManager = ImageManager()
           destinationPath = imageManager.storageImage(product.idCategory, self.image.selectedImagePath)
@@ -340,7 +344,7 @@ class ProductForm(CustomOperationContainer):
         if product:
           print(f"Producto {product.idProduct} creado: {product.name}. Description: {product.description}. imgPath {product.imgPath}")
           
-          self.actionSuccess("Product creado")
+          self.actionSuccess("Producto creado")
           time.sleep(1.5)
           self.mainContainer.resetCurrentView()
     except DataAlreadyExists as err:
@@ -665,9 +669,190 @@ class UpdateInfoForm(ft.Stack):
             db.commit()
             db.refresh(product)
             
+            self.operationContent.actionSuccess("Producto actualizado")
+            time.sleep(1.5)
             self.productInfoControl.updateInfoControls(info=True)
-            self.productInfoControl.returnToInfo()
           else:
             self.operationContent.actionFailed("Algo salió mal")
+    except Exception as err:
+      print(err)
+    
+class UpdatePriceForm(ft.Stack):
+  def __init__(self, page, idProduct, mainContainer, productInfoControl):
+    super().__init__()
+    self.page = page
+    self.idProduct = idProduct
+    self.mainContainer = mainContainer
+    self.productInfoControl = productInfoControl
+    
+    self.expand = True
+    
+    with getDB() as db:
+      product = getProductById(db, self.idProduct)
+      
+      self.title = ft.Text(
+        value=f"Actualizar precios de:\n\"{product.name}\"",
+        size=32,
+        color=constants.BLACK,
+        weight=ft.FontWeight.W_700,
+        text_align=ft.TextAlign.CENTER,
+      )
+      
+      self.costField = CustomTextField(
+        label="Costo del producto",
+        field="number",
+        expand=True,
+        value=round(product.cost, 2),
+        submitFunction=None,
+        suffix_text="$",
+        on_changeFunction=self.calculateFinalPrice
+      )
+      
+      self.ivaField = CustomTextField(
+        label="IVA",
+        field="number",
+        value=round(product.iva, 2),
+        expand=True,
+        suffix_text="%",
+        submitFunction=None,
+        on_changeFunction=self.calculateFinalPrice
+      )
+      
+      self.gainField = CustomTextField(
+        label="Ganancia esperada",
+        field="number",
+        expand=True,
+        value=round(product.gain, 2),
+        suffix_text="%",
+        submitFunction=None,
+        on_changeFunction=self.calculateFinalPrice
+      )
+      
+      self.numberPrice = ft.Text(
+        value=f"{round(calculatePrice(cost=product.cost, iva=product.iva, gain=product.iva), 2)}$",
+        size=18,
+        color=constants.BLACK,
+        weight=ft.FontWeight.W_700,
+      )
+      self.finalPrice = ft.Container(
+        expand=True,
+        padding=ft.padding.symmetric(horizontal=10, vertical=20),
+        border_radius=ft.border_radius.all(10),
+        alignment=ft.alignment.center_left,
+        content=ft.Row(
+          alignment=ft.MainAxisAlignment.START,
+          controls=[
+            ft.Text(
+              value="Precio Final:",
+              size=18,
+              color=constants.BLACK,
+            ),
+            self.numberPrice,
+          ]
+        )
+      )
+      
+    self.finishButton = CustomFilledButton(
+      text="Actualizar",
+      clickFunction=self.submitForm,
+    )
+    
+    self.operationContent = CustomOperationContainer(
+      operationContent=ft.Column(
+        alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        height=400,
+        width=800,
+        spacing=15,
+        controls=[
+          ft.Row(
+            width=800,
+            controls=[
+              self.costField,
+              self.ivaField,
+            ]
+          ),
+          ft.Row(
+            width=800,
+            controls=[
+              self.gainField,
+              self.finalPrice
+            ]
+          ),
+          self.finishButton,
+        ]
+      )
+    )
+      
+    self.controls=[
+      ft.Column(
+        alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        expand=True,
+        controls=[
+          ft.Row(
+            alignment=ft.MainAxisAlignment.CENTER,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            height=100,
+            controls=[
+              self.title,
+            ]
+          ),
+          ft.Column(
+            alignment=ft.MainAxisAlignment.CENTER,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            expand=True,
+            controls=[
+              self.operationContent
+            ]
+          )
+        ]
+      ),
+      ft.Container(
+        left=10,
+        top=10,
+        content=CustomReturnButton(
+          function=lambda e: self.productInfoControl.returnToInfo(),
+        )
+      )
+    ]
+  
+  def calculateFinalPrice(self):
+    try:
+      if not self.costField.value == "" and not self.ivaField.value == "" and not self.gainField.value == "":
+        price = calculatePrice(
+          cost=float(self.costField.value),
+          iva=float(self.ivaField.value),
+          gain=float(self.gainField.value),
+        )
+        if price:
+          self.numberPrice.value = f"{price}$"
+          self.numberPrice.update()
+        
+    except Exception as err:
+      print(err)
+  
+  def submitForm(self, e):
+    try:
+      if evaluateForm(numbers=[self.costField, self.gainField]):
+        with getDB() as db:
+          product = getProductById(db, self.idProduct)
+          
+          product = updateProductPrices(
+            db=db,
+            product=product,
+            cost=float(self.costField.value),
+            iva=float(self.ivaField.value),
+            gain=float(self.gainField.value)
+          )
+          
+          if product:
+            self.operationContent.actionSuccess("Producto actualizado")
+            time.sleep(1.5)
+            self.productInfoControl.updateInfoControls(prices=True)
+          else:
+            self.operationContent.actionFailed("Algo salió mal")
+            time.sleep(1.5)
+            self.productInfoControl.returnToInfo()
     except Exception as err:
       print(err)

@@ -3,8 +3,9 @@ import constants
 from Modules.customControls import CustomUserIcon, CustomOperationContainer, CustomTextField, CustomAnimatedContainer, CustomNavigationOptions, CustomFilledButton, CustomDropdown, CustomDeleteButton, CustomAlertDialog, CustomImageContainer, CustomEditButton
 from config import getDB
 from DataBase.crud.product import getProducts, getProductById, updateProduct, updateProductStock, removeProduct, calculatePrice
-from Modules.products_module import UpdateStockForm, UpdateInfoForm
+from Modules.products_module import UpdateStockForm, UpdateInfoForm, UpdatePriceForm
 from utils.imageManager import ImageManager
+import time
 
 class ProductContainer(ft.Container):
   def __init__(self, idProduct, name, description, infoContainer, mainContainer, page, imgPath=None):
@@ -137,7 +138,7 @@ class ProductInfo(ft.Stack):
     self.imageContainer = CustomAnimatedContainer(
       actualContent=CustomImageContainer(
         src=self.imgPath,
-        border_radius=10,
+        border_radius=30,
       )
     )
     
@@ -150,6 +151,7 @@ class ProductInfo(ft.Stack):
           size=32,
           color=constants.BLACK,
           weight=ft.FontWeight.W_700,
+          text_align=ft.TextAlign.CENTER,
         )
       )
       
@@ -160,14 +162,17 @@ class ProductInfo(ft.Stack):
           color=constants.BLACK,
           max_lines=2,
           overflow=ft.TextOverflow.ELLIPSIS,
+          text_align=ft.TextAlign.CENTER,
         )
       )
       
-      self.stockText = ft.Text(
-        value=f"Stock: {product.stock}",
-        size=18,
-        color=constants.BLACK,
-        weight=ft.FontWeight.W_700,
+      self.stockText = CustomAnimatedContainer(
+        actualContent=ft.Text(
+          value=f"Stock: {product.stock}",
+          size=18,
+          color=constants.BLACK,
+          weight=ft.FontWeight.W_700,
+        )
       )
       
       self.stockContainer = ft.Container(
@@ -182,36 +187,46 @@ class ProductInfo(ft.Stack):
         on_click=self.showEditStock
       )
       
-      self.minStockText = ft.Text(
-        value=f"Se enviará una notificación cuando el stock sea menor o igual a {product.minStock}",
-        size=18,
-        color=constants.BLACK,
-        text_align=ft.TextAlign.CENTER,
+      self.minStockText = CustomAnimatedContainer(
+        actualContent=ft.Text(
+          value=f"Se enviará una notificación cuando el stock sea menor o igual a {product.minStock}",
+          size=18,
+          color=constants.BLACK,
+          text_align=ft.TextAlign.CENTER,
+        )
       )
       
-      self.costText = ft.Text(
-        value=f"Costo: {round(product.cost)}$",
-        size=18,
-        color=constants.BLACK
+      self.costText = CustomAnimatedContainer(
+        actualContent=ft.Text(
+          value=f"Costo: {round(product.cost, 2)}$",
+          size=18,
+          color=constants.BLACK
+        )
       )
       
-      self.ivaText = ft.Text(
-        value=f"IVA: {round(product.cost * (product.iva/100), 2)}$",
-        size=18,
-        color=constants.BLACK,
+      self.ivaText = CustomAnimatedContainer(
+        actualContent=ft.Text(
+          value=f"IVA: {round(product.cost * (product.iva/100), 2)}$",
+          size=18,
+          color=constants.BLACK,
+        )
       )
       
-      self.priceText = ft.Text(
-        value=f"Precio final: {round(calculatePrice(product.cost, product.iva, product.gain), 2)}$",
-        color=constants.BLACK,
-        size=18,
-        weight=ft.FontWeight.W_700,
+      self.priceText = CustomAnimatedContainer(
+        actualContent=ft.Text(
+          value=f"Precio final: {round(calculatePrice(product.cost, product.iva, product.gain), 2)}$",
+          color=constants.BLACK,
+          size=18,
+          weight=ft.FontWeight.W_700,
+        )
       )
       
-      self.gainText = ft.Text(
-        value=f"Ganancia: {round(product.cost * (product.gain / 100), 2)}$",
-        color=constants.BLACK,
-        size=18,
+      self.gainText = CustomAnimatedContainer(
+        actualContent=ft.Text(
+          value=f"Ganancia: {round(product.cost * (product.gain / 100), 2)}$",
+          color=constants.BLACK,
+          size=18,
+        )
       )
       
       self.categoryText = ft.Text(
@@ -222,7 +237,7 @@ class ProductInfo(ft.Stack):
       )
     
     self.deleteButton = CustomDeleteButton(
-      function=None,
+      function=self.deleteProduct,
       page=self.page,
     )
     
@@ -268,6 +283,9 @@ class ProductInfo(ft.Stack):
                   
                 ),
                 ft.Container(
+                  ink=True,
+                  ink_color=constants.WHITE_GRAY,
+                  on_click=self.showEditPrice,
                   border=ft.border.all(2, constants.BLACK),
                   alignment=ft.alignment.center_left,
                   border_radius=ft.border_radius.all(20),
@@ -314,6 +332,7 @@ class ProductInfo(ft.Stack):
   def updateInfoControls(self, info:bool=False, stock:bool=False, prices:bool=False):
     try:
       self.returnToInfo()
+      time.sleep(0.5)
       with getDB() as db:
         product = getProductById(db, self.idProduct)
         imageManager = ImageManager()
@@ -325,6 +344,7 @@ class ProductInfo(ft.Stack):
               size=32,
               color=constants.BLACK,
               weight=ft.FontWeight.W_700,
+              text_align=ft.TextAlign.CENTER,
             )
           )
           
@@ -337,6 +357,7 @@ class ProductInfo(ft.Stack):
               color=constants.BLACK,
               max_lines=2,
               overflow=ft.TextOverflow.ELLIPSIS,
+              text_align=ft.TextAlign.CENTER,
             )
           )
             
@@ -344,20 +365,63 @@ class ProductInfo(ft.Stack):
           self.imageContainer.setNewContent(
             newContent=CustomImageContainer(
               src=self.imgPath,
-              border_radius=10,
+              border_radius=30,
             )
           )
           self.productContainer.updateContainer(name=product.name, description=product.description, imgPath=self.imgPath)
 
         if stock:
-          self.stockText.value = f"Stock: {product.stock}"
-          self.minStockText.value = f"Se enviará una notificación cuando el stock sea menor o igual a {product.minStock}"
+          self.stockText.setNewContent(
+            newContent=ft.Text(
+              value=f"Stock: {product.stock}",
+              size=18,
+              color=constants.BLACK,
+              weight=ft.FontWeight.W_700,
+            )
+          )
+          
+          self.minStockText.setNewContent(
+            newContent=ft.Text(
+              value=f"Se enviará una notificación cuando el stock sea menor o igual a {product.minStock}",
+              size=18,
+              color=constants.BLACK,
+              text_align=ft.TextAlign.CENTER,
+            )
+          )
         
         if prices:
-          self.costText.value = f"Costo: {round(product.cost)}$"
-          self.ivaText.value = f"IVA: {round(product.cost * (product.iva / 100), 2)}$"
-          self.gainText.value = f"Ganancia: {round(product.cost * (product.gain / 100), 2)}$"
-          self.priceText.value = f"Precio final: {round(calculatePrice(product.cost, product.iva, product.gain), 2)}$"
+          self.costText.setNewContent(
+            newContent=ft.Text(
+              value=f"Costo: {round(product.cost, 2)}$",
+              size=18,
+              color=constants.BLACK
+            )
+          )
+          
+          self.ivaText.setNewContent(
+            newContent=ft.Text(
+              value=f"IVA: {round(product.cost * (product.iva/100), 2)}$",
+              size=18,
+              color=constants.BLACK,
+            )
+          )
+          
+          self.gainText.setNewContent(
+            newContent=ft.Text(
+              value=f"Ganancia: {round(product.cost * (product.gain / 100), 2)}$",
+              color=constants.BLACK,
+              size=18,
+            )
+          )
+          
+          self.priceText.setNewContent(
+            newContent=ft.Text(
+              value=f"Precio final: {round(calculatePrice(product.cost, product.iva, product.gain), 2)}$",
+              color=constants.BLACK,
+              size=18,
+              weight=ft.FontWeight.W_700,
+            )
+          )
         
     except Exception as err:
       print(err)
@@ -369,6 +433,19 @@ class ProductInfo(ft.Stack):
         mainContainer=self.mainContainer,
         productInfoControl=self,
         page=self.page,
+      )
+      
+      self.animatedSwitcher.setNewContent(newContent)
+    except Exception as err:
+      print(err)
+  
+  def showEditPrice(self, e):
+    try:
+      newContent = UpdatePriceForm(
+        page=self.page,
+        idProduct=self.idProduct,
+        mainContainer=self.mainContainer,
+        productInfoControl=self,
       )
       
       self.animatedSwitcher.setNewContent(newContent)
@@ -395,3 +472,13 @@ class ProductInfo(ft.Stack):
       )
     except Exception as err:
       print(err)
+
+  def deleteProduct(self):
+    try:
+      with getDB() as db:
+        product = getProductById(db, self.idProduct)
+        
+        if removeProduct(db, product):
+          self.mainContainer.resetCurrentView()
+    except Exception as err:
+      raise

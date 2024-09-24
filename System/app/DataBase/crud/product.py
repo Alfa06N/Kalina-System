@@ -11,11 +11,17 @@ from sqlalchemy import asc, desc
 
 def createProduct(db: Session, name: str, description: str, stock: int, minStock: int, cost: float, gain: float, iva: float, idCategory: int, imgPath: str):
   try:
+    alreadyExists = getProductByName(db, name)
+    
+    if alreadyExists:
+      raise DataAlreadyExists("Nombre de producto no disponible")
+    
+    print(f"Antes de crear el producto: {stock} - {minStock}")
     product = Product(
       name=name,
       description=description,
       stock=stock,
-      minStock=stock,
+      minStock=minStock,
       cost=cost,
       gain=gain,
       iva=iva,
@@ -30,8 +36,7 @@ def createProduct(db: Session, name: str, description: str, stock: int, minStock
     handleDatabaseErrors(db, func)
     
     db.refresh(product)
-    
-    updateProductStock(db, product, product.stock)
+    print(f"Después de crear el producto: {product.stock} - {product.minStock}")
     return product
   except Exception as e:
     raise
@@ -122,10 +127,8 @@ def updateProductInfo(db: Session, product, name:str, description:str, idCategor
   except Exception as err:
     raise
 
-def removeProduct(db: Session, idProduct: int):
-  try:
-    product = getProductById(db, idProduct)
-    
+def removeProduct(db: Session, product):
+  try:  
     def func():
       db.delete(product)
       db.commit()
@@ -188,5 +191,28 @@ def updateProductStock(db: Session, product, quantityAdded: int):
     db.refresh(register)
     return product, register
   except Exception:
+    db.rollback()
+    raise
+
+def updateProductPrices(db: Session, product, cost:float, iva:float, gain:float):
+  try:
+    if not product:
+      raise DataNotFoundError("Producto no encontrado")
+    
+    def func():
+      if cost:
+        product.cost = cost
+      if iva:
+        product.iva = iva
+      if gain:
+        product.gain = gain
+      
+      db.commit()
+      return product
+    
+    product = handleDatabaseErrors(db, func)
+    db.refresh(product)
+    return product
+  except Exception as err:
     db.rollback()
     raise

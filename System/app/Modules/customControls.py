@@ -399,7 +399,7 @@ class CustomTextField(ft.TextField):
     elif self.field == "number":
       self.text_align = ft.TextAlign.RIGHT
       self.keyboard_type = ft.KeyboardType.NUMBER
-      self.value = "0.00"
+      self.value = "0.00" if self.value == "" else self.value
       self.on_blur = self.onBlurNumbers
     
     elif self.field == "ci":
@@ -1118,6 +1118,7 @@ class CustomNumberField(ft.Container):
       text_align=ft.TextAlign.CENTER,
       text_size=18,
       on_blur=self.onBlurFunction,
+      on_change=lambda e: self.updateFieldValue(),
     )
     
     self.content = ft.Row(
@@ -1151,7 +1152,13 @@ class CustomNumberField(ft.Container):
   
   def updateField(self):
     self.field.update()
-    self.fieldValue = self.field.value
+    self.updateFieldValue()
+  
+  def updateFieldValue(self):
+    try:
+      self.fieldValue = int(self.field.value)
+    except Exception as err:
+      pass
     
   def onBlurFunction(self, e):
     if self.field.value == "":
