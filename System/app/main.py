@@ -2,12 +2,14 @@ import flet as ft
 from interface import initApp, showPrincipal
 import constants
 from initialization import init_db
-from Modules.customControls import CustomAppBar, CustomUserIcon, CustomSidebar, CustomCardInfo, CustomDatePicker, CustomFilledButton, CustomAnimatedContainer, CustomAutoComplete, CustomNumberField, CustomTooltip, CustomTextField, CustomDropdown
+from Modules.customControls import CustomAppBar, CustomUserIcon, CustomSidebar, CustomCardInfo, CustomDatePicker, CustomFilledButton, CustomAnimatedContainer, CustomAutoComplete, CustomNumberField, CustomTooltip, CustomTextField, CustomDropdown, CustomItemsSelector, CustomItemCard, CustomImageContainer
 from utils.sessionManager import getCurrentUser, setUser
 from config import getDB
 from DataBase.crud.user import getUsers
+from DataBase.crud.product import getProductByName, getProducts
 from utils.imageManager import ImageManager
 import time
+import asyncio
 
 def main(page: ft.Page):
   page.title = "Kariña System"
@@ -30,12 +32,11 @@ def main(page: ft.Page):
   
   init_db()
   
-  # showPrincipal(page)
+  showPrincipal(page)
   
-  initApp(page)
+  # initApp(page)
 
 if __name__ == "__main__":
   
   ft.app(target=main)
   
-# Si elimino una categoría, deben eliminarse los productos de esa categoría

@@ -10,14 +10,6 @@ from utils.imageManager import ImageManager
 from exceptions import DataAlreadyExists
 from utils.sessionManager import getCurrentUser
 
-class ProductContainer():
-  def __init__(self, page):
-    pass
-
-class ProductListContainer():
-  def __init__(self, page):
-    pass
-
 class ProductForm(CustomOperationContainer):
   def __init__(self, page, mainContainer):
     self.page = page
@@ -147,8 +139,7 @@ class ProductForm(CustomOperationContainer):
     self.content = ft.Column(
       scroll=ft.ScrollMode.AUTO,
       alignment=ft.MainAxisAlignment.CENTER,
-      height=800,
-      width=600,
+      expand=True,
       horizontal_alignment=ft.CrossAxisAlignment.CENTER,
       spacing=20,
       controls=[
@@ -649,8 +640,6 @@ class UpdateInfoForm(ft.Stack):
         with getDB() as db:
           product = getProductById(db, self.idProduct)
           category = getCategoryByName(db, self.categoryField.value.strip())
-          imageManager = ImageManager()
-          print(type(self.descriptionField.value.strip()), "->", self.descriptionField.value.strip())
           
           updatedProduct = updateProductInfo(
             db=db,
@@ -658,24 +647,17 @@ class UpdateInfoForm(ft.Stack):
             name=self.nameField.value.strip(),
             description=self.descriptionField.value.strip(),
             idCategory=category.idCategory,
+            imgPath=self.image.selectedImagePath,
           )
           
           if updatedProduct:
-            product.imgPath = imageManager.updateImage(
-              idData=product.idProduct, 
-              oldImage=product.imgPath, 
-              newImage=self.image.selectedImagePath,
-            )
-            db.commit()
-            db.refresh(product)
-            
             self.operationContent.actionSuccess("Producto actualizado")
             time.sleep(1.5)
             self.productInfoControl.updateInfoControls(info=True)
           else:
             self.operationContent.actionFailed("Algo salió mal")
     except Exception as err:
-      print(err)
+      raise
     
 class UpdatePriceForm(ft.Stack):
   def __init__(self, page, idProduct, mainContainer, productInfoControl):
@@ -729,7 +711,7 @@ class UpdatePriceForm(ft.Stack):
       )
       
       self.numberPrice = ft.Text(
-        value=f"{round(calculatePrice(cost=product.cost, iva=product.iva, gain=product.iva), 2)}$",
+        value=f"{round(calculatePrice(cost=product.cost, iva=product.iva, gain=product.gain), 2)}$",
         size=18,
         color=constants.BLACK,
         weight=ft.FontWeight.W_700,

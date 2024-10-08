@@ -6,6 +6,11 @@ from utils.imageManager import ImageManager
 from datetime import datetime
 import os
 import re
+from config import getDB
+import threading
+from exceptions import InvalidData
+from DataBase.crud.product import calculatePrice
+from DataBase.crud.combo import calculateComboCost
 
 class CustomPrincipalContainer(ft.Container):
   def __init__(self, containerContent, width=900, height=550):
@@ -297,7 +302,7 @@ class CustomFloatingActionButton(ft.FloatingActionButton):
     )
 
 class CustomOutlinedButton(ft.OutlinedButton):
-  def __init__(self, text, color, size, icon, clickFunction):
+  def __init__(self, text, color=constants.BLACK, size=18, icon=None, clickFunction=None):
     super().__init__()
     self.text = text
     self.color = color
@@ -1044,8 +1049,6 @@ class CustomImageSelectionContainer(ft.Container):
             self.turnOnButtonVisibility()
           else:
             print(f"Tipo de archivo no permitido: {os.path.splitext(file.path)[1].lower()}")
-      else:
-        print("No se seleccionó ningún archivo")
     except Exception as err:
       raise
     
@@ -1056,11 +1059,11 @@ class CustomImageSelectionContainer(ft.Container):
       self.turnOffButtonVisibility()
       
 class CustomImageContainer(ft.Container):
-  def __init__(self, src, border_radius=10, fit=ft.ImageFit.COVER, width:int=200, height:int=200):
+  def __init__(self, src, border_radius=10, fit=ft.ImageFit.COVER, width:int=200, height:int=200, border=True, bgcolor=ft.colors.TRANSPARENT):
     super().__init__()
     self.height = height
     self.width = width
-    self.bgcolor = ft.colors.TRANSPARENT
+    self.bgcolor = bgcolor
     self.alignment = ft.alignment.center
     self.border_radius = border_radius
     
@@ -1072,7 +1075,7 @@ class CustomImageContainer(ft.Container):
         height=self.height,
       )
     else:
-      self.border = ft.border.all(2, constants.WHITE_GRAY)
+      self.border = ft.border.all(2, constants.WHITE_GRAY) if border == True else None
       self.content = ft.Icon(
         name=ft.icons.IMAGE_ROUNDED,
         color=constants.BLACK,
@@ -1091,14 +1094,14 @@ class CustomAutoComplete(ft.Container):
     )
     
 class CustomNumberField(ft.Container):
-  def __init__(self, label, expand=False, helper_text=None, value=0):
+  def __init__(self, label, expand=False, helper_text=None, value=0, on_change=None):
     super().__init__()
     self.width = 220
     self.height = 80
     self.expand = True
     self.label = label
     self.alignment = ft.alignment.center
-    
+    self.on_changeFunction = on_change
     self.fieldValue = 0
     
     self.field = ft.TextField(
@@ -1118,7 +1121,7 @@ class CustomNumberField(ft.Container):
       text_align=ft.TextAlign.CENTER,
       text_size=18,
       on_blur=self.onBlurFunction,
-      on_change=lambda e: self.updateFieldValue(),
+      on_change=lambda e: self.on_changeFun()
     )
     
     self.content = ft.Row(
@@ -1143,12 +1146,16 @@ class CustomNumberField(ft.Container):
   
   def addOne(self, e):
     self.field.value = int(self.field.value) + 1
-    self.updateField()
+    self.on_changeFun()
   
   def removeOne(self, e):
     if not int(self.field.value) == 0:
       self.field.value = int(self.field.value) - 1
-      self.updateField()
+      self.on_changeFun()
+      
+  def on_changeFun(self):
+    self.updateField()
+    self.on_changeFunction()
   
   def updateField(self):
     self.field.update()
@@ -1163,7 +1170,7 @@ class CustomNumberField(ft.Container):
   def onBlurFunction(self, e):
     if self.field.value == "":
       self.field.value = "0"
-      self.updateField()
+      self.on_changeFun()
     
 class CustomTooltip(ft.Tooltip):
   def __init__(self, message, content, border_radius=10, padding=20, bgcolor=constants.WHITE,):
@@ -1181,3 +1188,791 @@ class CustomTooltip(ft.Tooltip):
     self.prefer_below = False
     
     self.enable_feedback = True
+    
+class CustomContainerButtonGradient(ft.Container):
+  def __init__(self, text, borderColor, gradientColor, on_click=None, expand=True, height=80, alignment=ft.alignment.center, textSize=24):
+    super().__init__()
+    self.expand = expand
+    self.alignment = alignment
+    self.borderColor = borderColor
+    self.gradientColor = gradientColor
+    self.padding = ft.padding.symmetric(horizontal=30, vertical=20)
+    self.on_click = on_click
+    
+    self.border = ft.border.only(bottom=ft.border.BorderSide(3, self.borderColor))
+    
+    self.border_radius = ft.border_radius.all(10)
+    
+    self.animate = ft.animation.Animation(300, ft.AnimationCurve.EASE_IN_OUT)
+    
+    self.content = ft.Text(
+      value=text,
+      size=textSize,
+      color=constants.BLACK,
+      weight=ft.FontWeight.W_700,
+    )
+    
+    self.on_hover = self.on_hoverFunction
+  
+  def on_hoverFunction(self, e):
+    self.gradient = ft.LinearGradient(
+      begin=ft.alignment.bottom_center,
+      end=ft.alignment.top_center,
+      colors=[self.gradientColor, ft.colors.WHITE10],
+    ) if e.data == "true" else None
+    
+    self.update()
+    
+class CustomItemsDialog(ft.AlertDialog):
+  def __init__(self, page, parent, width:int=800, height:int=500, title:str="Buscar Productos y Combos", finalFunction=None, products:bool=True, combos:bool=False):
+    super().__init__()
+    self.page = page
+    
+    self.products = products
+    self.combos = combos
+    self.modal = True
+    self.parent = parent
+    self.selectedItems = []
+    self.finalFunction = finalFunction
+    
+    self.title = ft.Text(
+      value=title,
+      size=32,
+      weight=ft.FontWeight.W_700,
+      color=constants.BLACK,
+      text_align=ft.TextAlign.CENTER,
+    )
+    
+    self.productButton = CustomNavigationOptions(
+      icon=ft.icons.COFFEE_ROUNDED,
+      text="Productos",
+      function=self.switchView,
+      color="#666666",
+      focusedColor=constants.BLACK,
+      opacityInitial=1,
+      highlightColor=None,
+      contentAlignment=ft.MainAxisAlignment.CENTER,
+      default=True if products == True else False,
+    )
+    
+    self.comboButton = CustomNavigationOptions(
+      icon=ft.icons.FASTFOOD_ROUNDED,
+      text="Combos",
+      function=self.switchView,
+      color="#666666",
+      focusedColor=constants.BLACK,
+      opacityInitial=1,
+      default=False if products == True else True,
+      highlightColor=None,
+      contentAlignment=ft.MainAxisAlignment.CENTER,
+    )
+
+    self.navigationButtons = ft.Container(
+      margin=ft.margin.symmetric(horizontal=20, vertical=10),
+      bgcolor=ft.colors.TRANSPARENT, 
+      height=60,
+      width=600,
+      alignment=ft.alignment.center,
+      content=ft.Row(
+        alignment=ft.MainAxisAlignment.CENTER,
+        expand=True,
+        spacing=20,
+      )
+    )
+    
+    self.productsView = CustomGridView(
+      expand=True,
+      width=600,
+      controls=self.getItems("Products"),
+    )
+    
+    self.combosView = CustomGridView(
+      expand=True,
+      width=600,
+      controls=self.getItems("Combos")
+    )
+    
+    if self.products:
+      self.navigationButtons.content.controls.append(self.productButton)
+    if self.combos:
+      self.navigationButtons.content.controls.append(self.comboButton)
+    
+    self.itemsContainer = CustomAnimatedContainerSwitcher(
+      bgcolor=ft.colors.TRANSPARENT,
+      content=ft.Column(
+        scroll=ft.ScrollMode.ALWAYS,
+        alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        controls=[
+          ft.Text(
+            value="There's nothing to show you yet",
+            color=constants.BLACK,
+            weight=ft.FontWeight.W_700,
+            size=32,
+            text_align=ft.TextAlign.CENTER,
+          )
+        ]
+      )
+    )
+    
+    self.cancelButton = CustomContainerButtonGradient(
+      text="Cancelar",
+      borderColor=constants.RED_TEXT,
+      gradientColor=constants.RED_FAILED_LIGHT,
+      on_click=lambda e: self.closeDialog()
+    )
+    
+    self.confirmButton = CustomContainerButtonGradient(
+      text="Confirmar",
+      borderColor=constants.GREEN_TEXT,
+      gradientColor=constants.GREEN_LIGHT,
+      on_click=lambda e: self.confirmFunction(),
+    )
+    
+    self.selectedView = self.productButton if products == True else self.comboButton
+    self.actualView = self.productsView if products == True else self.combosView
+
+    
+    self.content = ft.Column(
+      alignment=ft.MainAxisAlignment.START,
+      horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+      spacing=5,
+      expand=True,
+      controls=[
+        self.navigationButtons,
+        ft.Divider(color=constants.WHITE_GRAY),
+        self.actualView,
+        ft.Divider(color=constants.WHITE_GRAY),
+        ft.Row(
+          alignment=ft.MainAxisAlignment.CENTER,
+          controls=[
+            self.cancelButton,
+            self.confirmButton,
+          ]
+        )
+      ]
+    )
+  
+    self.page.overlay.append(self)
+    
+  def openDialog(self, parent):
+    self.parent = parent
+    
+    self.selectedItems = self.parent.selectedItems.copy()
+    self.updateItemSelection()
+    self.open = True
+    self.page.update()
+    
+  def updateItemSelection(self):
+    for container in self.productsView.controls:
+      if container.selected and container.item not in self.selectedItems:
+        container.selectImage(select=False)
+      elif not container.selected and container.item in self.parent.selectedItems:
+        container.selectImage(select=True)
+    for container in self.combosView.controls:
+      if container.selected and container.item not in self.selectedItems:
+        container.selectImage(select=False)
+      elif not container.selected and container.item in self.parent.selectedItems:
+        container.selectImage(select=True)
+  
+  def closeDialog(self):
+    self.open = False
+    self.page.update()
+    
+  def confirmFunction(self):
+    self.closeDialog()
+    self.finalFunction()
+    
+  def updateView(self):
+    try:
+      # Actualiza los items que se van a seleccionar
+      self.actualView = self.productsView if self.selectedView == self.productButton else self.combosView
+      self.content.controls[2] = self.actualView
+      self.content.update()
+    except:
+      raise
+    
+  def switchView(self, e):
+    try:
+      # Cambia la vista entre productos y categorías
+      if not e.control == self.selectedView:
+        self.selectedView.deselectOption()
+        self.selectedView = e.control
+        self.selectedView.selectOption()
+        self.updateView()
+    except:
+      raise
+  
+  def getItems(self, view:str):
+    try:
+      # Obtiene los cardItems a mostrar
+      with getDB() as db:
+        content = []
+        if view == "Products" and self.products:
+          from DataBase.crud.product import getProducts
+          products = getProducts(db)
+          
+          for product in products:
+            itemCard = CustomItemCard(
+              page=self.page,
+              item=product,
+              on_click=self.selectItem,
+              selected=False,
+            )
+            content.append(itemCard)
+        elif view == "Combos" and self.combos:
+          from DataBase.crud.combo import getCombos
+          combos = getCombos(db)
+          
+          for combo in combos:
+            itemCard = CustomItemCard(
+              page=self.page,
+              item=combo,
+              on_click=self.selectItem,
+              selected=False,
+            )
+            content.append(itemCard)
+        return content
+    except:
+      raise
+  
+  def selectItem(self, e):
+    try:
+      e.control.selectImage(select=not e.control.selected)
+      if e.control.selected:
+        self.selectedItems.append(e.control.item)
+      else:
+        self.selectedItems.remove(e.control.item)
+    except:
+      raise
+    
+class CustomItemCard(ft.Container):
+  def __init__(self, page, item, width=200, height=200, on_click=None, selected=False):
+    super().__init__()
+    self.height = height
+    self.width = width
+    self.page = page 
+    self.item = item
+    self.on_click = on_click
+    self.selected = selected
+
+    self.border_radius = ft.border_radius.all(30)
+    self.shadow = ft.BoxShadow(
+      blur_radius=5,
+      spread_radius=1,
+      color=constants.BLACK_GRAY,
+    )
+    self.animate = ft.animation.Animation(250, ft.AnimationCurve.EASE_IN_OUT)
+    
+    with getDB() as db:
+      imageManager = ImageManager()
+      self.imageContainer = CustomImageContainer(
+        src=imageManager.getImagePath(item.imgPath),
+        height=self.height,
+        width=self.width,
+        border=False,
+        bgcolor=constants.WHITE,
+      )
+      
+      self.shaderControl = ft.ShaderMask(
+        content=self.imageContainer,
+        blend_mode=ft.BlendMode.MULTIPLY,
+        shader=ft.LinearGradient(
+          begin=ft.alignment.bottom_center,
+          end=ft.alignment.center,
+          colors=[ft.colors.BLACK, ft.colors.TRANSPARENT],
+        ),
+        border_radius=30,
+      )
+      
+      self.textName = ft.Text(
+        value=f"{item.name}",
+        size=26,
+        color=constants.WHITE,
+        weight=ft.FontWeight.W_700,
+        overflow=ft.TextOverflow.ELLIPSIS,
+        max_lines=1,
+      )
+      
+    self.checkControl = ft.Container(
+      bottom=10,
+      right=10,
+      scale=0 if self.selected == False else 1,
+      animate_scale=ft.animation.Animation(600, ft.AnimationCurve.ELASTIC_OUT),
+      content=ft.Icon(
+        name=ft.icons.CHECK_CIRCLE_ROUNDED,
+        size=32,
+        color=constants.GREEN_SUCCESS,
+      ),
+      border_radius=50,
+      shadow=ft.BoxShadow(
+        blur_radius=5,
+        spread_radius=1,
+        color=constants.BLACK,
+      )
+    )
+    
+    self.imageControl = ft.Stack(
+      expand=True,
+      controls=[
+        self.shaderControl,
+        ft.Container(
+          bottom=0,
+          left=10,
+          right=10,
+          expand=True,
+          # width=self.width,
+          content=self.textName,
+          padding=ft.padding.symmetric(vertical=10),
+          alignment=ft.alignment.center,
+        ),
+        self.checkControl,
+      ]
+    )
+    
+    self.content = self.imageControl
+    
+  def selectImage(self, select=True):
+    self.checkControl.scale = 1 if select else 0
+    self.selected = select
+    
+    if select:
+      self.border = ft.border.all(4, constants.GREEN_SUCCESS)
+      threading.Timer(0.25, self.removeBorder).start()
+    
+    self.update()
+  
+  def deselectImage(self):
+    self.checkControl.scale = 0
+    self.border = ft.border.all(4, constants.GREEN_SUCCESS)
+    self.update()
+    
+    threading.Timer(0.25, self.removeBorder).start()
+    self.selected = False
+  
+  def removeBorder(self):
+    self.border = None
+    self.update()
+    
+class CustomItemsSelector(ft.Container):
+  def __init__(self, page, width=800, height=400, products=True, combos=False):
+    super().__init__()
+    self.page = page
+    self.products = products
+    self.combos = combos
+    self.expand = True
+    self.padding = ft.padding.all(10)
+    self.price = 0
+    
+    self.selectedItems = []
+    self.showedItems = []
+    
+    self.dialog = CustomItemsDialog(
+      page=self.page,
+      products=self.products,
+      combos=self.combos,
+      parent=self,
+      finalFunction=self.getItemsSelected,
+    )
+
+    self.alignment = ft.alignment.center
+    self.expand = True
+    
+    self.initialContent = CustomInitialRowContent(
+      message="Selecciona los productos deseados",
+    )
+    
+    self.itemsList = ft.Column(
+      scroll=ft.ScrollMode.ALWAYS,
+      expand=True,
+      controls=[
+        
+      ]
+    )
+    
+    self.priceText = ft.Text(
+      value="0$",
+      size=32,
+      color=constants.ORANGE_LIGHT,
+      weight=ft.FontWeight.W_700,
+      text_align=ft.TextAlign.CENTER,
+    )
+    
+    self.priceContainer = ft.Container(
+      gradient=ft.LinearGradient(
+        begin=ft.alignment.bottom_center,
+        end=ft.alignment.top_center,
+        colors=[constants.BLACK, constants.BROWN],
+      ),
+      border_radius=10,
+      alignment=ft.alignment.center,
+      shadow=ft.BoxShadow(
+        spread_radius=1,
+        blur_radius=5,
+        color=constants.WHITE_GRAY,
+      ),
+      content=ft.Row(
+        alignment=ft.MainAxisAlignment.CENTER,
+        vertical_alignment=ft.CrossAxisAlignment.CENTER,
+        controls=[self.priceText]
+      )
+    )
+    
+    self.itemsContainer = ft.Container(
+      expand=True,
+      bgcolor=constants.WHITE,
+      padding=ft.padding.symmetric(vertical=10, horizontal=10),
+      # border=ft.border.all(2, constants.BLACK),
+      margin=ft.margin.only(bottom=10),
+      border_radius=ft.border_radius.all(10),
+      shadow=ft.BoxShadow(
+        spread_radius=2,
+        blur_radius=10,
+        blur_style=ft.ShadowBlurStyle.INNER,
+        color=constants.BLACK_GRAY,
+      ),
+      content=ft.Row(
+        expand=True,
+        controls=[self.itemsList]  
+      ),
+    )
+    
+    self.addButton = CustomFilledButton(
+      text="Añadir",
+      clickFunction=lambda e: self.dialog.openDialog(parent=self),
+    )
+    
+    self.resetListButton = CustomOutlinedButton(
+      text="Vaciar", 
+      clickFunction=self.resetItemList,
+    )
+    
+    self.content = ft.Column(
+      expand=True,
+      horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+      alignment=ft.MainAxisAlignment.CENTER,
+      spacing=0,
+      controls=[
+        self.priceContainer,
+        self.itemsContainer,
+        ft.Row(
+          alignment=ft.MainAxisAlignment.CENTER,
+          controls=[
+            self.resetListButton,
+            self.addButton,
+          ]
+        )
+      ]
+    )
+  
+  def addItemToList(self, item):
+    self.itemsList.controls.append(item)
+    
+  def animateOffset(self, item):
+    item.opacity = 1
+    time.sleep(0.05)
+    item.update()
+    item.offset=ft.transform.Offset(0, 0)
+    time.sleep(0.05)
+    item.update()
+  
+  def resetItemList(self, e):
+    for itemField in reversed(self.itemsList.controls):
+      itemField.animateOpacity()
+    
+    threading.Timer(0.5, self.removeAllItems).start()
+    
+  def calculateItemsPrice(self):
+    cost = 0
+    
+    with getDB() as db:
+      for itemField in self.itemsList.controls:
+        item = itemField.item
+        quantity = itemField.quantityField.fieldValue
+        
+        if hasattr(item, "idProduct"):
+          # itemPrice = calculatePrice(
+          #   cost=item.cost,
+          #   gain=item.gain,
+          #   iva=item.iva,
+          # ) * quantity
+          cost += item.cost * quantity
+        else:
+          itemPrice = item.price * quantity
+          cost += itemPrice
+    
+    self.priceText.value = f"{round(cost, 2)}$"
+    self.price = cost
+    self.priceText.update()
+  
+  def removeItem(self, itemField):
+    try:
+      self.selectedItems.remove(itemField.item)
+      self.showedItems.remove(itemField)
+      self.itemsList.controls.remove(itemField)
+      
+      itemField.animateOpacity()
+      threading.Timer(0.3, lambda: self.itemsList.update()).start()
+      
+      self.calculateItemsPrice()
+    except:
+      raise
+  
+  def removeAllItems(self):
+    try:
+      self.itemsList.controls.clear()
+      self.selectedItems.clear()
+      self.showedItems.clear()
+      self.itemsList.update()
+      
+      self.calculateItemsPrice()
+    except Exception as err:
+      raise
+      
+    
+  def getItemsSelected(self):
+    try:
+      self.selectedItems = self.dialog.selectedItems
+      
+      self.showItemsSelected()
+    except:
+      raise
+    
+  def showItemsSelected(self):
+    try:
+      with getDB() as db:
+        if len(self.selectedItems) > 0 and self.initialContent in self.itemsList.controls:
+          self.itemsList.controls.remove(self.initialContent)
+          
+        for item in self.selectedItems:
+          if item not in [field.item for field in self.showedItems]:
+            itemField = CustomItemQuantityInput(
+              page=self.page,
+              item=item,
+              sell=False,
+              removeFunction=self.removeItem,
+              on_change=self.calculateItemsPrice,
+            )
+            self.showedItems.append(itemField)
+            self.itemsList.controls.append(itemField)
+            
+        toRemove = [itemField for itemField in self.showedItems if itemField.item not in self.selectedItems]
+        
+        for itemField in toRemove:
+          self.showedItems.remove(itemField)
+          self.itemsList.controls.remove(itemField)
+          
+        if len(self.itemsList.controls) == 0:
+          self.itemsList.controls.append(self.initialContent)
+          
+      self.itemsList.update()
+      self.calculateItemsPrice()
+    except:
+      raise
+  
+  def getItemsWithQuantity(self):
+    try:
+      itemsWithQuantity = []
+      
+      
+      for itemField in self.itemsList.controls:
+        item = itemField.item
+        itemInfo = {
+          "item": item,
+          "name": item.name,
+          "quantity": itemField.quantityField.fieldValue,
+          "price": itemField.quantityField.fieldValue * calculatePrice(cost=item.cost, gain=item.gain, iva=item.iva)
+        }
+        
+        itemsWithQuantity.append(itemInfo)
+      
+      return itemsWithQuantity
+    except Exception as err:
+      raise
+    
+  def validateAllItemFields(self):
+    try:
+      isValid = True
+      if len(self.itemsList.controls) == 0:
+        raise InvalidData("No se han seleccionado productos.")
+      else:
+        for itemField in self.itemsList.controls:
+          if itemField.quantityField.fieldValue == 0:
+            raise InvalidData("No pueden haber campos en 0.")
+      return isValid
+    except:
+      raise
+    
+class CustomGridView(ft.GridView):
+  def __init__(self, expand, controls, width=600, runs_count=5, max_extent=200, child_aspect_ratio=1.0, spacing=10, run_spacing=10):
+    super().__init__()
+    self.expand = True
+    self.semantic_child_count = 3
+    self.max_extent = max_extent
+    self.child_aspect_ratio = child_aspect_ratio = 1.0
+    self.spacing = spacing
+    self.run_spacing = run_spacing
+    self.padding = ft.padding.all(10)
+    
+    self.controls = controls
+    
+class CustomItemQuantityInput(ft.Container):
+  def __init__(self, page, item, sell=False, opacity=1, removeFunction=None, on_change=None):
+    super().__init__()
+    self.item = item
+    self.page = page
+    self.border_radius = ft.border_radius.all(10)
+    self.opacity = opacity
+    self.bgcolor = constants.WHITE
+    self.margin = ft.margin.symmetric(horizontal=10, vertical=10)
+    
+    self.on_changeFunction = on_change
+    self.shadow = ft.BoxShadow(
+      spread_radius=1,
+      blur_radius=5,
+      color=constants.WHITE_GRAY
+    )
+    
+    self.animate_opacity=300
+    
+    with getDB() as db:
+      from DataBase.models import Product, Combo
+      
+      if isinstance(item, Product):
+        self.object = "Producto"
+        self.maxStock = item.stock
+      else:
+        self.object = "Combo"
+        self.maxStock = 0
+        
+      imageManager = ImageManager()
+
+      self.image = CustomImageContainer(
+        src=imageManager.getImagePath(item.imgPath),
+        height=140,
+        width=140,
+      )
+      
+      self.nameText = ft.Row(
+        alignment=ft.MainAxisAlignment.CENTER,
+        controls=[
+          ft.Icon(
+            name=ft.icons.COFFEE_ROUNDED,
+            size=24,
+            color=constants.BLACK,
+          ),
+          ft.Text(
+            value=f"{self.object}:",
+            size=18,
+            color=constants.BLACK,
+            weight=ft.FontWeight.W_700,
+          ),
+          ft.Text(
+            value=f"{item.name}",
+            size=18,
+            color=constants.BLACK,
+            overflow=ft.TextOverflow.ELLIPSIS,
+          )
+        ]
+      )
+      
+      self.quantityField = CustomNumberField(
+        label="",
+        expand=True,
+        on_change=self.on_changeFunction
+      )
+      
+      self.stockWarning = ft.Row(
+        alignment=ft.MainAxisAlignment.CENTER,
+        controls=[
+          ft.Icon(
+            name=ft.icons.INFO_OUTLINE_ROUNDED,
+            color=constants.BLACK,
+            size=24,
+          ),
+          ft.Text(
+            value=f"Stock restante: {self.maxStock}",
+            color=constants.BLACK,
+            size=18,
+            text_align=ft.TextAlign.CENTER,
+            overflow=ft.TextOverflow.ELLIPSIS,
+          )
+        ]
+      )
+
+    
+    self.removeButton = CustomRemoveButton(
+      on_click=lambda e: removeFunction(itemField=self) if not removeFunction == None else None,
+    )
+    
+    self.content = ft.Row(
+      expand=True,
+      controls=[
+        self.image,
+        ft.Column(
+          alignment=ft.MainAxisAlignment.CENTER,
+          horizontal_alignment=ft.CrossAxisAlignment.START,
+          expand=True,
+          controls=[
+            self.nameText,
+            ft.Row(
+              controls=[self.quantityField,]
+            )
+          ]
+        ),
+        self.removeButton,
+      ]
+    )
+  
+  def animateOpacity(self):
+    self.opacity = 1 if self.opacity == 0 else 0
+    self.update()
+    
+class CustomInitialRowContent(ft.Row):
+  def __init__(self, message, size=32):
+    super().__init__()
+    self.expand = True
+    self.alignment = ft.MainAxisAlignment.CENTER
+    self.vertical_alignment = ft.CrossAxisAlignment.CENTER
+    
+    self.controls = [
+      ft.Text(
+        value=message,
+        size=32,
+        color=constants.BLACK,
+        weight=ft.FontWeight.W_700,
+        text_align=ft.TextAlign.CENTER,
+      )
+    ]
+  
+class CustomRemoveButton(ft.Container):
+  def __init__(self, on_click=None, height=140, width=80, icon=ft.icons.DELETE_OUTLINE_ROUNDED, border_radius=ft.border_radius.all(10), bgcolor=constants.RED_FAILED_LIGHT, shadow:bool=True):
+    super().__init__()
+    self.height = height
+    self.width = width
+    self.animate = ft.animation.Animation(300, ft.AnimationCurve.EASE_IN_OUT)
+    self.border_radius = border_radius
+    self.alignment = ft.alignment.center
+    # self.bgcolor = bgcolor
+    
+    self.on_click = on_click
+    
+    self.gradient = ft.LinearGradient(
+      begin=ft.alignment.bottom_center,
+      end=ft.alignment.top_center,
+      colors=[constants.BLACK, constants.BROWN]
+    )
+    
+    self.shadow = ft.BoxShadow(
+      blur_radius=5,
+      spread_radius=1,
+      color=constants.WHITE_GRAY,
+    )
+    
+    self.icon = ft.Icon(
+      name=icon,
+      color=constants.WHITE,
+      size=32,
+    )
+    
+    self.content = self.icon

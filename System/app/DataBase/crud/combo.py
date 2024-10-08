@@ -1,26 +1,40 @@
+from sqlalchemy import asc, desc
 from sqlalchemy.orm import Session 
 from sqlalchemy.exc import SQLAlchemyError
 from DataBase.models import Combo
+from DataBase.crud.product import getProductByName
 from DataBase.errorHandling import handleDatabaseErrors
 from exceptions import DataAlreadyExists, DataNotFoundError
+from utils.imageManager import ImageManager
 
-def createCombo(db: Session, name: str, imgPath: str = None):
+def createCombo(db: Session, name: str, cost:float, price:float, imgPath=None):
   try:
     if getComboByName(db, name):
       raise DataAlreadyExists("Nombre de combo ya existente")
+    if getProductByName(db, name):
+      raise DataAlreadyExists("Un producto ya posee este nombre")
     
-    combo = Combo(
-      name=name,
-      imgPath=imgPath
-    )
+    imageManager = ImageManager()
     
     def func():
+      combo = Combo(
+        name=name,
+        cost=cost,
+        price=price,
+        imgPath=None,
+      )
       db.add(combo)
       db.commit()
+      return combo
       
-    handleDatabaseErrors(db, func)
+    combo = handleDatabaseErrors(db, func)
     
     db.refresh(combo)
+    
+    if imgPath:
+      combo.imgPath = imageManager.storageImage(combo.idCombo, imgPath)
+      db.commit()
+      db.refresh(combo)
     return combo
   except Exception:
     raise
@@ -46,23 +60,32 @@ def getComboByName(db: Session, name: str):
 def getCombos(db: Session):
   try:
     def func():
-      return db.query(Combo).all()
+      return db.query(Combo).order_by(asc(Combo.name)).all()
     
     return handleDatabaseErrors(db, func)
   except Exception:
     raise
   
-def updateComboInfo(db: Session, idCombo: int, name: str):
+def updateComboInfo(db: Session, combo, name: str, price:float, imgPath=None):
   try:
-    if getComboByName(db, name):
-      raise DataAlreadyExists("Nombre de combo ya existente")
+    alreadyExists = getComboByName(db, name)
+    if alreadyExists and not alreadyExists == combo:
+      raise DataAlreadyExists("Nombre de combo en uso.")
     else:
-      combo = getComboById(db, idCombo)
-      
+      combo = combo
       def func():
         if combo:
           if name:
             combo.name = name
+          if price:
+            combo.price = price
+            
+          imageManager = ImageManager()  
+          combo.imgPath = imageManager.updateImage(
+            idData=combo.idCombo,
+            oldImage=combo.imgPath,
+            newImage=imgPath,
+          )
             
           db.commit()
           db.refresh(combo)
@@ -74,14 +97,8 @@ def updateComboInfo(db: Session, idCombo: int, name: str):
   except Exception:
     raise
       
-def removeCombo(db: Session, idCombo: int = None, name: str = None):
-  try:
-    combo = None
-    if idCombo:
-      combo = getComboById(db, idCombo)
-    elif name:
-      combo = getComboByName(db, name)
-      
+def removeCombo(db: Session, combo):
+  try: 
     if combo:
       def func():
         db.delete(combo)

@@ -2,10 +2,11 @@ import flet as ft
 import constants
 from Modules.customControls import CustomAnimatedContainerSwitcher, CustomNavigationOptions, CustomAnimatedContainer, CustomFloatingActionButton
 from Modules.Sections.InventorySection.products_components import ProductInfo, ProductContainer
-from Modules.Sections.InventorySection.combos_components import ComboInfo
+from Modules.Sections.InventorySection.combos_components import ComboInfo, ComboContainer
 from Modules.Sections.InventorySection.categories_components import CategoryInfo, CategoryContainer
 from Modules.categories_modules import CategoryForm
 from Modules.products_module import ProductForm
+from Modules.combos_module import ComboForm
 import time
 from DataBase.crud.category import getCategories
 from DataBase.crud.product import getProducts
@@ -43,9 +44,9 @@ class Inventory(ft.Stack):
     )
     
     self.comboButton = CustomNavigationOptions(
-      icon=ft.icons.FASTFOOD_ROUNDED, #
+      icon=ft.icons.FASTFOOD_ROUNDED,
       text="Combos",
-      function=self.selectView, #
+      function=self.selectView,
       color="#666666",
       focusedColor=constants.BLACK,
       opacityInitial=1,
@@ -201,7 +202,7 @@ class Inventory(ft.Stack):
     elif self.selected == self.productButton:
       self.newContent = ProductForm(self.page, self)
     elif self.selected == self.comboButton:
-      pass
+      self.newContent = ComboForm(self.page, self)
       
     if not self.infoContainer.height == 800:
       self.infoContainer.changeStyle(height=800, width=700, shadow=ft.BoxShadow(
@@ -305,7 +306,17 @@ class Inventory(ft.Stack):
         imageManager = ImageManager()
         
         if len(combos) > 0:
-          print("Si hay combos")
+          for combo in combos:
+            container = ComboContainer(
+              idCombo=combo.idCombo,
+              name=combo.name,
+              infoContainer=self.infoContainer,
+              mainContainer=self,
+              page=self.page,
+              imgPath=imageManager.getImagePath(combo.imgPath)
+            )
+            containers.append(container)
+          return containers
         else:
           
           containers.append(self.textForEmptyContainer("No hay combos que mostrar"))

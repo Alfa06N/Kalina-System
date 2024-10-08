@@ -8,6 +8,7 @@ from DataBase.crud.user import getUserByUsername
 from DataBase.crud.user_product import registerOperation
 from datetime import datetime
 from sqlalchemy import asc, desc
+from utils.imageManager import ImageManager
 
 def createProduct(db: Session, name: str, description: str, stock: int, minStock: int, cost: float, gain: float, iva: float, idCategory: int, imgPath: str):
   try:
@@ -70,7 +71,7 @@ def getProducts(db: Session):
   except Exception:
     raise
   
-def updateProduct(db: Session, idProduct: int, name: str, description: str, minStock: int, cost: float, gain: float, iva: float, idCategory: int):
+def updateProduct(db: Session, idProduct: int, name: str, description: str, minStock: int, cost: float, gain: float, iva: float, idCategory: int, imgPath=None):
   try:
     if getProductByName(db, name):
       raise DataAlreadyExists("Nombre de usuario no disponible")   
@@ -93,6 +94,13 @@ def updateProduct(db: Session, idProduct: int, name: str, description: str, minS
             product.iva = iva
           if idCategory:
             product.idCategory = idCategory
+            
+          imageManager = ImageManager()
+          product.imgPath = imageManager.updateImage(
+            idData=product.idProduct,
+            oldImage=product.imgPath,
+            newImage=imgPath,
+          )
           
           db.commit()
           db.refresh(product)
@@ -106,10 +114,11 @@ def updateProduct(db: Session, idProduct: int, name: str, description: str, minS
   except Exception:
     raise
 
-def updateProductInfo(db: Session, product, name:str, description:str, idCategory:int):
+def updateProductInfo(db: Session, product, name:str, description:str, idCategory:int, imgPath=None):
   try:
-    if not product:
-      raise DataNotFoundError("Producto no encontrado")
+    alreadyExists = getProductByName(db, name)
+    if alreadyExists and not alreadyExists == product:
+      raise DataAlreadyExists("Nombre de producto en uso.")
     
     def func():
       if name:
@@ -117,11 +126,18 @@ def updateProductInfo(db: Session, product, name:str, description:str, idCategor
       product.description = description
       if idCategory:
         product.idCategory = idCategory
+        
+      imageManager = ImageManager()
+      product.imgPath = imageManager.updateImage(
+        idData=product.idProduct,
+        oldImage=product.imgPath,
+        newImage=imgPath,
+      )
       db.commit()
+      db.refresh(product)
+      return product
     
-    handleDatabaseErrors(db, func)
-    db.refresh(product)
-    return product
+    return handleDatabaseErrors(db, func)
   except DataNotFoundError:
     raise
   except Exception as err:

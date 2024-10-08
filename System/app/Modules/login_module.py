@@ -9,6 +9,7 @@ from utils.sessionManager import setUser
 from DataBase.crud.user import getUserByUsername, queryUserData
 from config import getDB
 from exceptions import DataNotFoundError
+import threading
 
 class LoginForm(CustomSimpleContainer):
   def __init__(self, page, containerFather):
@@ -108,16 +109,13 @@ class LoginForm(CustomSimpleContainer):
           if queryUserData(db, self.usernameInput.value.strip(), self.passwordInput.value):
             setUser(self.usernameInput.value.strip())
             self.operationContent.actionSuccess(f"Bienvenido {self.usernameInput.value.strip()}")
-            time.sleep(1.5)
-            showPrincipal(self.page)
+            threading.Timer(1.5, lambda: showPrincipal(self.page)).start()
           else:
             self.operationContent.actionFailed("Contraseña incorrecta")
-            time.sleep(1.5)
-            self.operationContent.restartContainer()
+            threading.Timer(1.5, self.operationContent.restartContainer).start()
       except DataNotFoundError as e:
         self.operationContent.actionFailed(e)
-        time.sleep(1.5)
-        self.operationContent.restartContainer()
+        threading.Timer(1.5, self.operationContent.restartContainer).start()
       except Exception as e:
         print("Unexpected Error:", e)
 

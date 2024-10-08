@@ -242,38 +242,45 @@ class CategoryEdit(ft.Stack):
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.MainAxisAlignment.CENTER,
         spacing=10,
-        height=320,
+        height=400,
         width=700,
         controls=[
           ft.Row(
             alignment=ft.MainAxisAlignment.CENTER,
-            width=700,
+            # expand=True,
             controls=[
               self.imageEditContainer,
             ]
           ),
           ft.Row(
-            width=700,
+            # expand=True,
             controls=[
               self.nameField,
               self.descriptionField
             ]
           ),
+          self.finishButton
         ]
       )
     )
     
     self.controls = [
       ft.Column(
-        scroll=ft.ScrollMode.AUTO,
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         spacing=20,
-        expand=True,
         controls=[
-          self.titleText,
-          self.operationContainer,
-          self.finishButton,
+          ft.Row(
+            alignment=ft.MainAxisAlignment.CENTER,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            controls=[self.titleText]
+          ),
+          ft.Column(
+            expand=True,
+            alignment=ft.MainAxisAlignment.CENTER,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            controls=[self.operationContainer,]
+          ),
         ]
       ),
     ]
@@ -293,17 +300,6 @@ class CategoryEdit(ft.Stack):
           )
           
           if updatedCategory:
-            # if self.imageEditContainer.selectedImagePath:
-            #   imageManager = ImageManager()
-              
-            #   # ELiminamos la antigua para liberar memoria
-            #   if oldImgPath:
-            #     imageManager.removeOldImage(oldImgPath)
-                
-            #   destinationPath = imageManager.storageImage(self.idCategory, self.imageEditContainer.selectedImagePath)
-            #   updatedCategory.imgPath = destinationPath
-            #   db.commit()
-          
             self.operationContainer.actionSuccess("Categoría Actualizada")
             time.sleep(1.5)
             self.mainContainer.resetCurrentView()

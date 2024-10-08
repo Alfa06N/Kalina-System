@@ -349,6 +349,7 @@ class ProductInfo(ft.Stack):
           )
           
           self.categoryText.value = product.category.name
+          self.categoryText.update()
           
           self.descriptionText.setNewContent(
             newContent=ft.Text(

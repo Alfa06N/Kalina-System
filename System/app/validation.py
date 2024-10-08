@@ -9,7 +9,7 @@ import re
 def validateField(field, condition):
   
   try:
-    if not field.error_text == None and condition(field.value):
+    if not field.error_text == None and condition(field.value.strip()):
       field.error_text = None
       field.focused_border_color = constants.BLACK
       field.update()
@@ -41,7 +41,7 @@ def validateNumber(field):
   validateField(field, lambda value: float(value) > 0)
   
 def validateEmptyField(field):
-  validateField(field, lambda value: len(value) > 0)
+  validateField(field, lambda value: len(value.strip()) > 0)
 
 def evaluateForm(username=[], password=[], ci=[], numbers=[], others=[]):
   isValid = True
