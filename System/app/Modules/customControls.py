@@ -208,7 +208,7 @@ class CustomAnimatedContainer(ft.AnimatedSwitcher):
     self.update()
 
 class CustomAnimatedContainerSwitcher(ft.Container):
-  def __init__(self, content, height:int=150, width:int=300, padding=ft.padding.all(20), margin=ft.margin.all(20), border_radius=ft.border_radius.all(30), bgcolor=constants.WHITE, shadow=None, alignment=ft.alignment.center, expand=False, duration:int=300, animationCurve=ft.AnimationCurve.EASE_IN_OUT, col=None):
+  def __init__(self, content, height=150, width=300, padding=ft.padding.all(20), margin=ft.margin.all(20), border_radius=ft.border_radius.all(30), bgcolor=constants.WHITE, shadow=None, alignment=ft.alignment.center, expand=False, duration:int=300, animationCurve=ft.AnimationCurve.EASE_IN_OUT, col=None):
     super().__init__(col=col)
     self.height = height
     self.width = width

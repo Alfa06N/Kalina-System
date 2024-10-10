@@ -5,6 +5,12 @@ from Modules.customControls import CustomPrincipalContainer, CustomFilledButton,
 from interface import showLogin
 from validation import validateUsername, validatePassword, validateCI, validateEmptyField, evaluateForm
 from utils.pathUtils import getImagePath
+from DataBase.crud.user import getUserByUsername, getUserById, updateUser
+from DataBase.crud.recovery import updateRecovery
+from DataBase.crud.employee import getEmployeeById
+from exceptions import DataAlreadyExists, DataNotFoundError, InvalidData
+import threading
+from config import getDB
 
 class RecoveryForm(CustomSimpleContainer):
   def __init__(self, page):
@@ -12,6 +18,7 @@ class RecoveryForm(CustomSimpleContainer):
     self.spacing = 10
     self.page = page
     self.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+    self.idUser = None
     
     self.title = CustomAnimatedContainer(
       actualContent=ft.Row(
@@ -82,10 +89,10 @@ class RecoveryForm(CustomSimpleContainer):
         self.nextButton,
       ]
     )
-    
+     
     self.questionField = CustomDropdown(
       label="Pregunta de Seguridad",
-      options=constants.dropdownOne,
+      options=[],
       mode="light"
     )
     
@@ -195,44 +202,122 @@ class RecoveryForm(CustomSimpleContainer):
     self.count = 0
   
   def nextStep(self, e):
-    isValid = False
-    message = ""
-    if self.count == 0:
-      if evaluateForm(username=[self.username], ci=[self.userCI]):
-        self.count += 1
-        isValid = True
-        message = "Usuario Identificado"
-        self.title.setNewContent(ft.Row(
-          controls=[
-            ft.Text(value=self.username.value, size=42, weight=ft.FontWeight.BOLD, color=constants.BLACK)
-          ],
-          alignment=ft.MainAxisAlignment.CENTER
-        ))
-        
-    elif self.count == 1:
-      if evaluateForm(others=[self.questionField, self.responseField]):
-        self.count += 1
-        isValid = True
-        message = "Usuario Verificado"
-    
-    else:
-      if evaluateForm(password=[self.passwordField, self.passwordConfirmationField]):
-        if self.passwordField.value == self.passwordConfirmationField.value:
+    try:
+      isValid = False
+      message = ""
+      if self.count == 0:
+        message = self.identifyUserFunction()
+        if message:
           isValid = True
           self.count += 1
-          message = "Contraseña Establecida"
-        else:
-          isValid = False
-          message = "Las contraseñas no coinciden"
-          self.animatedContainer.actionFailed(message)
-          time.sleep(2)
-          self.animatedContainer.restartContainer()
-    
-    if isValid:
-      self.animatedContainer.actionSuccess(message)
-      time.sleep(2)
-      if self.count < len(self.containers):
-        self.animatedContainer.setNewOperation(self.containers[self.count])
+          self.title.setNewContent(ft.Row(
+            controls=[
+              ft.Text(value=self.username.value.strip(), size=42, weight=ft.FontWeight.BOLD, color=constants.BLACK, text_align=ft.TextAlign.CENTER)
+            ],
+            alignment=ft.MainAxisAlignment.CENTER
+          ))
+          
+      elif self.count == 1:
+        message = self.verifyUserFunction()
+        if message:
+          self.count += 1
+          isValid = True
+      
+      else:
+        message = self.passwordChangeFunction()
+        if message:
+          isValid = True
+          self.count += 1
+      
+      if isValid:
+        self.animatedContainer.actionSuccess(message)
+        time.sleep(2)
+        if self.count < len(self.containers):
+          self.animatedContainer.setNewOperation(self.containers[self.count])
+        elif self.count == len(self.containers):
+          threading.Timer(1.5, lambda: showLogin(self.page)).start()
+    except InvalidData as err:
+      self.animatedContainer.actionFailed(err)
+      threading.Timer(1.5, self.animatedContainer.restartContainer).start()
+    except DataAlreadyExists as err:
+      self.animatedContainer.actionFailed(err)
+      threading.Timer(1.5, self.animatedContainer.restartContainer).start()
+    except DataNotFoundError as err:
+      self.animatedContainer.actionFailed(err)
+      threading.Timer(1.5, self.animatedContainer.restartContainer).start()
+    except Exception as err:
+      raise
+  
+  def getQuestions(self):
+    try:
+      with getDB() as db:
+        user = getUserById(db, self.idUser)
+        questions = []
+        
+        questions.append(ft.dropdown.Option(user.recovery.questionOne))
+        questions.append(ft.dropdown.Option(user.recovery.questionTwo))
+        
+        return questions
+    except Exception as err:
+      pass
+  
+  def identifyUserFunction(self):
+    try:
+      if evaluateForm(username=[self.username], ci=[self.userCI]):
+        with getDB() as db:
+          user = getUserByUsername(db, self.username.value.strip())
+          employee = getEmployeeById(db, self.userCI.value)
+          
+          if not user:
+            raise DataNotFoundError("Usuario no encontrado.")
+          elif not employee:
+            raise DataNotFoundError("Empleado no encontrado.")
+          elif not user.employee.ciEmployee == employee.ciEmployee:
+            raise DataNotFoundError("Los datos no tienen relación.")
+
+          self.idUser = user.idUser
+          self.questionField.options = self.getQuestions()
+          message = "Usuario identificado."
+          
+          return message
+    except Exception as err:
+      raise
+  
+  def verifyUserFunction(self):
+    try:
+      isValid = False
+      if evaluateForm(others=[self.questionField, self.responseField]):
+        with getDB() as db:
+          user = getUserById(db, self.idUser)
+          if self.questionField.value == user.recovery.questionOne:
+            isValid = self.responseField.value.strip() == user.recovery.answerOne
+          elif self.questionField.value == user.recovery.questionTwo:
+            isValid = self.responseField.value.strip() == user.recovery.answerTwo
+      
+      if isValid:
+        message = "Usuario Verificado."
+        return message
+      else:
+        raise DataNotFoundError("La respuesta es incorrecta.")
+    except Exception as err:
+      raise
+
+  def passwordChangeFunction(self):
+    try:
+      if evaluateForm(password=[self.passwordField, self.passwordConfirmationField]):
+        with getDB() as db:
+          user = getUserById(db, self.idUser)
+          if self.passwordField.value.strip() == self.passwordConfirmationField.value.strip():
+            user.password = self.passwordField.value.strip()
+            db.commit()
+            db.refresh(user)
+            
+            message = "Contraseña establecida."
+            return message
+          else:
+            raise InvalidData("Las contraseñas no coinciden.")
+    except Exception as err:
+      raise
     
     
 class RecoveryPresentation(CustomSimpleContainer):

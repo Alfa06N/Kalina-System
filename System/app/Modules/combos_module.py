@@ -180,8 +180,6 @@ class ComboForm(CustomOperationContainer):
               print(f"{register.combo.name} - {register.product.name}")
               self.actionSuccess("Combo creado.")
               threading.Timer(1.5, self.mainContainer.resetCurrentView).start()
-            
-      threading.Timer(1.5, self.restartContainer).start()
     except DataAlreadyExists as err:
       self.actionFailed(err)
       threading.Timer(1.5, self.restartContainer).start()

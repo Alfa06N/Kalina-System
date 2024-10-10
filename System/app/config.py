@@ -1,6 +1,6 @@
 import os 
 from dotenv import load_dotenv
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 from contextlib import contextmanager
 
@@ -29,6 +29,12 @@ TEST_DATABASE_URL = "sqlite:///:memory:"
 test_engine = create_engine(TEST_DATABASE_URL)
 
 TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+
+@event.listens_for(test_engine, "connect")
+def setSqlitePragma(dbapiConnection, connectionRecord):
+  cursor = dbapiConnection.cursor()
+  cursor.execute("PRAGMA foreign_keys=ON")
+  cursor.close()
 
 @contextmanager
 def getTestDB():
