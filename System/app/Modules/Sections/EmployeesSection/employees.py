@@ -77,7 +77,6 @@ class Employees(ft.Stack):
         spread_radius=1,
         color=constants.BLACK_GRAY,
       ))
-      time.sleep(0.3)
     self.infoContainer.setNewContent(newContent=newContent)
   
   def resetInfoContainer(self):
@@ -90,7 +89,6 @@ class Employees(ft.Stack):
         expand=True,
       )
     )
-    time.sleep(0.3)
     self.infoContainer.changeStyle(height=150, width=700, shadow=None)
     
   def resetEmployeesContainer(self):

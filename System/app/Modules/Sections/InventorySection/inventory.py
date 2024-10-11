@@ -124,6 +124,7 @@ class Inventory(ft.Stack):
           self.productInitialContent
         ]  
       ),
+      expand=True,
       col={"sm": 12, "md": 12, "lg": 8, "xl": 7}
     )
     
@@ -140,8 +141,9 @@ class Inventory(ft.Stack):
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         controls=[container for container in self.getProductsToFill()]
       ),
-      height=600,
-      width=700,
+      height=None,
+      width=None,
+      expand=True,
       col={"sm": 12, "md": 9, "lg": 4, "xl": 5},
     )
     
@@ -208,7 +210,7 @@ class Inventory(ft.Stack):
       self.infoContainer.changeStyle(height=800, width=700, shadow=ft.BoxShadow(
         blur_radius=5,
         spread_radius=1,
-        color=constants.BLACK_GRAY,
+        color=constants.BLACK_INK,
       ))
     if self.newContent:
       self.infoContainer.setNewContent(self.newContent)
@@ -220,7 +222,7 @@ class Inventory(ft.Stack):
       shadow=ft.BoxShadow(
         spread_radius=1,
         blur_radius=5,
-        color=constants.BLACK_GRAY,
+        color=constants.BLACK_INK,
       )
     )
     self.infoContainer.setNewContent(newContent)

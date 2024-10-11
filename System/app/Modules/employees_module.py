@@ -81,7 +81,7 @@ class EmployeesForm(CustomOperationContainer):
     )
     
     self.finishButton = CustomFilledButton(
-      text="Crear Empleado",
+      text="Crear empleado",
       clickFunction=self.submitForm
     )
     
@@ -134,7 +134,6 @@ class EmployeesForm(CustomOperationContainer):
   
   def submitForm(self, e):
     try:
-      print(self.ciField.value)
       if evaluateForm(ci=[self.ciField], others=[self.nameField, self.surnameField]):
         if not self.birthdateText.value == "Fecha de nacimiento":
           self.confirmDialog = CustomAlertDialog(
@@ -162,13 +161,13 @@ class EmployeesForm(CustomOperationContainer):
       with getDB() as db:
         newEmployee = createEmployee(
           db=db,
-          ciEmployee=self.ciField.value,
-          name=self.nameField.value,
-          surname=self.surnameField.value,
-          secondSurname=self.secondSurnameField.value,
+          ciEmployee=self.ciField.value.strip(),
+          name=self.nameField.value.strip(),
+          surname=self.surnameField.value.strip(),
+          secondSurname=self.secondSurnameField.value.strip(),
           birthdate=self.birthdateText.value,
         )
-        self.actionSuccess("Empleado creado exitosamente")
+        self.actionSuccess("Empleado creado exitosamente.")
         time.sleep(1.5)
       
       self.employeesContent.resetEmployeesContainer()

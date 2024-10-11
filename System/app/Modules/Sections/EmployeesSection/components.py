@@ -80,7 +80,6 @@ class EmployeeContainer(ft.Container):
         spread_radius=1,
         color=constants.BLACK_GRAY,
       ))
-      time.sleep(0.3)
     self.infoContainer.setNewContent(newContent=newContent)
     
 class EmployeeInfo(ft.Stack):
@@ -216,7 +215,6 @@ class EmployeeInfo(ft.Stack):
                 
               ),
             ))
-            print("Si tiene usuario")
           else:
             self.employeeInfo.controls.append(ft.Text(
               value=f"Este empleado no posee un usuario",
@@ -227,7 +225,7 @@ class EmployeeInfo(ft.Stack):
           raise DataNotFoundError("No se encontró el empleado")
         
     except Exception as e:
-      print(e)
+      raise
       
     self.columnContent = ft.Column(
       scroll=ft.ScrollMode.AUTO,
