@@ -26,7 +26,7 @@ class ClientForm(CustomOperationContainer):
     )
     
     self.ciField = CustomTextField(
-      label="Cédula de Identidad",
+      label="Documento",
       field="ci",
       submitFunction=self.submitForm,
       expand=True,
@@ -101,8 +101,11 @@ class ClientForm(CustomOperationContainer):
             secondSurname=self.secondSurnameField.value.strip(),
           )
           if newClient:
-            print(f"{newClient.name} {newClient.surname} {newClient.secondSurname}. V-{newClient.ciClient}")
             self.actionSuccess("Cliente creado exitosamente.")
-            threading.Timer(1.5, self.mainContainer.resetInfoContainer).start()
+            if self.mainContainer:
+              threading.Timer(1.5, self.mainContainer.resetAll).start()
+    except DataAlreadyExists as err:
+      self.actionFailed(err)
+      threading.Timer(1.5, self.restartContainer).start()
     except Exception as err:
       raise

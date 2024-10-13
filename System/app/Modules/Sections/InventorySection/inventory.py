@@ -134,6 +134,7 @@ class Inventory(ft.Stack):
         blur_radius=5,
         color=constants.BLACK_INK,
       ),
+      padding=0,
       content=ft.Column(
         alignment=ft.MainAxisAlignment.CENTER,
         expand=True,

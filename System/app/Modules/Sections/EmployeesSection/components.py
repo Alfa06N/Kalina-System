@@ -18,8 +18,13 @@ class EmployeeContainer(ft.Container):
     self.principalContainer = principalContainer
     self.page = page
     
+    self.shadow = ft.BoxShadow(
+      spread_radius=1,
+      blur_radius=1,
+      color=constants.WHITE_GRAY,
+    )
     self.padding = ft.padding.all(10)
-    self.bgcolor = ft.colors.TRANSPARENT
+    self.bgcolor = constants.WHITE
     self.border_radius = ft.border_radius.all(30)
     self.ink = True
     self.ink_color = constants.BLACK_INK

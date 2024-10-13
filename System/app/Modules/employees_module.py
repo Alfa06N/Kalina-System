@@ -26,7 +26,7 @@ class EmployeesForm(CustomOperationContainer):
     )
     
     self.ciField = CustomTextField(
-      label="Cédula de Identidad",
+      label="Documento",
       field="ci",
       submitFunction=self.submitForm,
       expand=True,

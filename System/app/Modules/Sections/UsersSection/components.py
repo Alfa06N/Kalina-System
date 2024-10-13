@@ -22,7 +22,12 @@ class UserContainer(ft.Container):
     self.principalContainer = principalContainer
     
     self.padding = ft.padding.all(10)
-    self.bgcolor=ft.colors.TRANSPARENT
+    self.shadow = ft.BoxShadow(
+      spread_radius=1,
+      blur_radius=1,
+      color=constants.WHITE_GRAY,
+    )
+    self.bgcolor= constants.WHITE
     self.border_radius = ft.border_radius.all(30)
     self.ink = True
     self.ink_color = constants.BLACK_INK
@@ -81,7 +86,6 @@ class UserContainer(ft.Container):
         spread_radius=1,
         color=constants.BLACK_GRAY,
       ))
-      time.sleep(0.3)
     self.infoContainer.setNewContent(newContent=newContent)
     
   def updateUsername(self, newUsername):

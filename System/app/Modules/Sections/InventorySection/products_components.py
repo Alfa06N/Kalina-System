@@ -18,7 +18,12 @@ class ProductContainer(ft.Container):
     self.infoContainer = infoContainer
     self.mainContainer = mainContainer
     
-    self.bgcolor = ft.colors.TRANSPARENT
+    self.shadow = ft.BoxShadow(
+      spread_radius=1,
+      blur_radius=1,
+      color=constants.WHITE_GRAY,
+    )
+    self.bgcolor = constants.WHITE
     self.border_radius = ft.border_radius.all(30)
     self.ink = True
     self.ink_color = constants.WHITE_GRAY

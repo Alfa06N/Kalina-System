@@ -938,7 +938,7 @@ class CustomImageSelectionContainer(ft.Container):
     
     self.imageIcon = ft.Container(
       border=ft.border.all(2, constants.WHITE_GRAY),
-      border_radius=ft.border_radius.all(20),
+      border_radius=ft.border_radius.all(30),
       bgcolor=ft.colors.TRANSPARENT,
       height=150,
       width=150,
@@ -971,11 +971,12 @@ class CustomImageSelectionContainer(ft.Container):
       self.editImageContainer = CustomAnimatedContainer(
         actualContent=CustomImageContainer(
           src=self.selectedImagePath,
+          shadow=False,
         )
       )
     
     self.selectImage = ft.Container(
-      border_radius=ft.border_radius.all(20),
+      border_radius=ft.border_radius.all(30),
       height=150,
       width=150,
       alignment=ft.alignment.center,
@@ -1041,7 +1042,8 @@ class CustomImageSelectionContainer(ft.Container):
         for file in e.files:
           if self.validFileExtension(file.path):
             image = CustomImageContainer(
-              src=file.path
+              src=file.path,
+              shadow=False,
             )
             
             self.selectedImagePath = file.path
@@ -1059,13 +1061,18 @@ class CustomImageSelectionContainer(ft.Container):
       self.turnOffButtonVisibility()
       
 class CustomImageContainer(ft.Container):
-  def __init__(self, src, border_radius=10, fit=ft.ImageFit.COVER, width:int=200, height:int=200, border=True, bgcolor=ft.colors.TRANSPARENT):
+  def __init__(self, src, border_radius=10, fit=ft.ImageFit.COVER, width:int=200, height:int=200, border=True, bgcolor=constants.WHITE, shadow=True):
     super().__init__()
     self.height = height
     self.width = width
     self.bgcolor = bgcolor
     self.alignment = ft.alignment.center
     self.border_radius = border_radius
+    self.shadow = ft.BoxShadow(
+      spread_radius=1,
+      blur_radius=1,
+      color=constants.WHITE_GRAY,
+    ) if shadow else None
     
     if src:
       self.content = ft.Image(
@@ -1075,7 +1082,7 @@ class CustomImageContainer(ft.Container):
         height=self.height,
       )
     else:
-      self.border = ft.border.all(2, constants.WHITE_GRAY) if border == True else None
+      # self.border = ft.border.all(2, constants.WHITE_GRAY) if border == True else None
       self.content = ft.Icon(
         name=ft.icons.IMAGE_ROUNDED,
         color=constants.BLACK,
@@ -1083,10 +1090,14 @@ class CustomImageContainer(ft.Container):
       )
     
 class CustomAutoComplete(ft.Container):
-  def __init__(self, height=60, width=200, on_select=None, suggestions:list=[]):
+  def __init__(self, height=60, width=250, expand=False, on_select=None, suggestions:list=[]):
     super().__init__()
     self.height = height
     self.width = width
+    self.expand = expand
+    self.border = ft.border.all(2, constants.WHITE_GRAY)
+    self.border_radius = ft.border_radius.all(20)
+    self.margin = ft.margin.symmetric(vertical=10)
     self.alignment = ft.alignment.center
     self.content = ft.AutoComplete(
       suggestions=suggestions,
