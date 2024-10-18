@@ -487,7 +487,7 @@ class CustomUserIcon(ft.Container):
       self.content = ft.Text(value=initial, size=self.fontSize, weight=ft.FontWeight.BOLD, color=constants.ORANGE_LIGHT)
     else:
       self.bgcolor = ft.colors.TRANSPARENT
-      self.border = ft.border.all(2, constants.WHITE_GRAY)
+      self.border = ft.border.all(2, constants.BLACK_GRAY)
       self.content = ft.Text(value=initial, size=self.fontSize, weight=ft.FontWeight.BOLD, color=constants.BLACK)
     
 class CustomAppBar(ft.AppBar):
@@ -1282,7 +1282,7 @@ class CustomItemsDialog(ft.AlertDialog):
       margin=ft.margin.symmetric(horizontal=20, vertical=10),
       bgcolor=ft.colors.TRANSPARENT, 
       height=60,
-      width=600,
+      width=400,
       alignment=ft.alignment.center,
       content=ft.Row(
         alignment=ft.MainAxisAlignment.CENTER,
@@ -1293,13 +1293,13 @@ class CustomItemsDialog(ft.AlertDialog):
     
     self.productsView = CustomGridView(
       expand=True,
-      width=600,
+      width=800,
       controls=self.getItems("Products"),
     )
     
     self.combosView = CustomGridView(
       expand=True,
-      width=600,
+      width=800,
       controls=self.getItems("Combos")
     )
     
@@ -1311,17 +1311,11 @@ class CustomItemsDialog(ft.AlertDialog):
     self.itemsContainer = CustomAnimatedContainerSwitcher(
       bgcolor=ft.colors.TRANSPARENT,
       content=ft.Column(
+        expand=True,
         scroll=ft.ScrollMode.ALWAYS,
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         controls=[
-          ft.Text(
-            value="There's nothing to show you yet",
-            color=constants.BLACK,
-            weight=ft.FontWeight.W_700,
-            size=32,
-            text_align=ft.TextAlign.CENTER,
-          )
         ]
       )
     )
@@ -1342,12 +1336,12 @@ class CustomItemsDialog(ft.AlertDialog):
     
     self.selectedView = self.productButton if products == True else self.comboButton
     self.actualView = self.productsView if products == True else self.combosView
-
     
     self.content = ft.Column(
       alignment=ft.MainAxisAlignment.START,
       horizontal_alignment=ft.CrossAxisAlignment.CENTER,
       spacing=5,
+      width=1000,
       expand=True,
       controls=[
         self.navigationButtons,
@@ -1369,10 +1363,13 @@ class CustomItemsDialog(ft.AlertDialog):
   def openDialog(self, parent):
     self.parent = parent
     
-    self.selectedItems = self.parent.selectedItems.copy()
-    self.updateItemSelection()
+    if hasattr(self.parent, 'selectedItems'):
+      self.selectedItems = self.parent.selectedItems.copy()
+    else: 
+      return
     self.open = True
     self.page.update()
+    self.updateItemSelection()
     
   def updateItemSelection(self):
     for container in self.productsView.controls:
@@ -1385,6 +1382,7 @@ class CustomItemsDialog(ft.AlertDialog):
         container.selectImage(select=False)
       elif not container.selected and container.item in self.parent.selectedItems:
         container.selectImage(select=True)
+    self.update()
   
   def closeDialog(self):
     self.open = False
@@ -1450,6 +1448,7 @@ class CustomItemsDialog(ft.AlertDialog):
   def selectItem(self, e):
     try:
       e.control.selectImage(select=not e.control.selected)
+      e.control.update()
       if e.control.selected:
         self.selectedItems.append(e.control.item)
       else:
@@ -1551,7 +1550,7 @@ class CustomItemCard(ft.Container):
       self.border = ft.border.all(4, constants.GREEN_SUCCESS)
       threading.Timer(0.25, self.removeBorder).start()
     
-    self.update()
+    # self.update()
   
   def deselectImage(self):
     self.checkControl.scale = 0
@@ -1566,7 +1565,7 @@ class CustomItemCard(ft.Container):
     self.update()
     
 class CustomItemsSelector(ft.Container):
-  def __init__(self, page, width=800, height=400, products=True, combos=False):
+  def __init__(self, page, width=800, height=400, products=True, combos=False, sale=False, priceCard=None):
     super().__init__()
     self.page = page
     self.products = products
@@ -1574,9 +1573,10 @@ class CustomItemsSelector(ft.Container):
     self.expand = True
     self.padding = ft.padding.all(10)
     self.price = 0
-    
     self.selectedItems = []
     self.showedItems = []
+    self.sale = sale
+    self.priceCard = priceCard
     
     self.dialog = CustomItemsDialog(
       page=self.page,
@@ -1602,7 +1602,7 @@ class CustomItemsSelector(ft.Container):
     )
     
     self.priceText = ft.Text(
-      value="0$",
+      value="0.00$",
       size=32,
       color=constants.ORANGE_LIGHT,
       weight=ft.FontWeight.W_700,
@@ -1702,19 +1702,25 @@ class CustomItemsSelector(ft.Container):
         quantity = itemField.quantityField.fieldValue
         
         if hasattr(item, "idProduct"):
-          # itemPrice = calculatePrice(
-          #   cost=item.cost,
-          #   gain=item.gain,
-          #   iva=item.iva,
-          # ) * quantity
-          cost += item.cost * quantity
+          if self.sale:
+            # Add product's total price
+            cost += calculatePrice(
+              cost=item.cost,
+              gain=item.gain,
+              iva=item.iva,
+            ) * quantity
+          else:
+            # Only add product's cost
+            cost += item.cost * quantity
         else:
-          itemPrice = item.price * quantity
-          cost += itemPrice
+          cost += item.price * quantity
     
     self.priceText.value = f"{round(cost, 2)}$"
     self.price = cost
     self.priceText.update()
+    
+    if self.priceCard:
+      self.priceCard.updatePriceText(round(cost, 2))
   
   def removeItem(self, itemField):
     try:
@@ -1760,7 +1766,7 @@ class CustomItemsSelector(ft.Container):
             itemField = CustomItemQuantityInput(
               page=self.page,
               item=item,
-              sell=False,
+              sell=self.sale,
               removeFunction=self.removeItem,
               on_change=self.calculateItemsPrice,
             )
@@ -1788,14 +1794,22 @@ class CustomItemsSelector(ft.Container):
       
       for itemField in self.itemsList.controls:
         item = itemField.item
-        itemInfo = {
-          "item": item,
-          "name": item.name,
-          "quantity": itemField.quantityField.fieldValue,
-          "price": itemField.quantityField.fieldValue * calculatePrice(cost=item.cost, gain=item.gain, iva=item.iva)
-        }
-        
-        itemsWithQuantity.append(itemInfo)
+        if hasattr(item, "idProduct"):
+          itemInfo = {
+            "item": item,
+            "name": item.name,
+            "quantity": itemField.quantityField.fieldValue,
+            "price": itemField.quantityField.fieldValue * calculatePrice(cost=item.cost, gain=item.gain, iva=item.iva) if self.sale else item.cost
+          }
+          itemsWithQuantity.append(itemInfo)
+        else:
+          itemInfo = {
+            "item": item,
+            "name": item.name,
+            "quantity": itemField.quantityField.fieldValue,
+            "price": itemField.quantityField.fieldValue * item.price
+          }
+          itemsWithQuantity.append(itemInfo)
       
       return itemsWithQuantity
     except Exception as err:
@@ -1832,6 +1846,7 @@ class CustomItemQuantityInput(ft.Container):
     super().__init__()
     self.item = item
     self.page = page
+    self.sell = sell
     self.border_radius = ft.border_radius.all(10)
     self.opacity = opacity
     self.bgcolor = constants.WHITE
@@ -1848,10 +1863,12 @@ class CustomItemQuantityInput(ft.Container):
     
     with getDB() as db:
       from DataBase.models import Product, Combo
+      from DataBase.crud.product import getProductById
+      from DataBase.crud.combo import getComboById
       
-      if isinstance(item, Product):
+      if isinstance(self.item, Product):
         self.object = "Producto"
-        self.maxStock = item.stock
+        self.maxStock = self.item.stock
       else:
         self.object = "Combo"
         self.maxStock = 0
@@ -1859,16 +1876,16 @@ class CustomItemQuantityInput(ft.Container):
       imageManager = ImageManager()
 
       self.image = CustomImageContainer(
-        src=imageManager.getImagePath(item.imgPath),
-        height=140,
-        width=140,
+        src=imageManager.getImagePath(self.item.imgPath),
+        height=150,
+        width=150,
       )
       
       self.nameText = ft.Row(
         alignment=ft.MainAxisAlignment.CENTER,
         controls=[
           ft.Icon(
-            name=ft.icons.COFFEE_ROUNDED,
+            name=ft.icons.COFFEE_ROUNDED if isinstance(self.item, Product) else ft.icons.FASTFOOD_ROUNDED,
             size=24,
             color=constants.BLACK,
           ),
@@ -1879,7 +1896,7 @@ class CustomItemQuantityInput(ft.Container):
             weight=ft.FontWeight.W_700,
           ),
           ft.Text(
-            value=f"{item.name}",
+            value=f"{self.item.name}",
             size=18,
             color=constants.BLACK,
             overflow=ft.TextOverflow.ELLIPSIS,
@@ -1890,33 +1907,76 @@ class CustomItemQuantityInput(ft.Container):
       self.quantityField = CustomNumberField(
         label="",
         expand=True,
-        on_change=self.on_changeFunction
+        on_change=self.customOnChange,
       )
       
-      self.stockWarning = ft.Row(
-        alignment=ft.MainAxisAlignment.CENTER,
-        controls=[
-          ft.Icon(
-            name=ft.icons.INFO_OUTLINE_ROUNDED,
-            color=constants.BLACK,
-            size=24,
-          ),
-          ft.Text(
-            value=f"Stock restante: {self.maxStock}",
-            color=constants.BLACK,
-            size=18,
-            text_align=ft.TextAlign.CENTER,
-            overflow=ft.TextOverflow.ELLIPSIS,
-          )
-        ]
+      self.priceText = ft.Text(
+        value=f"0.00$",
+        color=constants.BLACK,
+        size=18,
+        overflow=ft.TextOverflow.ELLIPSIS,
       )
+      
+      if hasattr(self.item, "idProduct"):
+        self.stockWarning = ft.Row(
+          alignment=ft.MainAxisAlignment.CENTER,
+          controls=[
+            ft.Icon(
+              name=ft.icons.INFO_OUTLINE_ROUNDED,
+              color=constants.BLACK,
+              size=24,
+            ),
+            ft.Text(
+              value=f"Stock:",
+              color=constants.BLACK,
+              size=18,
+              weight=ft.FontWeight.W_700,
+              text_align=ft.TextAlign.CENTER,
+              overflow=ft.TextOverflow.ELLIPSIS,
+            ),
+            ft.Text(
+              value=f"{self.item.stock} unidades",
+              color=constants.BLACK,
+              size=18,
+              text_align=ft.TextAlign.CENTER,
+              overflow=ft.TextOverflow.ELLIPSIS,
+            )
+          ]
+        )
+      else: 
+        self.productsList = ft.Row(
+          alignment=ft.MainAxisAlignment.CENTER,
+          controls=[
+            ft.Icon(
+              name=ft.icons.INFO_OUTLINE_ROUNDED,
+              color=constants.BLACK,
+              size=24,
+            ),
+            ft.Text(
+              value=f"Productos",
+              color=constants.BLACK,
+              size=18,
+              weight=ft.FontWeight.W_700,
+              text_align=ft.TextAlign.CENTER,
+              overflow=ft.TextOverflow.ELLIPSIS,
+            )
+          ]
+        )
+        self.productsList = CustomTooltip(
+          content=self.productsList,
+          message=f"Productos que conforman el combo \"{self.item.name}\":"
+        )
+        from DataBase.crud.product_combo import getRegisterByComboId
+        products = getRegisterByComboId(db=db, idCombo=self.item.idCombo)
+        for register in products:
+          self.productsList.message += f"\n◆ {register.product.name} • {register.productQuantity}"
 
     
     self.removeButton = CustomRemoveButton(
       on_click=lambda e: removeFunction(itemField=self) if not removeFunction == None else None,
     )
     
-    self.content = ft.Row(
+    self.topContent = ft.Row(
       expand=True,
       controls=[
         self.image,
@@ -1928,12 +1988,87 @@ class CustomItemQuantityInput(ft.Container):
             self.nameText,
             ft.Row(
               controls=[self.quantityField,]
-            )
+            ),
           ]
         ),
         self.removeButton,
       ]
     )
+    
+    self.bottomContent = ft.Row(
+      # expand=True,
+      alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+      vertical_alignment=ft.CrossAxisAlignment.CENTER,
+      controls=[
+        ft.Row(
+          controls=[
+            ft.Icon(
+              name=ft.icons.ATTACH_MONEY_ROUNDED,
+              size=24,
+              color=constants.BLACK,
+            ),
+            ft.Text(
+              value="Precio:",
+              color=constants.BLACK,
+              weight=ft.FontWeight.W_700,
+              size=18,
+            ),
+            self.priceText
+          ]
+        ),
+        # Here goes additional content
+      ]
+    )
+    
+    if hasattr(self, "stockWarning"):
+      self.bottomContent.controls.append(self.stockWarning)
+    else:
+      self.bottomContent.controls.append(self.productsList)
+    
+    self.content = ft.Column(
+      # expand=True,
+      alignment=ft.MainAxisAlignment.CENTER,
+      height=200,
+      horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+      spacing=0,
+      controls=[
+        self.topContent,
+        # ft.Divider(color=constants.BLACK_GRAY),
+        ft.Container(
+          height=2,
+          bgcolor=constants.BLACK_GRAY,
+          content=ft.Row(expand=True),  
+        ),
+        ft.Container(
+          padding=10,
+          content=self.bottomContent,
+        ),
+      ]
+    )
+  
+  def customOnChange(self):
+    try:
+      with getDB() as db:
+        fieldValue = self.quantityField.fieldValue
+        
+        if hasattr(self.item, "idProduct"):
+          if int(fieldValue) > self.item.stock:
+            self.quantityField.field.value = self.item.stock
+            self.quantityField.fieldValue = self.item.stock
+            fieldValue = self.quantityField.fieldValue
+            self.quantityField.field.update()
+          if self.sell:
+            self.priceText.value = f"{round(calculatePrice(cost=self.item.cost, iva=self.item.iva, gain=self.item.gain), 2) * fieldValue}$"
+          else:
+            self.priceText.value = f"{round(self.item.cost, 2) * fieldValue}$"
+        else:
+          self.priceText.value = f"{round(self.item.price, 2) * fieldValue}$"
+        
+        self.priceText.update()
+        
+        self.on_changeFunction()
+    except:
+      raise
   
   def animateOpacity(self):
     self.opacity = 1 if self.opacity == 0 else 0
@@ -1957,7 +2092,7 @@ class CustomInitialRowContent(ft.Row):
     ]
   
 class CustomRemoveButton(ft.Container):
-  def __init__(self, on_click=None, height=140, width=80, icon=ft.icons.DELETE_OUTLINE_ROUNDED, border_radius=ft.border_radius.all(10), bgcolor=constants.RED_FAILED_LIGHT, shadow:bool=True):
+  def __init__(self, on_click=None, height=150, width=80, icon=ft.icons.DELETE_OUTLINE_ROUNDED, border_radius=ft.border_radius.all(10), bgcolor=constants.RED_FAILED_LIGHT, shadow:bool=True):
     super().__init__()
     self.height = height
     self.width = width
@@ -1987,3 +2122,26 @@ class CustomRemoveButton(ft.Container):
     )
     
     self.content = self.icon
+    
+class CustomCheckControl(ft.Container):
+  def __init__ (self, selected:bool=False, iconColor=constants.GREEN_TEXT, iconSize=32, iconName=ft.icons.CHECK_CIRCLE_ROUNDED, shadow=None):
+    super().__init__()
+    self.selected = selected
+    self.shadow = shadow
+    
+    self.scale = 0 if self.selected == False else 1
+    self.animate_scale = ft.animation.Animation(600, ft.AnimationCurve.ELASTIC_OUT)
+    
+    self.border_radius = 50
+    
+    self.content = ft.Icon(
+      name=iconName,
+      size=iconSize,
+      color=iconColor,
+    )
+    
+  def selectControl(self, select=True):
+    self.selected = select
+    
+    self.scale = 1 if self.selected else 0
+    self.update()

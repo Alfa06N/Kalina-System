@@ -28,34 +28,34 @@ class ClientForm(CustomOperationContainer):
     self.ciField = CustomTextField(
       label="Documento",
       field="ci",
-      submitFunction=self.submitForm,
+      submitFunction=lambda e:self.submitForm(),
       expand=True,
     )
     
     self.nameField = CustomTextField(
       label="Nombre",
       field="others",
-      submitFunction=self.submitForm,
+      submitFunction=lambda e:self.submitForm(),
       expand=True
     )
     
     self.surnameField = CustomTextField(
       label="Apellido",
       field="others",
-      submitFunction=self.submitForm,
+      submitFunction=lambda e:self.submitForm(),
       expand=True
     )
     
     self.secondSurnameField = CustomTextField(
       label="Segundo Apellido (opcional)",
       field="others",
-      submitFunction=self.submitForm,
+      submitFunction=lambda e:self.submitForm(),
       expand=True
     )
     
     self.finishButton = CustomFilledButton(
       text="Crear cliente",
-      clickFunction=self.submitForm
+      clickFunction=lambda e: self.submitForm()
     )
     
     self.form = ft.Column(
@@ -89,13 +89,13 @@ class ClientForm(CustomOperationContainer):
     )
     super().__init__(operationContent=self.form)
   
-  def submitForm(self, e):
+  def submitForm(self):
     try:
       if evaluateForm(ci=[self.ciField], others=[self.nameField, self.surnameField]):
         with getDB() as db:
           newClient = createClient(
             db=db,
-            ciClient=float(self.ciField.value),
+            ciClient=int(self.ciField.value),
             name=self.nameField.value.strip(),
             surname=self.surnameField.value.strip(),
             secondSurname=self.secondSurnameField.value.strip(),
@@ -104,6 +104,7 @@ class ClientForm(CustomOperationContainer):
             self.actionSuccess("Cliente creado exitosamente.")
             if self.mainContainer:
               threading.Timer(1.5, self.mainContainer.resetAll).start()
+            return True
     except DataAlreadyExists as err:
       self.actionFailed(err)
       threading.Timer(1.5, self.restartContainer).start()

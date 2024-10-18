@@ -31,12 +31,14 @@ def main(page: ft.Page):
   page.padding = 0 
   
   init_db()
-  
-  # showPrincipal(page)
-  initApp(page)
+
+  showPrincipal(page)
+  # initApp(page)
   
 
 if __name__ == "__main__":
   
   ft.app(target=main)
   
+  
+# Agregar funcionalidades adicionales al customItemSelector para que sea preciso a la hora de hacer ventas

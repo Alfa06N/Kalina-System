@@ -1,5 +1,5 @@
 from sqlalchemy import asc, desc
-from sqlalchemy.orm import Session 
+from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from DataBase.models import Combo
 from DataBase.crud.product import getProductByName
