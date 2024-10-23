@@ -17,8 +17,8 @@ class SaleItemsList(CustomAnimatedContainerSwitcher):
     self.page = page
     
     self.titleText = ft.Text(
-      value="Productos",
-      size=32,
+      value="Selección",
+      size=42,
       color=constants.BLACK,
       weight=ft.FontWeight.W_700,
       text_align=ft.TextAlign.CENTER,
@@ -109,7 +109,7 @@ class SaleForm(CustomAnimatedContainerSwitcher):
       controls=[
         ft.Text(
           value="Datos",
-          size=32,
+          size=42,
           color=constants.BLACK,
           weight=ft.FontWeight.W_700,
         ),

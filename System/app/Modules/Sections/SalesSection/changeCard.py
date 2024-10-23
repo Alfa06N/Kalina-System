@@ -3,7 +3,7 @@ import constants
 from Modules.customControls import CustomAlertDialog, CustomAnimatedContainer, CustomAnimatedContainerSwitcher, CustomOperationContainer, CustomTextField, CustomDropdown, CustomImageContainer, CustomFloatingActionButton, CustomFilledButton, CustomTooltip
 
 class ChangeCard(ft.Container):
-  def __init__(self, page, formContainer, height=140, width=140):
+  def __init__(self, page, formContainer, height=160, width=160):
     super().__init__()
     self.page = page
     self.height = height

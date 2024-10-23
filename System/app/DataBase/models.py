@@ -119,10 +119,9 @@ class Sale(Base):
   closing = relationship("Closing", back_populates="sales")
   user = relationship("User", back_populates="sales")
   client = relationship("Client", back_populates="sales")
-  payments = relationship("Payment", back_populates="sale", cascade="all, delete-orphan")
-  changes = relationship("Change", back_populates="sale", cascade="all, delete-orphan")
   combos = relationship("SaleCombo", back_populates="sale", cascade="all, delete")
   products = relationship("SaleProduct", back_populates="sale", cascade="all, delete")
+  transactions = relationship("Transaction", back_populates="sale", cascade="all, delete-orphan")
   
 class Recovery(Base):
   __tablename__ = "Recovery"
@@ -160,15 +159,15 @@ class SaleProduct(Base):
   sale = relationship("Sale", back_populates="products")
   product = relationship("Product", back_populates="sales")
   
-class Change(Base):
-  __tablename__ = "Change"
+# class Change(Base):
+#   __tablename__ = "Change"
   
-  idChange = Column(Integer, primary_key=True, autoincrement=True)
-  amountReturned = Column(DECIMAL(10, 2), nullable=False)
-  method = Column(String(20), nullable=False)
-  idSale = Column(Integer, ForeignKey("Sale.idSale", ondelete="CASCADE"))
+#   idChange = Column(Integer, primary_key=True, autoincrement=True)
+#   amountReturned = Column(DECIMAL(10, 2), nullable=False)
+#   method = Column(String(20), nullable=False)
+#   idSale = Column(Integer, ForeignKey("Sale.idSale", ondelete="CASCADE"))
   
-  sale = relationship("Sale", back_populates="changes")
+#   sale = relationship("Sale", back_populates="changes")
 
 class Combo(Base):
   __tablename__ = "Combo"
@@ -203,16 +202,30 @@ class SaleCombo(Base):
   sale = relationship("Sale", back_populates="combos")
   combo = relationship("Combo", back_populates="sales")
   
-class Payment(Base):
-  __tablename__ = "Payment"
+class Transaction(Base):
+  __tablename__ = "Transaction"
   
-  idPayment = Column(Integer, primary_key=True, autoincrement=True)
-  amount = Column(DECIMAL(10, 3), nullable=False)
+  idTransaction = Column(Integer, primary_key=True)
+  amountUSD = Column(DECIMAL(10, 3), nullable=True, default=None)
+  amountVES = Column(DECIMAL(10, 3), nullable=True, default=None)
+  exchangeRate = Column(DECIMAL(10, 4), nullable=False)
   method = Column(Enum(MethodEnum), nullable=False)
-  reference = Column(String(100))
+  transactionType = Column(Enum("Payment", "Change"))
+  reference = Column(String(255), nullable=True)
   idSale = Column(Integer, ForeignKey("Sale.idSale", ondelete="CASCADE"))
   
-  sale = relationship("Sale", back_populates="payments")
+  sale = relationship("Sale", back_populates="transactions")
+  
+# class Payment(Base):
+#   __tablename__ = "Payment"
+  
+#   idPayment = Column(Integer, primary_key=True, autoincrement=True)
+#   amount = Column(DECIMAL(10, 3), nullable=False)
+#   method = Column(Enum(MethodEnum), nullable=False)
+#   reference = Column(String(100))
+#   idSale = Column(Integer, ForeignKey("Sale.idSale", ondelete="CASCADE"))
+  
+#   sale = relationship("Sale", back_populates="payments")
 
 class Statistic(Base):
   __tablename__ = "Statistic"

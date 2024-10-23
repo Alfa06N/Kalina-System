@@ -44,7 +44,7 @@ def showRecovery(page: ft.Page):
   updateContainerContent(page, recovery)
   
 def showPrincipal(page: ft.Page):
-  from Modules.customControls import CustomAppBar, CustomSidebar, CustomAnimatedContainer, CustomMainContainer
+  from Modules.customControls import CustomAppBar, CustomSidebar, CustomAnimatedContainer, CustomMainContainer, CustomExchangeDialog
   from Modules.Sections.HomeSection.home import Home
   from config import getDB
   from DataBase.crud.user import getUserByUsername
@@ -79,6 +79,15 @@ def showPrincipal(page: ft.Page):
       ]
     )
   )
+  
+  from utils.exchangeManager import getCurrentRate
+  
+  if not getCurrentRate():
+    dialog = CustomExchangeDialog(
+      page=page,
+    )
+    
+    page.open(dialog)
   
 def logout(page: ft.Page):
   page.controls.clear()

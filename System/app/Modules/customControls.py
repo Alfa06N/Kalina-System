@@ -1,7 +1,7 @@
 import flet as ft
 import constants 
 import time
-from validation import validateCI, validateEmptyField, validatePassword, validateUsername, validateNumber
+from validation import validateCI, validateEmptyField, validatePassword, validateUsername, validateNumber, evaluateForm
 from utils.imageManager import ImageManager
 from datetime import datetime
 import os
@@ -11,6 +11,7 @@ import threading
 from exceptions import InvalidData
 from DataBase.crud.product import calculatePrice
 from DataBase.crud.combo import calculateComboCost
+from utils.exchangeManager import setRate, getCurrentRate
 
 class CustomPrincipalContainer(ft.Container):
   def __init__(self, containerContent, width=900, height=550):
@@ -520,11 +521,22 @@ class CustomAppBar(ft.AppBar):
         padding=ft.padding.all(12),
         items=[
           ft.PopupMenuItem(icon=ft.icons.SETTINGS_ROUNDED, text="Configuración"),
+          ft.PopupMenuItem(icon=ft.icons.ATTACH_MONEY_ROUNDED, text="Tasa de cambio", on_click=lambda e: self.openExchangeDialog()),
           ft.PopupMenuItem(),
           ft.PopupMenuItem(icon=ft.icons.LOGOUT_OUTLINED, text="Cerrar sesión", on_click=self.openLogoutDialog)
         ]
       )
     ]
+    
+  def openExchangeDialog(self):
+    try:
+      self.dialog = CustomExchangeDialog(
+        page=self.page,
+      )
+      
+      self.page.open(self.dialog)
+    except:
+      raise
   
   def openLogoutDialog(self, e):
     self.dialog = CustomAlertDialog(
@@ -543,6 +555,50 @@ class CustomAppBar(ft.AppBar):
     self.page.controls.clear()
     from interface import initApp
     initApp(self.page)
+    
+class CustomExchangeDialog(ft.AlertDialog):
+  def __init__(self, page, title="Actualizar tasa de cambio", exchangeControl=None):
+    super().__init__()
+    self.page = page
+    self.title = ft.Text(title)
+    self.modal = True
+    self.exchangeControl = exchangeControl
+    
+    self.amountField = CustomTextField(
+      label="Monto en bolívares",
+      field="number",
+      expand=True,
+      
+      suffix_text="Bs",
+      submitFunction=lambda e: self.submitFunction(),
+    )
+    
+    if getCurrentRate():
+      self.amountField.value = float(getCurrentRate())
+    
+    
+    self.content = self.amountField
+    
+    self.actions = [
+      ft.TextButton("Confirmar", on_click=lambda e: self.submitFunction()),
+      ft.TextButton("Cancelar", on_click=lambda e: self.page.close(self)),
+    ]
+    
+    
+  def openDialog(self):
+    self.page.overlay.append(self)
+    self.page.open(self)
+  
+  def submitFunction(self):
+    try:
+      if evaluateForm(numbers=[self.amountField]):
+        setRate(float(self.amountField.value))
+        self.page.close(self)
+        if self.exchangeControl:
+          pass
+    except:
+      raise
+    
     
 class CustomSidebar(ft.Container):
   def __init__(self, page):

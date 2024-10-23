@@ -35,3 +35,12 @@ dropdownTwo = [
   ft.dropdown.Option("¿Cuál es tu canción favorita?"),
   ft.dropdown.Option("¿En qué ciudad naciste?"),
 ]
+
+methodIcons = {
+  "Pago Móvil": ft.icons.PHONE_ANDROID_ROUNDED,
+  "Punto de Venta": ft.icons.POINT_OF_SALE_ROUNDED,
+  "Cripto Activo": ft.icons.CURRENCY_BITCOIN_ROUNDED,
+  "Efectivo": ft.icons.MONEY_ROUNDED,
+  "Biopago": ft.icons.BIOTECH_ROUNDED,
+  "Transferencia": ft.icons.SEND_ROUNDED,
+}

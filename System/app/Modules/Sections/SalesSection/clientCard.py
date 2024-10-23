@@ -9,7 +9,7 @@ from exceptions import InvalidData, DataNotFoundError, DataAlreadyExists
 import threading
 
 class ClientCard(ft.Container):
-  def __init__(self, page, formContainer, height=140, width=140):
+  def __init__(self, page, formContainer, height=160, width=160):
     super().__init__()
     self.page = page
     self.height = height
@@ -60,26 +60,26 @@ class ClientCard(ft.Container):
         selectedClient=self.selectedClient,
       )
       
-      newContent = ft.Stack(
-        expand=True,
-        controls=[
-          ft.Row(
-            expand=True,
-            controls=[newContent,]  
-          ),
-          ft.Container(
-            left=10,
-            top=10,
-            content=CustomReturnButton(
-              function=lambda e: self.formContainer.returnToBegin()
-            )
-          )
-        ]
-      )
+      # newContent = ft.Stack(
+      #   expand=True,
+      #   controls=[
+      #     ft.Row(
+      #       expand=True,
+      #       controls=[newContent,]  
+      #     ),
+      #     ft.Container(
+      #       left=10,
+      #       top=10,
+      #       content=CustomReturnButton(
+      #         function=lambda e: self.formContainer.returnToBegin()
+      #       )
+      #     )
+      #   ]
+      # )
       
       self.formContainer.changeContent(newContent)
     except:
-      pass
+      raise
   
   def updateCard(self, ciClient):
     try:
@@ -344,6 +344,20 @@ class ClientSelection(ft.Container):
       form.surnameField.on_submit = lambda e: customSubmitForm()
       form.secondSurnameField.on_submit = lambda e: customSubmitForm()
       
+      form = ft.Stack(
+        expand=True,
+        controls=[
+          form,
+          ft.Container(
+            left=10,
+            top=10,
+            content=CustomReturnButton(
+              function=lambda e: self.returnToSelection()
+            )
+          )
+        ]
+      )
+      
       self.animatedMainContainer.setNewContent(form)
     except:
       raise
@@ -352,5 +366,11 @@ class ClientSelection(ft.Container):
     try:
       self.formContainer.returnToBegin()
       self.clientCard.updateCard(ciClient=self.selectedClient)
+    except:
+      raise
+    
+  def returnToSelection(self):
+    try:
+      self.animatedMainContainer.setNewContent(self.selectionContent)
     except:
       raise

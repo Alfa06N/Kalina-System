@@ -39,6 +39,3 @@ def main(page: ft.Page):
 if __name__ == "__main__":
   
   ft.app(target=main)
-  
-  
-# Agregar funcionalidades adicionales al customItemSelector para que sea preciso a la hora de hacer ventas
