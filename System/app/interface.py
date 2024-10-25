@@ -80,9 +80,9 @@ def showPrincipal(page: ft.Page):
     )
   )
   
-  from utils.exchangeManager import getCurrentRate
+  from utils.exchangeManager import exchangeRateManager
   
-  if not getCurrentRate():
+  if not exchangeRateManager.getRate():
     dialog = CustomExchangeDialog(
       page=page,
     )

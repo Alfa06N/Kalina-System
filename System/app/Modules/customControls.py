@@ -11,7 +11,7 @@ import threading
 from exceptions import InvalidData
 from DataBase.crud.product import calculatePrice
 from DataBase.crud.combo import calculateComboCost
-from utils.exchangeManager import setRate, getCurrentRate
+from utils.exchangeManager import exchangeRateManager
 
 class CustomPrincipalContainer(ft.Container):
   def __init__(self, containerContent, width=900, height=550):
@@ -573,8 +573,8 @@ class CustomExchangeDialog(ft.AlertDialog):
       submitFunction=lambda e: self.submitFunction(),
     )
     
-    if getCurrentRate():
-      self.amountField.value = float(getCurrentRate())
+    if exchangeRateManager.getRate():
+      self.amountField.value = float(exchangeRateManager.getRate())
     
     
     self.content = self.amountField
@@ -592,7 +592,7 @@ class CustomExchangeDialog(ft.AlertDialog):
   def submitFunction(self):
     try:
       if evaluateForm(numbers=[self.amountField]):
-        setRate(float(self.amountField.value))
+        exchangeRateManager.setRate(float(self.amountField.value))
         self.page.close(self)
         if self.exchangeControl:
           pass
@@ -759,6 +759,7 @@ class CustomSidebar(ft.Container):
       elif e.control == self.statistics:
         from Modules.Sections.StatisticsSection.statistics import Statistics
         self.updateMainContent(Statistics(self.page))
+        exchangeRateManager.clearSubscribers()
     
   def openContainer(self):
     if self.width == 70:
@@ -1006,7 +1007,7 @@ class CustomImageSelectionContainer(ft.Container):
         spacing=10,
         controls=[
           ft.Icon(
-            name=ft.icons.IMAGE_ROUNDED,
+            name=ft.icons.icons.ADD_PHOTO_ALTERNATE_OUTLINED,
             color=constants.BLACK,
             size=32,
           ),

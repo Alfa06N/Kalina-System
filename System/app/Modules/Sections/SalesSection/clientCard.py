@@ -32,7 +32,7 @@ class ClientCard(ft.Container):
       controls=[
         ft.Icon(
           name=ft.icons.PERSON_ADD_ROUNDED,
-          size=32,
+          size=40,
           color=constants.BLACK,
         ),
         ft.Text(
@@ -59,23 +59,6 @@ class ClientCard(ft.Container):
         formContainer=self.formContainer,
         selectedClient=self.selectedClient,
       )
-      
-      # newContent = ft.Stack(
-      #   expand=True,
-      #   controls=[
-      #     ft.Row(
-      #       expand=True,
-      #       controls=[newContent,]  
-      #     ),
-      #     ft.Container(
-      #       left=10,
-      #       top=10,
-      #       content=CustomReturnButton(
-      #         function=lambda e: self.formContainer.returnToBegin()
-      #       )
-      #     )
-      #   ]
-      # )
       
       self.formContainer.changeContent(newContent)
     except:
@@ -166,7 +149,7 @@ class ClientSelection(ft.Container):
         controls=[
           ft.Icon(
             name=ft.icons.PERSON_OFF_ROUNDED,
-            size=24,
+            size=32,
             color=constants.BLACK,
           ),
           ft.Text(

@@ -1,6 +1,9 @@
 import flet as ft
 import constants
-from Modules.customControls import CustomAlertDialog, CustomAnimatedContainer, CustomAnimatedContainerSwitcher, CustomOperationContainer, CustomTextField, CustomDropdown, CustomImageContainer, CustomFloatingActionButton, CustomFilledButton, CustomTooltip
+from Modules.customControls import CustomAlertDialog, CustomAnimatedContainer, CustomAnimatedContainerSwitcher, CustomOperationContainer, CustomTextField, CustomDropdown, CustomImageContainer, CustomFloatingActionButton, CustomFilledButton, CustomTooltip, CustomReturnButton, CustomEditButton, CustomExchangeDialog
+from Modules.transaction_module import TransactionForm
+from utils.exchangeManager import exchangeRateManager
+from Modules.Sections.SalesSection.paymentCard import TransactionManager
 
 class ChangeCard(ft.Container):
   def __init__(self, page, formContainer, height=160, width=160):
@@ -20,37 +23,110 @@ class ChangeCard(ft.Container):
     
     self.price = 0
     
-    self.changeContent = ft.Column(
+    self.selectedChanges = []
+    
+    self.changeAmountText = ft.Text(
+      value=0,
+      size=24,
+      color=constants.RED_TEXT,
+      weight=ft.FontWeight.W_700,
+      overflow=ft.TextOverflow.ELLIPSIS,
+    )
+    
+    self.withoutChange = ft.Column(
       alignment=ft.MainAxisAlignment.CENTER,
       horizontal_alignment=ft.CrossAxisAlignment.CENTER,
       controls=[
         ft.Icon(
-          name=ft.icons.CURRENCY_EXCHANGE_ROUNDED,
-          size=32,
+          name=ft.icons.CHANGE_CIRCLE_OUTLINED,
+          size=40,
           color=constants.BLACK,
         ),
         ft.Text(
-          value=f"Cambio",
+          value=f"Vueltos",
           size=18,
           color=constants.BLACK,
           text_align=ft.TextAlign.CENTER,
           overflow=ft.TextOverflow.ELLIPSIS,  
         ),
-        ft.Text(
-          value=f"{self.price}$",
-          size=18,
+      ]
+    )
+    
+    self.withChange = ft.Column(
+      alignment=ft.MainAxisAlignment.CENTER,
+      horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+      controls=[
+        ft.Icon(
+          name=ft.icons.OUTPUT_OUTLINED,
+          size=40,
           color=constants.BLACK,
-          weight=ft.FontWeight.W_700,
-          text_align=ft.TextAlign.CENTER,
-          overflow=ft.TextOverflow.ELLIPSIS,
+        ),
+        ft.Row(
+          alignment=ft.MainAxisAlignment.CENTER,
+          controls=[
+            self.changeAmountText,
+          ]
         )
       ]
     )
     
-    self.content = self.changeContent
+    self.animatedContainer = CustomAnimatedContainer(
+      actualContent=self.withoutChange
+    )
+    
+    self.content = self.animatedContainer
     
   def clickFunction(self):
     try:
-      pass
+      exchangeRate = exchangeRateManager.getRate()
+      
+      if exchangeRate:
+        newContent = TransactionManager(
+          page=self.page,
+          paymentCard=self,
+          formContainer=self.formContainer,
+          selectedPayments=self.selectedChanges,
+          transactionType="Change"
+        )
+        
+        self.formContainer.changeContent(newContent)
+      else:
+        dialog = CustomExchangeDialog(page=self.page)
+        self.page.open(dialog)
     except:
-      pass
+      raise
+    
+  def updateCard(self, transactions:list=[]):
+    try:
+      self.selectedChanges = transactions
+      self.price = 0
+      exchangeRate = exchangeRateManager.getRate()
+      
+      for change in self.selectedChanges:
+        amount = change["amount"]
+        if change["currency"] == "Bs":
+          if exchangeRate:
+            amount = change["amount"]/exchangeRate
+          else:
+            self.price = 0
+            dialog = ft.AlertDialog(
+              title=ft.Text("No se ha establecido la tasa de intercambio."),
+            )
+            self.page.open(dialog)
+            return
+        self.price += amount
+      
+      self.changeAmountText.value = f"{round(self.price, 2)}$"
+      
+      if self.price > 0:
+        self.animatedContainer.setNewContent(self.withChange)
+      else:
+        self.animatedContainer.setNewContent(self.withoutChange)
+    except:
+      raise
+    
+  def updateAboutRate(self, newRate):
+    try:
+      self.updateCard(self.selectedChanges)
+    except:
+      raise

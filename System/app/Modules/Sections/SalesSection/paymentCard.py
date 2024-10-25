@@ -1,8 +1,8 @@
 import flet as ft
 import constants
-from Modules.customControls import CustomAlertDialog, CustomAnimatedContainer, CustomAnimatedContainerSwitcher, CustomOperationContainer, CustomTextField, CustomDropdown, CustomImageContainer, CustomFloatingActionButton, CustomFilledButton, CustomTooltip, CustomReturnButton, CustomEditButton
+from Modules.customControls import CustomAlertDialog, CustomAnimatedContainer, CustomAnimatedContainerSwitcher, CustomOperationContainer, CustomTextField, CustomDropdown, CustomImageContainer, CustomFloatingActionButton, CustomFilledButton, CustomTooltip, CustomReturnButton, CustomEditButton, CustomExchangeDialog
 from Modules.transaction_module import TransactionForm
-from utils.exchangeManager import getCurrentRate
+from utils.exchangeManager import exchangeRateManager
 
 
 class PaymentCard(ft.Container):
@@ -20,6 +20,8 @@ class PaymentCard(ft.Container):
     self.ink = True
     self.ink_color = constants.WHITE_GRAY
     self.on_click = lambda e: self.clickFunction()
+    
+    self.price = 0
     
     self.selectedPayments = []
     
@@ -55,18 +57,13 @@ class PaymentCard(ft.Container):
       horizontal_alignment=ft.CrossAxisAlignment.CENTER,
       controls=[
         ft.Icon(
-          name=ft.icons.PAYMENTS_ROUNDED,
+          name=ft.icons.INPUT,
           size=40,
           color=constants.BLACK,  
         ),
         ft.Row(
           alignment=ft.MainAxisAlignment.CENTER,
           controls=[
-            # ft.Text(
-            #   value="Total:",
-            #   size=18,
-            #   color=constants.BLACK,
-            # ),
             self.paymentAmountText,
           ]
         ),
@@ -81,22 +78,27 @@ class PaymentCard(ft.Container):
     
   def clickFunction(self):
     try:
-      newContent = PaymentManager(
-        page=self.page,
-        paymentCard=self,
-        formContainer=self.formContainer,
-        selectedPayments=self.selectedPayments,
-      )
-      
-      self.formContainer.changeContent(newContent)
+      exchangeRate = exchangeRateManager.getRate()
+      if exchangeRate:
+        newContent = TransactionManager(
+          page=self.page,
+          paymentCard=self,
+          formContainer=self.formContainer,
+          selectedPayments=self.selectedPayments,
+        )
+        
+        self.formContainer.changeContent(newContent)
+      else:
+        dialog = CustomExchangeDialog(page=self.page)
+        self.page.open(dialog)
     except:
       raise
     
-  def updateCard(self, payments:list=[]):
+  def updateCard(self, transactions:list=[]):
     try:
-      self.selectedPayments = payments
-      totalAmount = 0
-      exchangeRate = getCurrentRate()
+      self.selectedPayments = transactions
+      self.price = 0
+      exchangeRate = exchangeRateManager.getRate()
       
       for payment in self.selectedPayments:
         amount = payment["amount"]
@@ -104,39 +106,44 @@ class PaymentCard(ft.Container):
           if exchangeRate:
             amount = payment["amount"]/exchangeRate
           else:
-            print("No se ha establecido ninguna tasa.")
-            totalAmount = 0
+            self.price = 0
             dialog = ft.AlertDialog(
               title=ft.Text("No se ha establecido la tasa de intercambio."),
             )
             self.page.open(dialog)
             return
-        totalAmount += amount
+        self.price += amount
       
-      self.paymentAmountText.value = f"{round(totalAmount,2)}$"
+      self.paymentAmountText.value = f"{round(self.price,2)}$"
       
-      if totalAmount > 0:
+      if self.price > 0:
         self.animatedContainer.setNewContent(self.withPayment)
       else:
         self.animatedContainer.setNewContent(self.withoutPayment)
-      print(totalAmount)
     except:
       raise
   
+  def updateAboutRate(self, newRate):
+    try:
+      self.updateCard(self.selectedPayments)
+    except:
+      pass
+  
 
-class PaymentManager(ft.Container):
-  def __init__(self, page, paymentCard, formContainer, selectedPayments=[]):
+class TransactionManager(ft.Container):
+  def __init__(self, page, paymentCard, formContainer, selectedPayments=[], transactionType="Payment"):
     super().__init__()
     self.page = page
     self.paymentCard = paymentCard
     self.formContainer = formContainer
     self.selectedPayments = selectedPayments
+    self.transactionType = transactionType
     
     self.alignment = ft.alignment.center
     self.expand = True
     
     self.titleText = ft.Text(
-      value="Pagos de la venta",
+      value="Pagos de la venta" if self.transactionType == "Payment" else "Vueltos de la venta",
       size=32,
       color=constants.BLACK,
       weight=ft.FontWeight.W_700,
@@ -155,11 +162,11 @@ class PaymentManager(ft.Container):
       controls=[
         ft.Icon(
           name=ft.icons.CREDIT_CARD_OFF_OUTLINED,
-          size=24,
+          size=32,
           color=constants.BLACK,
         ),
         ft.Text(
-          value="No se ha registrado ningún pago",
+          value="No se ha registrado ningún pago" if self.transactionType == "Payment" else "No se ha registrado ningún vuelto",
           size=18,
           color=constants.BLACK,
           text_align=ft.TextAlign.CENTER,
@@ -194,7 +201,7 @@ class PaymentManager(ft.Container):
           alignment=ft.MainAxisAlignment.CENTER,
           controls=[
             ft.Text(
-              value="Agregar pago",
+              value="Agregar pago" if self.transactionType == "Payment" else "Agregar vuelto",
               size=18,
               color=constants.BLACK,
             ),
@@ -228,7 +235,7 @@ class PaymentManager(ft.Container):
       form = TransactionForm(
         page=self.page,
         previousContainer=self,
-        transactionType="Payment",
+        transactionType=self.transactionType,
       )
       
       form = ft.Stack(
@@ -252,15 +259,15 @@ class PaymentManager(ft.Container):
   def returnToManager(self):
     self.animatedMainContainer.setNewContent(self.managerContent)
   
-  def getPaymentRecord(self, paymentInfo):
+  def getTransactionRecord(self, paymentInfo):
     try:
-      paymentRecord = PaymentRecord(
+      transactionRecord = TransactionRecord(
         page=self.page,
         paymentInfo=paymentInfo,
         deleteFunction=self.removePaymentFromList,
       )
       
-      return paymentRecord
+      return transactionRecord
     except:
       raise
   
@@ -270,11 +277,11 @@ class PaymentManager(ft.Container):
     except:
       raise
   
-  def removePaymentFromList(self, paymentInfo, paymentRecord):
+  def removePaymentFromList(self, paymentInfo, transactionRecord):
     try:
       
       self.selectedPayments.remove(paymentInfo)
-      self.animatedPaymentContainer.content.content.controls.remove(paymentRecord)
+      self.animatedPaymentContainer.content.content.controls.remove(transactionRecord)
       
       if len(self.animatedPaymentContainer.content.content.controls) == 0:
         self.animatedPaymentContainer.content.setNewContent(self.paymentDefaultContainer)
@@ -293,7 +300,7 @@ class PaymentManager(ft.Container):
       )
       
       for paymentInfo in self.selectedPayments:
-        record = self.getPaymentRecord(paymentInfo)
+        record = self.getTransactionRecord(paymentInfo)
         newContent.controls.append(record)
       
       return newContent
@@ -314,11 +321,11 @@ class PaymentManager(ft.Container):
   def finishFunction(self):
     try:
       self.formContainer.returnToBegin() 
-      self.paymentCard.updateCard(payments=self.selectedPayments)
+      self.paymentCard.updateCard(transactions=self.selectedPayments)
     except:
       raise
     
-class PaymentRecord(ft.Container):
+class TransactionRecord(ft.Container):
   def __init__(self, page, paymentInfo, deleteFunction=None):
     super().__init__()
     self.page = page
@@ -363,13 +370,13 @@ class PaymentRecord(ft.Container):
       value=f"{self.amount}{self.currency}",
       size=28,
       weight=ft.FontWeight.W_700,
-      color=constants.GREEN_TEXT if self.transactionType == "Payment" else constants.BLACK,
+      color=constants.GREEN_TEXT if self.transactionType == "Payment" else constants.RED_TEXT,
       overflow=ft.TextOverflow.ELLIPSIS,
     )
     
     if self.deleteFunction:
       self.deleteButton = CustomEditButton(
-        function=lambda e: self.deleteFunction(paymentInfo=self.paymentInfo, paymentRecord=self),
+        function=lambda e: self.deleteFunction(paymentInfo=self.paymentInfo, transactionRecord=self),
       )
       self.deleteButton.content.name = ft.icons.DELETE_ROUNDED
     
@@ -378,12 +385,6 @@ class PaymentRecord(ft.Container):
       vertical_alignment=ft.CrossAxisAlignment.CENTER,
       expand=True,
       controls=[
-        # ft.Column(
-        #   controls=[
-        #     self.methodText,
-        #     self.transactionTypeText,
-        #   ]
-        # ),
         self.methodRow,
         ft.Row(
           vertical_alignment=ft.CrossAxisAlignment.CENTER,

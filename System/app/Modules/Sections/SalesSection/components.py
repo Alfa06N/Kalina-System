@@ -11,13 +11,14 @@ from Modules.Sections.SalesSection.clientCard import ClientCard
 from Modules.Sections.SalesSection.paymentCard import PaymentCard
 from Modules.Sections.SalesSection.changeCard import ChangeCard
 from Modules.Sections.SalesSection.priceCard import PriceCard
+from utils.exchangeManager import exchangeRateManager
 
 class SaleItemsList(CustomAnimatedContainerSwitcher):
   def __init__(self, page):
     self.page = page
     
     self.titleText = ft.Text(
-      value="Selección",
+      value="Carrito",
       size=42,
       color=constants.BLACK,
       weight=ft.FontWeight.W_700,
@@ -37,7 +38,18 @@ class SaleItemsList(CustomAnimatedContainerSwitcher):
       horizontal_alignment=ft.CrossAxisAlignment.CENTER,
       expand=True,
       controls=[
-        self.titleText,
+        ft.Row(
+          alignment=ft.MainAxisAlignment.CENTER,
+          vertical_alignment=ft.CrossAxisAlignment.CENTER,
+          controls=[
+            ft.Icon(
+              name=ft.icons.ADD_SHOPPING_CART_ROUNDED,
+              size=40,
+              color=constants.BLACK,
+            ),
+            self.titleText,
+          ]
+        ),
         self.itemsSelector
       ]
     )
@@ -69,6 +81,9 @@ class SaleForm(CustomAnimatedContainerSwitcher):
       page=self.page,
       formContainer=self,
     )
+    
+    exchangeRateManager.subscribe(self.paymentCard)
+    exchangeRateManager.subscribe(self.changeCard)
     
     self.priceCard = PriceCard(
       page=self.page,

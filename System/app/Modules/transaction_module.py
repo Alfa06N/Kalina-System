@@ -51,7 +51,7 @@ class TransactionForm(CustomOperationContainer):
     )
     
     self.changeFieldButton = ft.IconButton(
-      icon=ft.icons.CHANGE_CIRCLE_OUTLINED,
+      icon=ft.icons.CURRENCY_EXCHANGE_ROUNDED,
       icon_color=constants.BLACK,
       icon_size=32,
       on_click=lambda e: self.switchField(),

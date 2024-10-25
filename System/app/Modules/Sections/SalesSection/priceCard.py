@@ -38,7 +38,7 @@ class PriceCard(ft.Container):
       controls=[
         ft.Icon(
           name=ft.icons.ATTACH_MONEY_ROUNDED,
-          size=32,
+          size=40,
           color=constants.BLACK,
         ),
         ft.Text(
