@@ -239,8 +239,12 @@ class UserInfo(ft.Stack):
     try:
       if self.username == getCurrentUser():
         dialog = CustomAlertDialog(
-          title="Usuario no eliminado",
-          content=f"No puedes eliminar a \"{self.username}\" en este momento",
+          title="Operación bloqueada",
+          content=ft.Text(
+            value=f"No puedes eliminar al usuario de la sesión actual",
+            size=18,
+            color=constants.BLACK,  
+          ),
           modal=False,
         )
         self.page.open(dialog)

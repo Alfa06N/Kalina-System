@@ -6,7 +6,7 @@ from interface import showLogin
 import time
 from utils.pathUtils import getImagePath
 from DataBase.crud.employee import getEmployeeById
-from DataBase.crud.user import createUser, getUserByUsername
+from DataBase.crud.user import createUser, getUserByUsername, queryUserData
 from DataBase.crud.recovery import createRecovery
 from config import getDB
 from exceptions import DataNotFoundError, DataAlreadyExists, InvalidData
@@ -304,30 +304,31 @@ class RegisterForm(CustomSimpleContainer):
       else:
         isValid = evaluateForm(username=[self.adminUsernameField], password=[self.adminPasswordField])
         
-        if isValid:
-          with getDB() as db:
-            role = "Administrador" if self.checkbox.value == True else "Colaborador"
-            
-            
-            
-            user = createUser(
-              db=db,
-              username=self.newUserName.value.strip(),
-              password=self.password.value.strip(),
-              role=role,
-              ciEmployee=self.userCI.value.strip(), 
-            )
-            recovery = createRecovery(
-              db=db,
-              questionOne=self.questionOne.value.strip(),
-              answerOne=self.answerOne.value.strip(),
-              questionTwo=self.questionTwo.value.strip(),
-              answerTwo=self.answerTwo.value.strip(),
-              idUser=user.idUser,
-            )
-            
-            self.operation.actionSuccess("Usuario creado")
-            threading.Timer(1.5, lambda: showLogin(self.page)).start()
+        with getDB() as db:
+          if isValid:
+            if queryUserData(db, username=self.adminUsernameField.value.strip(), password=self.adminPasswordField.value.strip()):
+              role = "Administrador" if self.checkbox.value == True else "Colaborador"
+              
+              user = createUser(
+                db=db,
+                username=self.newUserName.value.strip(),
+                password=self.password.value.strip(),
+                role=role,
+                ciEmployee=self.userCI.value.strip(), 
+              )
+              recovery = createRecovery(
+                db=db,
+                questionOne=self.questionOne.value.strip(),
+                answerOne=self.answerOne.value.strip(),
+                questionTwo=self.questionTwo.value.strip(),
+                answerTwo=self.answerTwo.value.strip(),
+                idUser=user.idUser,
+              )
+              
+              self.operation.actionSuccess("Usuario creado")
+              threading.Timer(1.5, lambda: showLogin(self.page)).start()
+            else:
+              raise InvalidData("Contraseña incorrecta.")
             
       if not isValid:
         print("Campos inválidos")
@@ -336,6 +337,9 @@ class RegisterForm(CustomSimpleContainer):
         if self.currentForm < len(self.formList) - 1:
           self.currentForm += 1
           self.animatedContainer.setNewContent(self.formList[self.currentForm])
+    except InvalidData as err:
+      self.operation.actionFailed(err)
+      threading.Timer(1.5, self.operation.restartContainer).start()
     except DataAlreadyExists as err:
       self.operation.actionFailed(err)
       threading.Timer(1.5, self.operation.restartContainer).start()

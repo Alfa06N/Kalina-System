@@ -1,10 +1,11 @@
 import flet as ft 
-from Modules.customControls import CustomAnimatedContainer, CustomOperationContainer, CustomUserIcon, CustomCardInfo, CustomDeleteButton
+from Modules.customControls import CustomAnimatedContainer, CustomOperationContainer, CustomUserIcon, CustomCardInfo, CustomDeleteButton, CustomAlertDialog
 import constants
 from DataBase.crud.employee import getEmployeeById, removeEmployee, calculateAge
 from config import getDB
 import time
-from exceptions import DataAlreadyExists, DataNotFoundError
+from exceptions import DataAlreadyExists, DataNotFoundError, ErrorOperation
+from utils.sessionManager import getCurrentUser
 
 class EmployeeContainer(ft.Container):
   def __init__(self, page, ciEmployee, initial, name, surname, infoContainer, principalContainer, secondSurname=""):
@@ -279,6 +280,8 @@ class EmployeeInfo(ft.Stack):
         employee = getEmployeeById(db, self.ciEmployee)
         
         if employee:
+          if employee.user.username == getCurrentUser():
+            raise ErrorOperation("No se puede eliminar al empleado vinculado al usuario de la sesión")
           employee = removeEmployee(db, employee)
           self.principalContainer.resetEmployeesContainer()
           self.principalContainer.resetInfoContainer()
@@ -286,5 +289,16 @@ class EmployeeInfo(ft.Stack):
           raise DataNotFoundError(f"Can't delete employee V-{self.ciEmployee}")
     except DataNotFoundError:
       raise
+    except ErrorOperation as err:
+      dialog = CustomAlertDialog(
+        title="Operación bloquada",
+        content=ft.Text(
+          value=err,
+          size=18,
+          color=constants.BLACK,
+        ),
+        modal=False,
+      )
+      self.page.open(dialog)
     except Exception as err:
       print(f"Error deleting employee V-{self.ciEmployee}: {err}")
