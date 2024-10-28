@@ -36,7 +36,7 @@ class UserContainer(ft.Container):
     self.usernameTitle = CustomAnimatedContainer(
       actualContent=ft.Text(
         value=self.username,
-        size=18,
+        size=20,
         color=constants.BLACK,
         weight=ft.FontWeight.W_700,
         overflow=ft.TextOverflow.ELLIPSIS,
@@ -61,7 +61,7 @@ class UserContainer(ft.Container):
             self.usernameTitle,
             ft.Text(
               value=self.fullname,
-              size=18,
+              size=20,
               color=constants.BLACK,
               overflow=ft.TextOverflow.ELLIPSIS,
             )
@@ -92,7 +92,7 @@ class UserContainer(ft.Container):
     self.username = newUsername
     self.usernameTitle.setNewContent(ft.Text(
         value=newUsername,
-        size=18,
+        size=20,
         color=constants.BLACK,
         weight=ft.FontWeight.W_700,
         overflow=ft.TextOverflow.ELLIPSIS,
@@ -281,7 +281,7 @@ class UserInfo(ft.Stack):
         self.editContainer.setNewOperation(ft.Text(
           value="Ingresa aquí el siguiente paso",
           color=constants.BLACK,
-          size=18,
+          size=20,
         ))
         return True
       else:
@@ -332,7 +332,7 @@ class EditContainer(CustomOperationContainer):
               ),
               ft.Text(
                 value="Valida tu identidad",
-                size=18,
+                size=20,
                 color=constants.BLACK,
               )
             ]
@@ -391,7 +391,7 @@ class EditContainer(CustomOperationContainer):
               ),
               ft.Text(
                 value="Edita tu usuario",
-                size=18,
+                size=20,
                 color=constants.BLACK,
               )
             ]
@@ -411,10 +411,6 @@ class EditContainer(CustomOperationContainer):
             controls=[
               CustomFilledButton(
                 text="Enviar",
-                overlay=constants.BROWN_OVERLAY,
-                bgcolor=constants.BROWN,
-                color=constants.WHITE,
-                size=18,
                 clickFunction=self.submitForm
               )
             ]

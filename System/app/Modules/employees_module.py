@@ -55,7 +55,7 @@ class EmployeesForm(CustomOperationContainer):
     
     self.birthdateText = ft.Text(
       value="Fecha de nacimiento",
-      size=18,
+      size=20,
       color=constants.BLACK,
     )
     self.birthdateIcon = ft.Icon(
@@ -139,10 +139,14 @@ class EmployeesForm(CustomOperationContainer):
           self.confirmDialog = CustomAlertDialog(
             modal=True,
             title=f"Crear empleado",
-            content=f"Se creará el empleado \"{self.nameField.value} {self.surnameField.value} {self.secondSurnameField.value}\" portador de la cédula \"V-{self.ciField.value}\"",
+            content=ft.Text(
+              value=f"Se creará el empleado \"{self.nameField.value} {self.surnameField.value} {self.secondSurnameField.value}\" portador de la cédula \"V-{self.ciField.value}\"",
+              size=18,
+              color=constants.BLACK,
+            ),
             actions=[
-              ft.TextButton("Confirmar", on_click=self.createEmployee),
-              ft.TextButton("Cancelar", on_click=lambda e: self.page.close(self.confirmDialog)),
+              CustomTextButton(text="Confirmar", on_click=self.createEmployee),
+              CustomTextButton("Cancelar", on_click=lambda e: self.page.close(self.confirmDialog)),
             ]
           )
           self.page.open(self.confirmDialog)

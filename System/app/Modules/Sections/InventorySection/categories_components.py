@@ -43,7 +43,7 @@ class CategoryContainer(ft.Container):
       actualContent=ft.Text(
         value=self.name,
         color=constants.BLACK,
-        size=18,
+        size=20,
         weight=ft.FontWeight.W_700,
         overflow=ft.TextOverflow.ELLIPSIS,
       ),
@@ -53,7 +53,7 @@ class CategoryContainer(ft.Container):
       actualContent=ft.Text(
         value=self.description,
         color=constants.BLACK,
-        size=18,
+        size=20,
         overflow=ft.TextOverflow.ELLIPSIS,
       ),
     )
@@ -123,7 +123,7 @@ class CategoryInfo(ft.Stack):
     
     self.descriptionText = ft.Text(
       value=self.description,
-      size=18,
+      size=20,
       color=constants.BLACK,
       max_lines=2,
       overflow=ft.TextOverflow.ELLIPSIS,

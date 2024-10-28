@@ -1,17 +1,17 @@
 import flet as ft
 import constants
-from Modules.customControls import CustomAlertDialog, CustomAnimatedContainer, CustomAnimatedContainerSwitcher, CustomOperationContainer, CustomTextField, CustomDropdown, CustomImageContainer, CustomFloatingActionButton, CustomFilledButton, CustomTooltip, CustomReturnButton, CustomEditButton, CustomExchangeDialog
+from Modules.customControls import CustomAlertDialog, CustomAnimatedContainer, CustomAnimatedContainerSwitcher, CustomOperationContainer, CustomTextField, CustomDropdown, CustomImageContainer, CustomFloatingActionButton, CustomFilledButton, CustomTooltip, CustomReturnButton, CustomEditButton, CustomExchangeDialog 
 from Modules.transaction_module import TransactionForm
 from utils.exchangeManager import exchangeRateManager
+from exceptions import InvalidData, DataAlreadyExists, DataNotFoundError
 
 
 class PaymentCard(ft.Container):
-  def __init__(self, page, formContainer, height=160, width=160):
+  def __init__(self, page, formContainer, height=140, width=140):
     super().__init__()
     self.page = page
-    self.height = height
-    self.width = width
     self.formContainer = formContainer
+    self.expand = True
     
     self.bgcolor = constants.WHITE
     self.border = ft.border.all(2, constants.BLACK_GRAY)
@@ -27,46 +27,47 @@ class PaymentCard(ft.Container):
     
     self.paymentAmountText = ft.Text(
       value=0,
-      size=24,
+      size=20,
       color=constants.GREEN_TEXT,
       weight=ft.FontWeight.W_700,
       overflow=ft.TextOverflow.ELLIPSIS,
     )
     
-    self.withoutPayment = ft.Column(
+    self.withoutPayment = ft.Row(
       alignment=ft.MainAxisAlignment.CENTER,
-      horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+      vertical_alignment=ft.CrossAxisAlignment.CENTER,
       controls=[
         ft.Icon(
-          name=ft.icons.PAYMENT_ROUNDED,
-          size=40,
-          color=constants.BLACK,
+          name=ft.icons.ADD_CARD,
+          size=32,
+          color=constants.GREEN_TEXT,
         ),
         ft.Text(
-          value="Pagos",
-          size=18,
+          value="Agregar pagos",
+          size=20,
           color=constants.BLACK,
           text_align=ft.TextAlign.CENTER,
+          weight=ft.FontWeight.W_600,
           overflow=ft.TextOverflow.ELLIPSIS,
         )
       ]
     )
     
-    self.withPayment = ft.Column(
+    self.withPayment = ft.Row(
       alignment=ft.MainAxisAlignment.CENTER,
-      horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+      vertical_alignment=ft.CrossAxisAlignment.CENTER,
       controls=[
         ft.Icon(
           name=ft.icons.INPUT,
-          size=40,
-          color=constants.BLACK,  
+          size=32,
+          color=constants.GREEN_TEXT,  
         ),
-        ft.Row(
-          alignment=ft.MainAxisAlignment.CENTER,
-          controls=[
-            self.paymentAmountText,
-          ]
+        ft.Text(
+          value="Monto total:",
+          color=constants.BLACK,
+          size=20,
         ),
+        self.paymentAmountText,
       ]
     )
     
@@ -74,7 +75,13 @@ class PaymentCard(ft.Container):
       actualContent=self.withoutPayment
     )
     
-    self.content = self.animatedContainer
+    self.content = ft.Column(
+      expand=True,
+      alignment=ft.MainAxisAlignment.CENTER,
+      controls=[
+        self.animatedContainer
+      ]  
+    )
     
   def clickFunction(self):
     try:
@@ -93,6 +100,15 @@ class PaymentCard(ft.Container):
         self.page.open(dialog)
     except:
       raise
+  
+  def validateCard(self):
+    try:
+      if len(self.selectedPayments) > 0:
+        return True, self.selectedPayments, f"Monto total entrante: {self.price}$ / {self.price*exchangeRateManager.getRate()}Bs"
+      else:
+        raise InvalidData("Por favor, anexa los pagos entrantes de la venta.")
+    except:
+      raise
     
   def updateCard(self, transactions:list=[]):
     try:
@@ -107,8 +123,10 @@ class PaymentCard(ft.Container):
             amount = payment["amount"]/exchangeRate
           else:
             self.price = 0
-            dialog = ft.AlertDialog(
-              title=ft.Text("No se ha establecido la tasa de intercambio."),
+            dialog = CustomAlertDialog(
+              modal=False,
+              title="No se ha establecido la tasa de intercambio.",
+              content=None
             )
             self.page.open(dialog)
             return
@@ -167,7 +185,7 @@ class TransactionManager(ft.Container):
         ),
         ft.Text(
           value="No se ha registrado ningún pago" if self.transactionType == "Payment" else "No se ha registrado ningún vuelto",
-          size=18,
+          size=20,
           color=constants.BLACK,
           text_align=ft.TextAlign.CENTER,
           overflow=ft.TextOverflow.ELLIPSIS,
@@ -202,7 +220,7 @@ class TransactionManager(ft.Container):
           controls=[
             ft.Text(
               value="Agregar pago" if self.transactionType == "Payment" else "Agregar vuelto",
-              size=18,
+              size=20,
               color=constants.BLACK,
             ),
             self.createPaymentButton,

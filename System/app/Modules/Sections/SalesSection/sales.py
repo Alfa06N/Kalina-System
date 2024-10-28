@@ -2,6 +2,7 @@ import flet as ft
 import constants
 from Modules.customControls import CustomAlertDialog, CustomAnimatedContainer, CustomAnimatedContainerSwitcher, CustomOperationContainer, CustomTextField, CustomDropdown, CustomImageContainer, CustomFloatingActionButton, CustomFilledButton, CustomTooltip
 from Modules.Sections.SalesSection.components import SaleItemsList, SaleForm
+from utils.saleManager import saleMakerManager
 
 class Sales(ft.Row):
   def __init__(self, page):
@@ -17,7 +18,6 @@ class Sales(ft.Row):
     
     self.saleForm = SaleForm(
       page=self.page,
-      itemsSelector=self.itemsList.itemsSelector
     )
     
     # Reference to priceCard from saleForm to itemsList:
@@ -47,3 +47,5 @@ class Sales(ft.Row):
     self.controls = [
       self.mainContainer,
     ]
+    
+    saleMakerManager.setSaleContainer(self.mainContainer)

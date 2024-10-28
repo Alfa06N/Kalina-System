@@ -45,9 +45,6 @@ class RecoveryForm(CustomSimpleContainer):
     
     self.nextButton = CustomOutlinedButton(
       text="Siguiente", 
-      color=constants.BLACK, 
-      size=18, 
-      icon=None, 
       clickFunction=self.nextStep
     )
     
@@ -335,10 +332,9 @@ class RecoveryPresentation(CustomSimpleContainer):
     
     self.button = CustomFilledButton(
       text="Iniciar Sesión",
-      size=18,
-      color=constants.BLACK,
-      bgcolor=constants.ORANGE,
       overlay=constants.ORANGE_OVERLAY,
+      bgcolor=constants.ORANGE,
+      color=constants.BLACK,
       clickFunction=lambda e: showLogin(self.page)
     )
     

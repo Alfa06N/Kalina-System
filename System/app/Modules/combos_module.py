@@ -49,7 +49,7 @@ class ComboForm(CustomOperationContainer):
         ),
         ft.Text(
           value="Selección de productos",
-          size=18,
+          size=20,
           color=constants.BLACK,
         )
       ]
@@ -99,7 +99,7 @@ class ComboForm(CustomOperationContainer):
                 ),
                 ft.Text(
                   value="Información del combo",
-                  size=18,
+                  size=20,
                   color=constants.BLACK,
                 )
               ]
@@ -120,7 +120,7 @@ class ComboForm(CustomOperationContainer):
                 ),
                 ft.Text(
                   value="Precio Final",
-                  size=18,
+                  size=20,
                   color=constants.BLACK,
                 )
               ]
@@ -157,9 +157,9 @@ class ComboForm(CustomOperationContainer):
           
           imgPath = self.image.selectedImagePath
           
-          items = self.productsSelector.getItemsWithQuantity()
+          products, combos = self.productsSelector.getItemsWithQuantity()
           price = self.productsSelector.price
-          
+  
           combo = createCombo(
             db=db,
             name=self.nameField.value.strip(),
@@ -169,12 +169,12 @@ class ComboForm(CustomOperationContainer):
           )
           
           if combo:
-            for itemInfo in items:
+            for product in products:
               register = registerOperation(
                 db=db,
-                idProduct=itemInfo["item"].idProduct,
+                idProduct=product["id"],
                 idCombo=combo.idCombo,
-                productQuantity=itemInfo["quantity"]
+                productQuantity=product["quantity"]
               )
               
               print(f"{register.combo.name} - {register.product.name}")
@@ -233,7 +233,7 @@ class UpdateInfoForm(ft.Stack):
         
       self.costText = ft.Text(
         value=f"Costo de los productos: {round(cost, 2)}$",
-        size=18,
+        size=20,
         color=constants.BLACK,
         text_align=ft.TextAlign.CENTER,
       )

@@ -63,7 +63,7 @@ class ProductForm(CustomOperationContainer):
           ),
           ft.Text(
             value="¿Cuál es la función del stock mínimo?",
-            size=18,
+            size=20,
             color=constants.BLACK,
           )
         ]
@@ -109,7 +109,7 @@ class ProductForm(CustomOperationContainer):
     
     self.numberPrice = ft.Text(
       value="0$",
-      size=18,
+      size=20,
       color=constants.BLACK,
       weight=ft.FontWeight.W_700,
     )
@@ -123,7 +123,7 @@ class ProductForm(CustomOperationContainer):
         controls=[
           ft.Text(
             value="Precio Final:",
-            size=18,
+            size=20,
             color=constants.BLACK,
           ),
           self.numberPrice,
@@ -162,7 +162,7 @@ class ProductForm(CustomOperationContainer):
                 ),
                 ft.Text(
                   value="Selección de categoría",
-                  size=18,
+                  size=20,
                   color=constants.BLACK,
                 ),
               ]
@@ -185,7 +185,7 @@ class ProductForm(CustomOperationContainer):
                 ),
                 ft.Text(
                   value="Información del producto",
-                  size=18,
+                  size=20,
                   color=constants.BLACK,
                 )
               ]
@@ -210,7 +210,7 @@ class ProductForm(CustomOperationContainer):
                 ft.Text(
                   value="Configuración de stock",
                   color=constants.BLACK,
-                  size=18,
+                  size=20,
                 )
               ]
             ),
@@ -234,7 +234,7 @@ class ProductForm(CustomOperationContainer):
                 ft.Text(
                   value="Costos",
                   color=constants.BLACK,
-                  size=18,
+                  size=20,
                 )
               ]
             ),
@@ -368,14 +368,14 @@ class UpdateStockForm(ft.Stack):
       
       self.stockText = ft.Text(
         value=f"Stock actual: {product.stock}",
-        size=18,
+        size=20,
         color=constants.BLACK,
         weight=ft.FontWeight.W_700,
       )
       
       self.minStockText = ft.Text(
         value=f"Stock mínimo establecido: {product.minStock}",
-        size=18,
+        size=20,
         color=constants.BLACK,
         weight=ft.FontWeight.W_700,
       )
@@ -545,7 +545,7 @@ class UpdateInfoForm(ft.Stack):
                   ),
                   ft.Text(
                     value="Selección de categoría",
-                    size=18,
+                    size=20,
                     color=constants.BLACK,
                   ),
                 ]
@@ -568,7 +568,7 @@ class UpdateInfoForm(ft.Stack):
                   ),
                   ft.Text(
                     value="Información del producto",
-                    size=18,
+                    size=20,
                     color=constants.BLACK,
                   )
                 ]
@@ -712,7 +712,7 @@ class UpdatePriceForm(ft.Stack):
       
       self.numberPrice = ft.Text(
         value=f"{round(calculatePrice(cost=product.cost, iva=product.iva, gain=product.gain), 2)}$",
-        size=18,
+        size=20,
         color=constants.BLACK,
         weight=ft.FontWeight.W_700,
       )
@@ -726,7 +726,7 @@ class UpdatePriceForm(ft.Stack):
           controls=[
             ft.Text(
               value="Precio Final:",
-              size=18,
+              size=20,
               color=constants.BLACK,
             ),
             self.numberPrice,

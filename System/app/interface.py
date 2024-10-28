@@ -49,9 +49,11 @@ def showPrincipal(page: ft.Page):
   from config import getDB
   from DataBase.crud.user import getUserByUsername
   from utils.sessionManager import getCurrentUser
+  from utils.exchangeManager import exchangeRateManager
   
   user = None
   initial = ""
+  exchangeRateManager.clearSubscribers()
   
   with getDB() as db:
     try:
@@ -79,8 +81,6 @@ def showPrincipal(page: ft.Page):
       ]
     )
   )
-  
-  from utils.exchangeManager import exchangeRateManager
   
   if not exchangeRateManager.getRate():
     dialog = CustomExchangeDialog(

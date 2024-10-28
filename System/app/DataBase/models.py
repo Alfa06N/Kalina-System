@@ -109,9 +109,9 @@ class Sale(Base):
   __tablename__ = "Sale"
   
   idSale = Column(Integer, primary_key=True, autoincrement=True)
-  totalPrice = Column(DECIMAL(10, 3), nullable=False)
+  totalPrice = Column(DECIMAL(10, 2), nullable=False)
   date = Column(DateTime, nullable=False, default=getUTC())
-  gain = Column(DECIMAL(10, 3))
+  gain = Column(DECIMAL(10, 2))
   idClosing = Column(Integer, ForeignKey("Closing.idClosing"), default=None)
   idUser = Column(Integer, ForeignKey("User.idUser"))
   ciClient = Column(Integer, ForeignKey("Client.ciClient"))
@@ -158,16 +158,6 @@ class SaleProduct(Base):
   
   sale = relationship("Sale", back_populates="products")
   product = relationship("Product", back_populates="sales")
-  
-# class Change(Base):
-#   __tablename__ = "Change"
-  
-#   idChange = Column(Integer, primary_key=True, autoincrement=True)
-#   amountReturned = Column(DECIMAL(10, 2), nullable=False)
-#   method = Column(String(20), nullable=False)
-#   idSale = Column(Integer, ForeignKey("Sale.idSale", ondelete="CASCADE"))
-  
-#   sale = relationship("Sale", back_populates="changes")
 
 class Combo(Base):
   __tablename__ = "Combo"
@@ -215,17 +205,6 @@ class Transaction(Base):
   idSale = Column(Integer, ForeignKey("Sale.idSale", ondelete="CASCADE"))
   
   sale = relationship("Sale", back_populates="transactions")
-  
-# class Payment(Base):
-#   __tablename__ = "Payment"
-  
-#   idPayment = Column(Integer, primary_key=True, autoincrement=True)
-#   amount = Column(DECIMAL(10, 3), nullable=False)
-#   method = Column(Enum(MethodEnum), nullable=False)
-#   reference = Column(String(100))
-#   idSale = Column(Integer, ForeignKey("Sale.idSale", ondelete="CASCADE"))
-  
-#   sale = relationship("Sale", back_populates="payments")
 
 class Statistic(Base):
   __tablename__ = "Statistic"

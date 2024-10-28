@@ -20,7 +20,7 @@ class LoginForm(CustomSimpleContainer):
     self.loginButton = ft.Row(
       height=100,
       controls=[
-        CustomFilledButton(text="Iniciar Sesión", bgcolor=constants.BROWN, size=18, color=constants.WHITE, overlay=constants.BROWN_OVERLAY, clickFunction=self.login)
+        CustomFilledButton(text="Iniciar Sesión", clickFunction=self.login)
       ],
       alignment=ft.MainAxisAlignment.CENTER,
       vertical_alignment=ft.CrossAxisAlignment.CENTER,
@@ -127,9 +127,9 @@ class LoginPresentation(CustomSimpleContainer):
     
     self.logo = ft.Image(src=getImagePath("ks logo(only cup)edited.png"), fit="contain", width=240, height=240)
     
-    self.description = ft.Text(value="Kaip'e Alimentos", color=constants.WHITE, size=18, weight=ft.FontWeight.BOLD)
+    self.description = ft.Text(value="Kaip'e Alimentos", color=constants.WHITE, size=20, weight=ft.FontWeight.BOLD)
     
-    self.button = CustomFilledButton(text="Registrarse", bgcolor=constants.ORANGE, color=constants.BLACK, size=18, overlay=constants.ORANGE_OVERLAY, clickFunction=lambda e: showRegister(self.page))
+    self.button = CustomFilledButton(text="Registrarse", overlay=constants.ORANGE_OVERLAY, bgcolor=constants.ORANGE, color=constants.BLACK, clickFunction=lambda e: showRegister(self.page))
     self.register = ft.Row(
       controls=[
         self.button

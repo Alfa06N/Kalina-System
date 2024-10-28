@@ -32,6 +32,7 @@ def main(page: ft.Page):
   
   init_db()
 
+  setUser("Alfa06N")
   showPrincipal(page)
   # initApp(page)
   

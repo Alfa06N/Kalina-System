@@ -33,7 +33,7 @@ class EmployeeContainer(ft.Container):
     self.employeeTitle = CustomAnimatedContainer(
       actualContent=ft.Text(
         value=f"{self.name} {self.surname} {self.secondSurname}",
-        size=18,
+        size=20,
         color=constants.BLACK,
         weight=ft.FontWeight.W_700,
         overflow=ft.TextOverflow.ELLIPSIS,
@@ -59,7 +59,7 @@ class EmployeeContainer(ft.Container):
             self.employeeTitle,
             ft.Text(
               value=f"V-{self.ciEmployee}",
-              size=18,
+              size=20,
               color=constants.BLACK,
               overflow=ft.TextOverflow.ELLIPSIS
             )
@@ -124,11 +124,11 @@ class EmployeeInfo(ft.Stack):
     )
     
     self.birthdateText = ft.Text(
-      size=18,
+      size=20,
       color=constants.BLACK,
     )
     self.ageText = ft.Text(
-      size=18,
+      size=20,
       color=constants.BLACK,
     )
     self.birthdateIcon = ft.Icon(
@@ -151,7 +151,7 @@ class EmployeeInfo(ft.Stack):
                 controls=[
                   ft.Text(
                     value="Fecha de nacimiento:",
-                    size=18,
+                    size=20,
                     color=constants.BLACK,
                     weight=ft.FontWeight.BOLD,
                   ),
@@ -162,7 +162,7 @@ class EmployeeInfo(ft.Stack):
                 controls=[
                   ft.Text(
                     value="Edad:",
-                    size=18,
+                    size=20,
                     color=constants.BLACK,
                     weight=ft.FontWeight.BOLD,
                   ),
@@ -207,13 +207,13 @@ class EmployeeInfo(ft.Stack):
                   ),
                   ft.Text(
                     value=f"Usuario:",
-                    size=18,
+                    size=20,
                     color=constants.BLACK,
                     weight=ft.FontWeight.BOLD,
                   ),
                   ft.Text(
                     value=f"{employee.user.username} ({employee.user.role})",
-                    size=18,
+                    size=20,
                     color=constants.BLACK,
                   )
                 ]
@@ -223,7 +223,7 @@ class EmployeeInfo(ft.Stack):
           else:
             self.employeeInfo.controls.append(ft.Text(
               value=f"Este empleado no posee un usuario",
-              size=18,
+              size=20,
               color=constants.BLACK,
             ))
         else:

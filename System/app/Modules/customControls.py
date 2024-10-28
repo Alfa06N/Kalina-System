@@ -97,7 +97,9 @@ class CustomOperationContainer(ft.Container):
             ),
             alignment=ft.alignment.center,
           ),
-          ft.Text(value=message, size=18, color=constants.WHITE),
+          ft.Container(
+            content=ft.Text(value=message, size=20, color=constants.WHITE, overflow=ft.TextOverflow.ELLIPSIS),
+          )
         ]
       )
       
@@ -122,7 +124,9 @@ class CustomOperationContainer(ft.Container):
             ),
             alignment=ft.alignment.center,
           ),
-          ft.Text(value=message, size=18, color=constants.BLACK),
+          ft.Container(
+            content=ft.Text(value=message, size=20, color=constants.BLACK, overflow=ft.TextOverflow.ELLIPSIS),
+          )
         ]
       )
     self.update()
@@ -150,7 +154,9 @@ class CustomOperationContainer(ft.Container):
             ),
             alignment=ft.alignment.center,
           ),
-          ft.Text(value=message, size=18, color=constants.WHITE),
+          ft.Container(
+            content=ft.Text(value=message, size=20, color=constants.WHITE, overflow=ft.TextOverflow.ELLIPSIS),
+          ),
         ]
       )
       
@@ -175,7 +181,9 @@ class CustomOperationContainer(ft.Container):
             ),
             alignment=ft.alignment.center,
           ),
-          ft.Text(value=message, size=18, color=constants.BLACK),
+          ft.Container(
+            content=ft.Text(value=message, size=20, color=constants.BLACK, overflow=ft.TextOverflow.ELLIPSIS),
+          ),
         ]
       )
     self.update()   
@@ -247,7 +255,7 @@ class CustomAnimatedContainerSwitcher(ft.Container):
   
 
 class CustomFilledButton(ft.FilledButton):
-  def __init__(self, text, overlay=constants.BROWN_OVERLAY, bgcolor=constants.BROWN, color=constants.WHITE, size=18, clickFunction=None):
+  def __init__(self, text, overlay=constants.BROWN_OVERLAY, bgcolor=constants.BROWN, color=constants.WHITE, size=20, clickFunction=None):
     super().__init__()
     self.text = text
     self.size = size
@@ -303,7 +311,7 @@ class CustomFloatingActionButton(ft.FloatingActionButton):
     )
 
 class CustomOutlinedButton(ft.OutlinedButton):
-  def __init__(self, text, color=constants.BLACK, size=18, icon=None, clickFunction=None):
+  def __init__(self, text, color=constants.BLACK, size=20, icon=None, clickFunction=None):
     super().__init__()
     self.text = text
     self.color = color
@@ -363,7 +371,7 @@ class CustomCheckbox(ft.Checkbox):
     self.color = color
     self.label_style = ft.TextStyle(
       color=self.color,
-      size=18,
+      size=20,
     )
     self.active_color = fill_color
     
@@ -380,6 +388,7 @@ class CustomTextField(ft.TextField):
     self.value = value
     self.on_changeFunction = on_changeFunction
     self.field = field
+    self.text_size = 18
     
     if mode == "gradient":
       self.color = constants.WHITE
@@ -450,7 +459,7 @@ class CustomDropdown(ft.Dropdown):
     self.expand = expand
     self.value = value
     
-    self.text_size = 16
+    self.text_size = 18
     
     if mode == "gradient":
       self.color = constants.WHITE
@@ -508,7 +517,7 @@ class CustomAppBar(ft.AppBar):
       )
     
     self.leading_width = 70
-    self.title = ft.Text(title, color=constants.BLACK, weight=ft.FontWeight.BOLD, size=32)
+    self.title = ft.Text(title, color=constants.BLACK, weight=ft.FontWeight.W_700, size=36)
     self.toolbar_height = 70
     self.center_title = True
     self.surface_tint_color = constants.BLACK
@@ -518,12 +527,69 @@ class CustomAppBar(ft.AppBar):
     self.actions = [
       ft.PopupMenuButton(
         icon_color=constants.BLACK,
+        icon_size=32,
         padding=ft.padding.all(12),
+        bgcolor=constants.WHITE,
         items=[
-          ft.PopupMenuItem(icon=ft.icons.SETTINGS_ROUNDED, text="Configuración"),
-          ft.PopupMenuItem(icon=ft.icons.ATTACH_MONEY_ROUNDED, text="Tasa de cambio", on_click=lambda e: self.openExchangeDialog()),
-          ft.PopupMenuItem(),
-          ft.PopupMenuItem(icon=ft.icons.LOGOUT_OUTLINED, text="Cerrar sesión", on_click=self.openLogoutDialog)
+          ft.PopupMenuItem(
+            content=ft.Row(
+              alignment=ft.MainAxisAlignment.START,
+              vertical_alignment=ft.CrossAxisAlignment.CENTER,
+              controls=[
+                ft.Icon(
+                  name=ft.icons.SETTINGS_ROUNDED,
+                  size=32,
+                  color=constants.BLACK,
+                ),
+                ft.Text(
+                  value="Configuración",
+                  size=20,
+                  weight=ft.FontWeight.W_400,
+                  color=constants.BLACK,
+                )
+              ]
+            ),
+          ),
+          ft.PopupMenuItem(
+            content=ft.Row(
+              alignment=ft.MainAxisAlignment.START,
+              vertical_alignment=ft.CrossAxisAlignment.CENTER,
+              controls=[
+                ft.Icon(
+                  name=ft.icons.CURRENCY_EXCHANGE_ROUNDED,
+                  color=constants.BLACK,
+                  size=32,
+                ),
+                ft.Text(
+                  value="Tasa de cambio",
+                  size=20,
+                  weight=ft.FontWeight.W_400,
+                  color=constants.BLACK,
+                )
+              ]
+            ),
+            on_click=lambda e: self.openExchangeDialog()
+          ),
+          ft.PopupMenuItem(
+            content=ft.Row(
+              alignment=ft.MainAxisAlignment.START,
+              vertical_alignment=ft.CrossAxisAlignment.CENTER,
+              controls=[
+                ft.Icon(
+                  name=ft.icons.LOGOUT_OUTLINED,
+                  color=constants.BLACK,
+                  size=32,
+                ),
+                ft.Text(
+                  value="Cerrar sesión",
+                  color=constants.BLACK,
+                  weight=ft.FontWeight.W_400,
+                  size=20,
+                )
+              ]
+            ),
+            on_click=self.openLogoutDialog
+          ),
         ]
       )
     ]
@@ -544,8 +610,8 @@ class CustomAppBar(ft.AppBar):
       title="¿Deseas cerrar sesión?",
       content="",
       actions=[
-        ft.TextButton("Sí", on_click=self.logout),
-        ft.TextButton("No", on_click=lambda e: self.page.close(self.dialog))
+        CustomTextButton(text="Sí", on_click=self.logout),
+        CustomTextButton(text="No", on_click=lambda e: self.page.close(self.dialog)),
       ]
     )
     self.page.open(self.dialog)
@@ -556,19 +622,30 @@ class CustomAppBar(ft.AppBar):
     from interface import initApp
     initApp(self.page)
     
-class CustomExchangeDialog(ft.AlertDialog):
-  def __init__(self, page, title="Actualizar tasa de cambio", exchangeControl=None):
+class CustomAlertDialog(ft.AlertDialog):
+  def __init__(self, title, content=None, modal:bool=True, actions: list = []):
     super().__init__()
+    self.title = ft.Text(
+      value=title,
+      size=24,
+      color=constants.BLACK,
+      weight=ft.FontWeight.W_500,
+    )
+    self.content = content
+    self.actions = actions
+    self.actions_alignment = ft.MainAxisAlignment.END,
+    self.modal = modal  
+    
+class CustomExchangeDialog(CustomAlertDialog):
+  def __init__(self, page, title="Actualizar tasa de cambio", exchangeControl=None):
     self.page = page
-    self.title = ft.Text(title)
-    self.modal = True
+    self.title = title
     self.exchangeControl = exchangeControl
     
     self.amountField = CustomTextField(
       label="Monto en bolívares",
       field="number",
       expand=True,
-      
       suffix_text="Bs",
       submitFunction=lambda e: self.submitFunction(),
     )
@@ -580,9 +657,16 @@ class CustomExchangeDialog(ft.AlertDialog):
     self.content = self.amountField
     
     self.actions = [
-      ft.TextButton("Confirmar", on_click=lambda e: self.submitFunction()),
-      ft.TextButton("Cancelar", on_click=lambda e: self.page.close(self)),
+      CustomTextButton(text="Confirmar", on_click=lambda e:self.submitFunction()),
+      CustomTextButton(text="Cancelar", on_click=lambda e: self.page.close(self)),
     ]
+    
+    super().__init__(
+      modal=True,
+      title=self.title,
+      content=self.content,
+      actions=self.actions, 
+    )
     
     
   def openDialog(self):
@@ -596,6 +680,113 @@ class CustomExchangeDialog(ft.AlertDialog):
         self.page.close(self)
         if self.exchangeControl:
           pass
+    except:
+      raise
+    
+class CustomTextButton(ft.TextButton):
+  def __init__(self, text:str, on_click=None, color=ft.colors.BLUE_700):
+    super().__init__()
+    self.content = ft.Text(
+      value=text,
+      size=18,
+      color=color,
+    )
+    self.on_click = on_click
+    
+class CustomExchangeContainer(ft.Container):
+  def __init__(self, page, rate):
+    super().__init__()
+    self.page = page
+    self.rate = rate
+    
+    self.border = ft.border.all(1, constants.WHITE_GRAY)
+    self.padding=ft.padding.all(20)
+    self.border_radius=ft.border_radius.all(10)
+    self.ink = True
+    self.ink_color = constants.BLACK_INK
+    self.margin = ft.margin.all(10)
+    self.on_click = lambda e: self.showExchangeDialog()
+    self.alignment=ft.alignment.center
+    
+    self.defaultIcon = ft.Icon(
+      name=ft.icons.WARNING_ROUNDED,
+      color=constants.RED_TEXT,
+      size=32,
+    )
+    
+    self.defaultText = ft.Text(
+      value="Tasa de cambio sin establecer",
+      color=constants.BLACK,
+      size=20,
+      weight=ft.FontWeight.W_600,
+      overflow=ft.TextOverflow.ELLIPSIS,
+    )
+    
+    self.defaultContent = ft.Row(
+      alignment=ft.MainAxisAlignment.CENTER,
+      vertical_alignment=ft.CrossAxisAlignment.CENTER,
+      controls=[
+        self.defaultIcon,
+        self.defaultText,
+      ]
+    )
+    
+    self.exchangeIcon = ft.Icon(
+      name=ft.icons.CURRENCY_EXCHANGE_ROUNDED,
+      color=constants.BLACK,
+      size=32,
+    )
+    
+    self.exchangeText = ft.Text(
+      value=f"{self.rate}Bs" if self.rate else "0Bs",
+      color=constants.BLACK,
+      size=20,
+      weight=ft.FontWeight.W_600,
+      overflow=ft.TextOverflow.ELLIPSIS,
+    )
+    
+    self.exchangeContent = ft.Row(
+      alignment=ft.MainAxisAlignment.CENTER,
+      vertical_alignment=ft.CrossAxisAlignment.CENTER,
+      controls=[
+        self.exchangeIcon,
+        ft.Text(
+          value="Tasa de cambio establecida:",
+          color=constants.BLACK,
+          size=20,
+        ),
+        self.exchangeText,
+      ]
+    )
+    
+    self.animatedContainer = CustomAnimatedContainer(
+      actualContent=self.exchangeContent if self.rate else self.defaultContent
+    )
+    
+    self.content = self.animatedContainer
+    
+  def showExchangeDialog(self):
+    try:
+      self.dialog = CustomExchangeDialog(
+        page=self.page,
+      )
+      
+      self.page.open(self.dialog)
+    except:
+      raise
+    
+  def updateAboutRate(self, newRate):
+    try:
+      self.rate = newRate
+      
+      self.exchangeText.value = f"{self.rate}Bs" if self.rate else "0Bs"
+      
+      newContent = self.exchangeContent if self.rate else self.defaultContent
+      
+      if newContent == self.animatedContainer.content:
+        self.animatedContainer.content.update()
+      else:
+        self.animatedContainer.setNewContent(newContent)
     except:
       raise
     
@@ -731,6 +922,7 @@ class CustomSidebar(ft.Container):
   def selectOne(self, e):
     if not self.selected == e.control:
       self.switchButton(e.control)
+      exchangeRateManager.clearSubscribers()
       
       if e.control == self.home:
         from Modules.Sections.HomeSection.home import Home
@@ -759,7 +951,6 @@ class CustomSidebar(ft.Container):
       elif e.control == self.statistics:
         from Modules.Sections.StatisticsSection.statistics import Statistics
         self.updateMainContent(Statistics(self.page))
-        exchangeRateManager.clearSubscribers()
     
   def openContainer(self):
     if self.width == 70:
@@ -792,10 +983,10 @@ class CustomNavigationOptions(ft.Container):
     
     if not default:
       self.optionIcon = ft.Icon(name=icon, color=self.color, size=24)
-      self.optionText = ft.Text(value=text, color=self.color, size=18, animate_opacity=300, opacity=opacityInitial, weight=ft.FontWeight.NORMAL)
+      self.optionText = ft.Text(value=text, color=self.color, size=20, animate_opacity=300, opacity=opacityInitial, weight=ft.FontWeight.NORMAL)
     else:
       self.optionIcon = ft.Icon(name=icon, color=self.focusedColor, size=24,)
-      self.optionText = ft.Text(value=text, color=self.focusedColor, size=18, animate_opacity=300, opacity=opacityInitial, weight=ft.FontWeight.W_600)
+      self.optionText = ft.Text(value=text, color=self.focusedColor, size=20, animate_opacity=300, opacity=opacityInitial, weight=ft.FontWeight.W_600)
     
     self.content = ft.Row(
       alignment=contentAlignment,
@@ -848,16 +1039,7 @@ class CustomMainContainer(ft.Container):
     
   def setNewContent(self, newContent):
     self.switcher.content = newContent
-    self.switcher.update()
-    
-class CustomAlertDialog(ft.AlertDialog):
-  def __init__(self, title, content, modal:bool=True, actions: list = []):
-    super().__init__()
-    self.title = ft.Text(title)
-    self.content = ft.Text(content)
-    self.actions = actions
-    self.actions_alignment = ft.MainAxisAlignment.END,
-    self.modal = modal   
+    self.switcher.update() 
     
 class CustomCardInfo(ft.Card):
   def __init__(self, icon, title, subtitle="", width:int=300, height:int=150, spacing:int=0, containerClickFunction=None, TextButtons=[], variant=ft.CardVariant.ELEVATED):
@@ -967,10 +1149,14 @@ class CustomDeleteButton(ft.OutlinedButton):
   def showWarningDialog(self, e):
     self.newDialog = CustomAlertDialog(
       title="¿Estás seguro de llevar a cabo esta acción?",
-      content="Los datos se eliminarán permanentemente",
+      content=ft.Text(
+        value="Los datos se eliminarán permanentemente",
+        size=18, 
+        color=constants.BLACK,
+      ),
       actions=[
-        ft.TextButton("Eliminar", on_click=self.executeFunction),
-        ft.TextButton("Cancelar", on_click=self.closeDialog)
+        CustomTextButton(text="Eliminar", on_click=self.executeFunction),
+        CustomTextButton(text="Cancelar", on_click=self.closeDialog)
       ]
     )
     self.page.open(self.newDialog)
@@ -1007,14 +1193,14 @@ class CustomImageSelectionContainer(ft.Container):
         spacing=10,
         controls=[
           ft.Icon(
-            name=ft.icons.icons.ADD_PHOTO_ALTERNATE_OUTLINED,
+            name=ft.icons.ADD_PHOTO_ALTERNATE_ROUNDED,
             color=constants.BLACK,
             size=32,
           ),
           ft.Text(
-            value="Seleccionar imagen",
+            value="Agregar imagen",
             color=constants.BLACK,
-            size=14,
+            size=16,
           )
         ]
       )
@@ -1045,12 +1231,9 @@ class CustomImageSelectionContainer(ft.Container):
     
     self.deleteButton = ft.Container(
       visible=False if self.src == None else True,
-      content=ft.TextButton(
-        content=ft.Text(
-          "Eliminar",
-          color=constants.RED_FAILED,
-          size=18,
-        ),
+      content=CustomTextButton(
+        text="Eliminar",
+        color=constants.RED_FAILED,
         on_click=self.deleteImage,
       )
     )
@@ -1247,7 +1430,7 @@ class CustomTooltip(ft.Tooltip):
     self.padding = padding
     self.bgcolor = bgcolor
     
-    self.text_style=ft.TextStyle(size=18, color=constants.BLACK)
+    self.text_style=ft.TextStyle(size=20, color=constants.BLACK)
     
     self.text_align = ft.TextAlign.CENTER
     
@@ -1846,29 +2029,50 @@ class CustomItemsSelector(ft.Container):
   
   def getItemsWithQuantity(self):
     try:
-      itemsWithQuantity = []
+      products = []
+      combos = []
       
       
       for itemField in self.itemsList.controls:
         item = itemField.item
         if hasattr(item, "idProduct"):
           itemInfo = {
-            "item": item,
+            "type": "Product",
+            "id": item.idProduct,
             "name": item.name,
             "quantity": itemField.quantityField.fieldValue,
-            "price": itemField.quantityField.fieldValue * calculatePrice(cost=item.cost, gain=item.gain, iva=item.iva) if self.sale else item.cost
+            "gain": round(float((item.gain/100) * item.cost * itemField.quantityField.fieldValue), 2) ,
+            "price": round(float(itemField.quantityField.fieldValue * calculatePrice(cost=item.cost, gain=item.gain, iva=item.iva) if self.sale else item.cost), 2)
           }
-          itemsWithQuantity.append(itemInfo)
+          products.append(itemInfo)
         else:
           itemInfo = {
-            "item": item,
+            "type": "Combo",
+            "id": item.idCombo,
             "name": item.name,
             "quantity": itemField.quantityField.fieldValue,
-            "price": itemField.quantityField.fieldValue * item.price
+            "gain": round(float((item.price - item.cost) * itemField.quantityField.fieldValue), 2),
+            "price": round(float(itemField.quantityField.fieldValue * item.price), 2),
+            "products": [],
           }
-          itemsWithQuantity.append(itemInfo)
+          
+          from DataBase.crud.product_combo import getRegisterByComboId
+          
+          with getDB() as db:
+            comboProducts = getRegisterByComboId(db, item.idCombo)
+            
+            for register in comboProducts:
+              productInfo = {
+                "id": register.product.idProduct,
+                "name": register.product.name,
+                "totalQuantity": register.productQuantity * itemField.quantityField.fieldValue,
+                "totalPrice": round(float(calculatePrice(cost=register.product.cost, gain=register.product.gain, iva=register.product.iva)), 2)
+              }
+              itemInfo["products"].append(productInfo)
+            
+          combos.append(itemInfo)
       
-      return itemsWithQuantity
+      return products, combos
     except Exception as err:
       raise
     
@@ -1948,13 +2152,13 @@ class CustomItemQuantityInput(ft.Container):
           ),
           ft.Text(
             value=f"{self.object}:",
-            size=18,
+            size=20,
             color=constants.BLACK,
             weight=ft.FontWeight.W_700,
           ),
           ft.Text(
             value=f"{self.item.name}",
-            size=18,
+            size=20,
             color=constants.BLACK,
             overflow=ft.TextOverflow.ELLIPSIS,
           )
@@ -1970,7 +2174,7 @@ class CustomItemQuantityInput(ft.Container):
       self.priceText = ft.Text(
         value=f"0.00$",
         color=constants.BLACK,
-        size=18,
+        size=20,
         overflow=ft.TextOverflow.ELLIPSIS,
       )
       
@@ -1986,7 +2190,7 @@ class CustomItemQuantityInput(ft.Container):
             ft.Text(
               value=f"Stock:",
               color=constants.BLACK,
-              size=18,
+              size=20,
               weight=ft.FontWeight.W_700,
               text_align=ft.TextAlign.CENTER,
               overflow=ft.TextOverflow.ELLIPSIS,
@@ -1994,7 +2198,7 @@ class CustomItemQuantityInput(ft.Container):
             ft.Text(
               value=f"{self.item.stock} unidades",
               color=constants.BLACK,
-              size=18,
+              size=20,
               text_align=ft.TextAlign.CENTER,
               overflow=ft.TextOverflow.ELLIPSIS,
             )
@@ -2012,7 +2216,7 @@ class CustomItemQuantityInput(ft.Container):
             ft.Text(
               value=f"Productos",
               color=constants.BLACK,
-              size=18,
+              size=20,
               weight=ft.FontWeight.W_700,
               text_align=ft.TextAlign.CENTER,
               overflow=ft.TextOverflow.ELLIPSIS,
@@ -2068,7 +2272,7 @@ class CustomItemQuantityInput(ft.Container):
               value="Precio:",
               color=constants.BLACK,
               weight=ft.FontWeight.W_700,
-              size=18,
+              size=20,
             ),
             self.priceText
           ]

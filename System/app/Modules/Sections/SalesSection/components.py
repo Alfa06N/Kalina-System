@@ -1,17 +1,21 @@
 import flet as ft 
-from Modules.customControls import CustomAnimatedContainer, CustomOperationContainer, CustomUserIcon, CustomCardInfo, CustomDeleteButton, CustomItemsSelector, CustomAnimatedContainerSwitcher, CustomFilledButton
+from Modules.customControls import CustomAnimatedContainer, CustomOperationContainer, CustomUserIcon, CustomCardInfo, CustomDeleteButton, CustomItemsSelector, CustomAnimatedContainerSwitcher, CustomFilledButton, CustomExchangeContainer, CustomAlertDialog
 import constants
 from DataBase.crud.product import getProducts
 from DataBase.crud.combo import getCombos
+from DataBase.crud.user import getUserByUsername
+from DataBase.crud.sale import calculateSaleGain
 from config import getDB
 import threading
-from exceptions import DataAlreadyExists, DataNotFoundError, InvalidData
+from exceptions import DataAlreadyExists, DataNotFoundError, InvalidData, ErrorOperation
 import re
 from Modules.Sections.SalesSection.clientCard import ClientCard
 from Modules.Sections.SalesSection.paymentCard import PaymentCard
 from Modules.Sections.SalesSection.changeCard import ChangeCard
 from Modules.Sections.SalesSection.priceCard import PriceCard
 from utils.exchangeManager import exchangeRateManager
+from utils.saleManager import saleMakerManager
+from utils.sessionManager import getCurrentUser
 
 class SaleItemsList(CustomAnimatedContainerSwitcher):
   def __init__(self, page):
@@ -32,6 +36,7 @@ class SaleItemsList(CustomAnimatedContainerSwitcher):
       combos=True,
       sale=True,
     )
+    saleMakerManager.setItemSelector(self.itemsSelector)
     
     self.content = ft.Column(
       alignment=ft.MainAxisAlignment.CENTER,
@@ -63,9 +68,8 @@ class SaleItemsList(CustomAnimatedContainerSwitcher):
     )
 
 class SaleForm(CustomAnimatedContainerSwitcher):
-  def __init__(self, page, itemsSelector=None):
+  def __init__(self, page):
     self.page = page
-    self.itemsSelector = itemsSelector
     
     self.clientCard = ClientCard(
       page=self.page,
@@ -82,12 +86,52 @@ class SaleForm(CustomAnimatedContainerSwitcher):
       formContainer=self,
     )
     
-    exchangeRateManager.subscribe(self.paymentCard)
-    exchangeRateManager.subscribe(self.changeCard)
-    
     self.priceCard = PriceCard(
       page=self.page,
       formContainer=self,
+    )
+    
+    self.exchangeRate = CustomExchangeContainer(
+      page=self.page,
+      rate=exchangeRateManager.getRate()
+    )
+    exchangeRateManager.subscribe(self.paymentCard)
+    exchangeRateManager.subscribe(self.changeCard)
+    exchangeRateManager.subscribe(self.priceCard)
+    exchangeRateManager.subscribe(self.exchangeRate)
+
+    self.cardsContainer = ft.Container(
+      alignment=ft.alignment.center,
+      height=300,
+      width=800,
+      expand=False,
+      content=ft.Column(
+        expand=True,
+        controls=[
+          ft.Row(
+            expand=True,
+            controls=[
+              self.clientCard,
+              ft.Column(
+                expand=True,
+                controls=[
+                  ft.Row(
+                    expand=True,
+                    controls=[self.paymentCard]  
+                  ),
+                  ft.Row(
+                    expand=True,
+                    controls=[self.changeCard]  
+                  ),
+                ]
+              )
+            ]
+          ),
+          ft.Row(
+            controls=[self.priceCard]
+          )
+        ]
+      )
     )
     
     self.cardsContent = ft.Column(
@@ -95,20 +139,8 @@ class SaleForm(CustomAnimatedContainerSwitcher):
       alignment=ft.MainAxisAlignment.CENTER,
       horizontal_alignment=ft.CrossAxisAlignment.CENTER,
       controls=[
-        ft.Row(
-          alignment=ft.MainAxisAlignment.CENTER,
-          controls=[
-            self.clientCard,
-            self.paymentCard,
-          ]
-        ),
-        ft.Row(
-          alignment=ft.MainAxisAlignment.CENTER,
-          controls={
-            self.priceCard,
-            self.changeCard,
-          }
-        ),
+        self.exchangeRate,
+        self.cardsContainer,
       ]
     )
     
@@ -145,14 +177,74 @@ class SaleForm(CustomAnimatedContainerSwitcher):
     
   def makeSale(self):
     try:
-      if not self.itemsSelector:
-        print("self.itemsSelector isn't defined to make a sale.")
-        return
+      self.itemsSelector = saleMakerManager.itemsSelector
+      
+      user = getCurrentUser()
+      if not user:
+        raise DataNotFoundError("No se encontró el usuario de la sesión.")
+      
+      with getDB() as db:
+        user = getUserByUsername(db, user)
       
       if self.itemsSelector.validateAllItemFields():
-        print("Sale validated.")
+        
+        validClient, ciClient, message = self.clientCard.validateCard()
+        validPayments, selectedPayments, message = self.paymentCard.validateCard()
+        selectedChanges = self.changeCard.selectedChanges
+        price = self.priceCard.price
+        
+        sale, payments, changes, products, combos = saleMakerManager.makeSale(
+          price=price,
+          ciClient=ciClient,
+          idUser=user.idUser,
+          payments=selectedPayments,
+          changes=selectedChanges,
+        )
+
+        saleContainer = saleMakerManager.saleContainer
+        saleContainer.setNewContent(ft.Container(
+          expand=True,
+          alignment=ft.alignment.center,
+          content=ft.Text(
+            value="¡Venta realizada!",
+            color=constants.BLACK,
+            weight=ft.FontWeight.W_700,
+            size=42,
+          )
+        ))
+    except ErrorOperation as err:
+      dialog = CustomAlertDialog(
+        title="No es posible realizar la operación",
+        content=ft.Text(
+          value=err,
+          size=18,
+          color=constants.BLACK,
+        ),
+        modal=False,
+      )
+      self.page.open(dialog)
     except InvalidData as err:
-      print(err)
+      dialog = CustomAlertDialog(
+        title="Venta sin completar",
+        content=ft.Text(
+          value=err,
+          size=18,
+          color=constants.BLACK,
+        ),
+        modal=False,
+      )
+      self.page.open(dialog)
+    except DataNotFoundError as err:
+      dialog = CustomAlertDialog(
+        title="Algo salió mal",
+        content=ft.Text(
+          value=err,
+          size=18,
+          color=constants.BLACK
+        ),
+        modal=False,
+      )
+      self.page.open(dialog)
     except:
       raise
     

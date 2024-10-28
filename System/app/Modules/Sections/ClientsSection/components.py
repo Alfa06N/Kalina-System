@@ -32,7 +32,7 @@ class ClientContainer(ft.Container):
     self.clientTitle = CustomAnimatedContainer(
       actualContent=ft.Text(
         value=self.fullname,
-        size=18,
+        size=20,
         color=constants.BLACK,
         weight=ft.FontWeight.W_700,
         overflow=ft.TextOverflow.ELLIPSIS,
@@ -55,7 +55,7 @@ class ClientContainer(ft.Container):
             self.clientTitle,
             ft.Text(
               value=f"V-{self.ciClient}",
-              size=18,
+              size=20,
               color=constants.BLACK,
               overflow=ft.TextOverflow.ELLIPSIS,
             )

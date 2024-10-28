@@ -41,7 +41,7 @@ class ComboContainer(ft.Container):
       actualContent=ft.Text(
         value=self.name,
         color=constants.BLACK,
-        size=18,
+        size=20,
         weight=ft.FontWeight.W_700,
         overflow=ft.TextOverflow.ELLIPSIS,
       )
@@ -90,7 +90,7 @@ class ComboContainer(ft.Container):
         newContent=ft.Text(
           value=self.name,
           color=constants.BLACK,
-          size=18,
+          size=20,
           weight=ft.FontWeight.W_700,
           overflow=ft.TextOverflow.ELLIPSIS,
         )
@@ -150,7 +150,7 @@ class ComboInfo(ft.Stack):
       self.priceText = CustomAnimatedContainer(
         actualContent=ft.Text(
           value=f"Precio: {round(combo.price, 2)}$",
-          size=18,
+          size=20,
           color=constants.BLACK,
           weight=ft.FontWeight.W_700,
         )
@@ -328,7 +328,7 @@ class ComboInfo(ft.Stack):
           self.priceText.setNewContent(
             newContent=ft.Text(
               value=f"Precio: {round(combo.price, 2)}$",
-              size=18,
+              size=20,
               color=constants.BLACK,
               weight=ft.FontWeight.W_700,
             )

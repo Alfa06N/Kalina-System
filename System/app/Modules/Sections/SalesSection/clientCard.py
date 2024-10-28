@@ -1,6 +1,6 @@
 import flet as ft
 import constants
-from Modules.customControls import CustomAlertDialog, CustomAnimatedContainer, CustomAnimatedContainerSwitcher, CustomOperationContainer, CustomTextField, CustomDropdown, CustomImageContainer, CustomFloatingActionButton, CustomFilledButton, CustomTooltip, CustomEditButton, CustomReturnButton, CustomDeleteButton, CustomUserIcon, CustomCheckControl
+from Modules.customControls import CustomAlertDialog, CustomAnimatedContainer, CustomAnimatedContainerSwitcher, CustomOperationContainer, CustomTextField, CustomDropdown, CustomImageContainer, CustomFloatingActionButton, CustomFilledButton, CustomTooltip, CustomEditButton, CustomReturnButton, CustomDeleteButton, CustomUserIcon, CustomCheckControl, CustomAlertDialog
 from Modules.clients_module import ClientForm
 from Modules.Sections.ClientsSection.components import ClientSearchBar, ClientListTile, ClientContainer
 from DataBase.crud.client import getClientById, getClients, getClientsOrderById
@@ -9,12 +9,11 @@ from exceptions import InvalidData, DataNotFoundError, DataAlreadyExists
 import threading
 
 class ClientCard(ft.Container):
-  def __init__(self, page, formContainer, height=160, width=160):
+  def __init__(self, page, formContainer, height=140, width=140):
     super().__init__()
     self.page = page
-    self.height = height
-    self.width = width
     self.formContainer = formContainer
+    self.expand = True
     
     self.bgcolor = constants.WHITE
     self.border = ft.border.all(2, constants.BLACK_GRAY)
@@ -36,9 +35,10 @@ class ClientCard(ft.Container):
           color=constants.BLACK,
         ),
         ft.Text(
-          value="Cliente",
-          size=18,
+          value="Agregar cliente",
+          size=20,
           color=constants.BLACK,
+          weight=ft.FontWeight.W_600,
           text_align=ft.TextAlign.CENTER,
           overflow=ft.TextOverflow.ELLIPSIS,
         )
@@ -74,6 +74,17 @@ class ClientCard(ft.Container):
         self.animatedContainer.setNewContent(newContent=self.getIconContainer(ciClient=self.selectedClient))
     except:
       raise
+  
+  def validateCard(self):
+    try:
+      if self.selectedClient:
+        with getDB() as db:
+          client = getClientById(db, self.selectedClient)
+          return True, self.selectedClient, f"Cliente: {client.name} V-{self.selectedClient}"
+      else:
+        raise InvalidData("Por favor, especifica quién es el cliente de la venta.")
+    except:
+      raise
     
   def getIconContainer(self, ciClient):
     try:
@@ -95,12 +106,19 @@ class ClientCard(ft.Container):
             alignment=ft.MainAxisAlignment.CENTER,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             controls=[
+              ft.Text(
+                value=f"{client.name.split()[0]} {client.surname}",
+                size=22,
+                color=constants.BLACK,
+                weight=ft.FontWeight.W_600,
+                overflow=ft.TextOverflow.ELLIPSIS,
+                text_align=ft.TextAlign.CENTER,
+              ),
               clientIcon,
               ft.Text(
                 value=f"V-{client.ciClient}",
-                size=18,
+                size=22,
                 color=constants.BLACK,
-                weight=ft.FontWeight.W_600,
                 overflow=ft.TextOverflow.ELLIPSIS,
                 text_align=ft.TextAlign.CENTER,
               )
@@ -154,7 +172,7 @@ class ClientSelection(ft.Container):
           ),
           ft.Text(
             value="No se ha seleccionado ningún cliente",
-            size=18,
+            size=20,
             color=constants.BLACK,
             text_align=ft.TextAlign.CENTER,
             overflow=ft.TextOverflow.ELLIPSIS,
@@ -189,7 +207,7 @@ class ClientSelection(ft.Container):
           controls=[
             ft.Text(
               value="¿Nuevo cliente?",
-              size=18,
+              size=20,
               color=constants.BLACK,
             ),
             self.createClientButton,
@@ -286,13 +304,15 @@ class ClientSelection(ft.Container):
       self.animatedClientContainer.content.setNewContent(newContent=newContent)
       self.selectedClient = ciClient
     except InvalidData as err:
-      self.page.open(ft.AlertDialog(
-        title=ft.Text(value="Datos inesperados"),
+      self.page.open(CustomAlertDialog(
+        modal=False,
+        title="Datos inesperados",
         content=ft.Text(value=err, size=18),
       ))
     except DataNotFoundError as err:
-      self.page.open(ft.AlertDialog(
-        title=ft.Text(value="Cliente no encontrado"),
+      self.page.open(CustomAlertDialog(
+        modal=False,
+        title="Cliente no encontrado",
         content=ft.Text(value=err, size=18),
       ))
     except:

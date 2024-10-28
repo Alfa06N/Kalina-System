@@ -19,7 +19,7 @@ class RegisterForm(CustomSimpleContainer):
     
     self.button = ft.Row(
       controls=[
-        CustomOutlinedButton(text="Siguiente", color=constants.BLACK, size=18, icon=None, clickFunction=self.advance),
+        CustomOutlinedButton(text="Siguiente", clickFunction=self.advance),
       ], 
       alignment=ft.MainAxisAlignment.CENTER
     )
@@ -154,7 +154,7 @@ class RegisterForm(CustomSimpleContainer):
 
     self.finishButton = ft.Row(
       controls=[
-        CustomFilledButton(text="Crear Usuario", size=18, bgcolor=constants.BROWN, color=constants.WHITE, overlay=constants.BROWN_OVERLAY, clickFunction=self.advance)
+        CustomFilledButton(text="Crear Usuario", clickFunction=self.advance)
       ],
       alignment=ft.MainAxisAlignment.CENTER
     )
@@ -290,14 +290,14 @@ class RegisterForm(CustomSimpleContainer):
             user = getUserByUsername(db, self.newUserName.value.strip())
             if user:
               isValid = False
-              raise DataAlreadyExists("Nombre de usuario no disponible.")
+              raise DataAlreadyExists("Nombre de usuario en uso.")
             employee = getEmployeeById(db, int(self.userCI.value))
             if not employee:
               isValid = False
               raise DataNotFoundError("El documento no existe.")
             elif employee.user:
               isValid = False
-              raise DataAlreadyExists("El empleado ya posee un usuario.")
+              raise DataAlreadyExists("El empleado ya posee usuario.")
 
       elif self.animatedContainer.content == self.formSecond:
         isValid = evaluateForm(others=[self.questionOne, self.questionTwo, self.answerOne, self.answerTwo])
@@ -382,9 +382,9 @@ class RegisterPresentation(CustomSimpleContainer):
     
     self.button = CustomFilledButton(
       text="¿Ya tienes un usuario?",
-      bgcolor=constants.ORANGE,
-      color=constants.BLACK, size=18,
       overlay=constants.ORANGE_OVERLAY,
+      bgcolor=constants.ORANGE,
+      color=constants.BLACK,
       clickFunction=lambda e: showLogin(self.page)
     )
     

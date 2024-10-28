@@ -1,6 +1,6 @@
 import flet as ft
 import constants
-from Modules.customControls import CustomAnimatedContainerSwitcher, CustomNavigationOptions, CustomAnimatedContainer, CustomFloatingActionButton, CustomGridView, CustomUserIcon, CustomAutoComplete
+from Modules.customControls import CustomAnimatedContainerSwitcher, CustomNavigationOptions, CustomAnimatedContainer, CustomFloatingActionButton, CustomGridView, CustomUserIcon, CustomAutoComplete, CustomAlertDialog
 from Modules.clients_module import ClientForm
 from Modules.Sections.ClientsSection.components import ClientContainer, ClientListTile, ClientSearchBar, ClientInfo
 from config import getDB
@@ -157,13 +157,15 @@ class Clients(ft.Stack):
         self.clientSearchBar.close_view(text=f"{ciClient}")
         self.clientSearchBar.update()
     except InvalidData as err:
-      self.page.open(ft.AlertDialog(
-        title=ft.Text(value="Datos inesperados"),
+      self.page.open(CustomAlertDialog(
+        modal=False,
+        title="Datos inesperados",
         content=ft.Text(value=err, size=18),
       ))
     except DataNotFoundError as err:
-      self.page.open(ft.AlertDialog(
-        title=ft.Text(value="Cliente no encontrado"),
+      self.page.open(CustomAlertDialog(
+        modal=False,
+        title="Cliente no encontrado",
         content=ft.Text(value=err, size=18),
       ))
     except Exception as err:

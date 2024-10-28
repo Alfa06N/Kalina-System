@@ -42,7 +42,7 @@ class ProductContainer(ft.Container):
       actualContent=ft.Text(
         value=self.name,
         color=constants.BLACK,
-        size=18,
+        size=20,
         weight=ft.FontWeight.W_700,
         overflow=ft.TextOverflow.ELLIPSIS,
       )
@@ -52,7 +52,7 @@ class ProductContainer(ft.Container):
       actualContent=ft.Text(
         value=self.description,
         color=constants.BLACK,
-        size=18,
+        size=20,
         overflow=ft.TextOverflow.ELLIPSIS,
       )
     )
@@ -102,7 +102,7 @@ class ProductContainer(ft.Container):
         newContent=ft.Text(
           value=self.name,
           color=constants.BLACK,
-          size=18,
+          size=20,
           weight=ft.FontWeight.W_700,
           overflow=ft.TextOverflow.ELLIPSIS,
         )
@@ -112,7 +112,7 @@ class ProductContainer(ft.Container):
         newContent=ft.Text(
           value=self.description,
           color=constants.BLACK,
-          size=18,
+          size=20,
           overflow=ft.TextOverflow.ELLIPSIS,
         )
       )
@@ -163,7 +163,7 @@ class ProductInfo(ft.Stack):
       self.descriptionText = CustomAnimatedContainer(
         actualContent=ft.Text(
           value=product.description if not product.description == "" else "Sin descripción",
-          size=18,
+          size=20,
           color=constants.BLACK,
           max_lines=2,
           overflow=ft.TextOverflow.ELLIPSIS,
@@ -174,7 +174,7 @@ class ProductInfo(ft.Stack):
       self.stockText = CustomAnimatedContainer(
         actualContent=ft.Text(
           value=f"Stock: {product.stock}",
-          size=18,
+          size=20,
           color=constants.BLACK,
           weight=ft.FontWeight.W_700,
         )
@@ -195,7 +195,7 @@ class ProductInfo(ft.Stack):
       self.minStockText = CustomAnimatedContainer(
         actualContent=ft.Text(
           value=f"Se enviará una notificación cuando el stock sea menor o igual a {product.minStock}",
-          size=18,
+          size=20,
           color=constants.BLACK,
           text_align=ft.TextAlign.CENTER,
         )
@@ -204,7 +204,7 @@ class ProductInfo(ft.Stack):
       self.costText = CustomAnimatedContainer(
         actualContent=ft.Text(
           value=f"Costo: {round(product.cost, 2)}$",
-          size=18,
+          size=20,
           color=constants.BLACK
         )
       )
@@ -212,7 +212,7 @@ class ProductInfo(ft.Stack):
       self.ivaText = CustomAnimatedContainer(
         actualContent=ft.Text(
           value=f"IVA: {round(product.cost * (product.iva/100), 2)}$",
-          size=18,
+          size=20,
           color=constants.BLACK,
         )
       )
@@ -221,7 +221,7 @@ class ProductInfo(ft.Stack):
         actualContent=ft.Text(
           value=f"Precio final: {round(calculatePrice(product.cost, product.iva, product.gain), 2)}$",
           color=constants.BLACK,
-          size=18,
+          size=20,
           weight=ft.FontWeight.W_700,
         )
       )
@@ -230,13 +230,13 @@ class ProductInfo(ft.Stack):
         actualContent=ft.Text(
           value=f"Ganancia: {round(product.cost * (product.gain / 100), 2)}$",
           color=constants.BLACK,
-          size=18,
+          size=20,
         )
       )
       
       self.categoryText = ft.Text(
         value=f"{product.category.name}",
-        size=18,
+        size=20,
         color=constants.BLACK,
         weight=ft.FontWeight.W_700,
       )
@@ -280,7 +280,7 @@ class ProductInfo(ft.Stack):
                   controls=[
                     ft.Text(
                       value="Categoría:",
-                      size=18,
+                      size=20,
                       color=constants.BLACK,
                     ),
                     self.categoryText,
@@ -294,10 +294,11 @@ class ProductInfo(ft.Stack):
                   border=ft.border.all(2, constants.BLACK),
                   alignment=ft.alignment.center_left,
                   border_radius=ft.border_radius.all(20),
-                  height=200,
+                  height=240,
                   width=600,
                   padding=ft.padding.all(20),
                   content=ft.Column(
+                    alignment=ft.MainAxisAlignment.CENTER,
                     controls=[
                       self.costText,
                       self.ivaText,
@@ -359,7 +360,7 @@ class ProductInfo(ft.Stack):
           self.descriptionText.setNewContent(
             newContent=ft.Text(
               value=product.description if not product.description == "" else "Sin descripción",
-              size=18,
+              size=20,
               color=constants.BLACK,
               max_lines=2,
               overflow=ft.TextOverflow.ELLIPSIS,
@@ -380,7 +381,7 @@ class ProductInfo(ft.Stack):
           self.stockText.setNewContent(
             newContent=ft.Text(
               value=f"Stock: {product.stock}",
-              size=18,
+              size=20,
               color=constants.BLACK,
               weight=ft.FontWeight.W_700,
             )
@@ -389,7 +390,7 @@ class ProductInfo(ft.Stack):
           self.minStockText.setNewContent(
             newContent=ft.Text(
               value=f"Se enviará una notificación cuando el stock sea menor o igual a {product.minStock}",
-              size=18,
+              size=20,
               color=constants.BLACK,
               text_align=ft.TextAlign.CENTER,
             )
@@ -399,7 +400,7 @@ class ProductInfo(ft.Stack):
           self.costText.setNewContent(
             newContent=ft.Text(
               value=f"Costo: {round(product.cost, 2)}$",
-              size=18,
+              size=20,
               color=constants.BLACK
             )
           )
@@ -407,7 +408,7 @@ class ProductInfo(ft.Stack):
           self.ivaText.setNewContent(
             newContent=ft.Text(
               value=f"IVA: {round(product.cost * (product.iva/100), 2)}$",
-              size=18,
+              size=20,
               color=constants.BLACK,
             )
           )
@@ -416,7 +417,7 @@ class ProductInfo(ft.Stack):
             newContent=ft.Text(
               value=f"Ganancia: {round(product.cost * (product.gain / 100), 2)}$",
               color=constants.BLACK,
-              size=18,
+              size=20,
             )
           )
           
@@ -424,7 +425,7 @@ class ProductInfo(ft.Stack):
             newContent=ft.Text(
               value=f"Precio final: {round(calculatePrice(product.cost, product.iva, product.gain), 2)}$",
               color=constants.BLACK,
-              size=18,
+              size=20,
               weight=ft.FontWeight.W_700,
             )
           )

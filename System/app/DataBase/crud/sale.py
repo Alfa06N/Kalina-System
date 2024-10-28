@@ -6,32 +6,26 @@ from DataBase.errorHandling import handleDatabaseErrors
 from datetime import datetime
 from utils.sessionManager import getCurrentUser
 from DataBase.crud.user import getUserByUsername
-from DataBase.crud.sale_combo import createSaleCombo
-from DataBase.crud.sale_product import createSaleProduct
 from DataBase.crud.product import calculatePrice
 from utils.dateConversions import convertToLocalTz, convertToUTC
 from sqlalchemy import asc, desc
 
-def createSale(db: Session, totalPrice: float, gain: float, ciClient: int, user):
+def createSaleWithoutCommit(db: Session, totalPrice: float, gain: float, ciClient: int, idUser:int):
   try:
-    if user:
-      sale = Sale(
-        totalPrice=totalPrice,
-        gain=gain,
-        idUser=user.idUser,
-        ciClient=ciClient
-      )
-      
-      def func():
-        db.add(sale)
-        db.commit()
-        
-      handleDatabaseErrors(db, func)
-      
-      db.refresh(sale)
-      return sale
-    else:
-      raise DataNotFoundError(f"El usuario recibido no se encontró en el sistema")
+    sale = Sale(
+      totalPrice=totalPrice,
+      gain=gain,
+      idUser=idUser,
+      ciClient=ciClient
+    )
+    
+    def func():
+      db.add(sale)
+      db.commit()
+    
+    handleDatabaseErrors(db, func)
+    db.refresh(sale)
+    return sale
   except Exception:
     raise
 
@@ -101,40 +95,17 @@ def removeAllSales(db: Session):
     print("Todas las ventas han sido eliminadas")
   except Exception:
     raise
-  
-def sellProduct(db: Session, product, quantity: int, sale):
+
+def calculateSaleGain(products:list=[], combos:list=[]):
   try:
-    if product.stock < quantity:
-      raise ValueError(f"Stock insuficiente para el producto {product.name}")
+    totalGain = 0
     
-    totalPrice = calculatePrice(product) * quantity
+    for product in products:
+      totalGain += product["gain"]
     
-    record = createSaleProduct(
-      db=db,
-      idProduct=product.idProduct,
-      idSale=sale.idSale,
-      productQuantity=quantity,
-      price=totalPrice
-    )
+    for combo in combos:
+      totalGain += combo["gain"]
     
-    def func():
-      product.stock -= quantity
-      db.commit()
-    
-    handleDatabaseErrors(db, func)
-    
-    return record
-  except Exception:
-    raise
-  
-def sellCombo(db: Session, combo, quantity: int, sale ):
-  try:
-    return createSaleCombo(
-      db=db,
-      idSale=sale.idSale,
-      idCombo=combo.idCombo,
-      comboQuantity=quantity,
-      price=combo.price * quantity
-    )
-  except Exception:
+    return totalGain
+  except:
     raise
