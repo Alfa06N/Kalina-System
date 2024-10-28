@@ -2,9 +2,10 @@ import flet as ft
 import constants
 from DataBase.crud.user import getUsers, getUserByUsername, createUser
 from config import getDB
-from Modules.customControls import CustomUserIcon, CustomAnimatedContainer, CustomOperationContainer, CustomTextField, CustomAnimatedContainerSwitcher
+from Modules.customControls import CustomUserIcon, CustomAnimatedContainer, CustomOperationContainer, CustomTextField, CustomAnimatedContainerSwitcher, CustomFloatingActionButton
 from Modules.Sections.UsersSection.components import UserContainer
 import time
+import threading
 from Modules.register_module import RegisterForm
 
 class Users(ft.Stack):
@@ -56,8 +57,17 @@ class Users(ft.Stack):
       ]
     )
     
+    self.addUserButton = CustomFloatingActionButton(
+      on_click=lambda e: self.addRegisterForm(),
+    )
+    
     self.controls = [
-      self.usersViews
+      self.usersViews,
+      ft.Container(
+        content=self.addUserButton,
+        right=10,
+        bottom=10,
+      )
     ]
     
   def resetInfoContainer(self):
@@ -73,7 +83,6 @@ class Users(ft.Stack):
         ],
       )
     )
-    time.sleep(0.3)
     self.infoContainer.changeStyle(height=150, width=700, shadow=None)
     
   def resetUsersContainer(self):
@@ -83,6 +92,10 @@ class Users(ft.Stack):
       self.usersContainer.update()
     except Exception as err:
       raise
+  
+  def resetAll(self):
+    self.resetUsersContainer()
+    self.resetInfoContainer()
     
   def fillUsersContainer(self):
     try:
@@ -106,3 +119,35 @@ class Users(ft.Stack):
             self.usersContainer.content.controls.append(user)
     except Exception as err:
       print(f"Error loading users: {err}")
+  
+  def addRegisterForm(self):
+    if not self.infoContainer.height == 550:
+      self.infoContainer.changeStyle(
+        height=600, width=500, shadow=ft.BoxShadow(
+          blur_radius=5,
+          spread_radius=1,
+          color=constants.BLACK_INK
+        )
+      )
+      
+      form = RegisterForm(
+        page=self.page,
+        login=False,
+      )
+      form.width = None
+      form.height = None
+      form.expand = True
+      
+      def customSubmitForm():
+        try:
+          result = form.advance()
+          if result:
+            threading.Timer(1, self.resetAll).start()
+        except:
+          raise
+      
+      form.finishButton.on_click = lambda e: customSubmitForm()
+      form.adminUsernameField.on_submit = lambda e: customSubmitForm()
+      form.adminPasswordField.on_submit = lambda e: customSubmitForm()
+      
+      self.infoContainer.setNewContent(form)

@@ -38,10 +38,11 @@ class CustomPrincipalContainer(ft.Container):
     self.animatedContainer.update()
     
 class CustomSimpleContainer(ft.Container):
-  def __init__(self, gradient=False, height=550, width=450):
+  def __init__(self, gradient=False, height=550, width=450, expand=False):
     super().__init__()
     self.height = height
     self.width = width
+    self.expand = expand
     self.border_radius = ft.border_radius.all(30)
     self.padding = ft.padding.symmetric(horizontal=30, vertical=40)
     self.bgcolor = constants.WHITE

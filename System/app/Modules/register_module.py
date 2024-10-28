@@ -13,13 +13,14 @@ from exceptions import DataNotFoundError, DataAlreadyExists, InvalidData
 import threading
 
 class RegisterForm(CustomSimpleContainer):
-  def __init__(self, page):
+  def __init__(self, page, login=True):
     super().__init__()
     self.page = page
+    self.login = login
     
     self.button = ft.Row(
       controls=[
-        CustomOutlinedButton(text="Siguiente", clickFunction=self.advance),
+        CustomOutlinedButton(text="Siguiente", clickFunction=lambda e: self.advance()),
       ], 
       alignment=ft.MainAxisAlignment.CENTER
     )
@@ -38,7 +39,7 @@ class RegisterForm(CustomSimpleContainer):
       hint_text=None,
       field="username",
       expand=False,
-      submitFunction=self.advance
+      submitFunction=lambda e: self.advance()
     )
     
     self.password = CustomTextField(
@@ -48,7 +49,7 @@ class RegisterForm(CustomSimpleContainer):
       hint_text=None,
       field="password",
       expand=1,
-      submitFunction=self.advance
+      submitFunction=lambda e: self.advance()
     )
     
     self.passwordConfirmation = CustomTextField(
@@ -58,7 +59,7 @@ class RegisterForm(CustomSimpleContainer):
       hint_text=None,
       field="password",
       expand=1,
-      submitFunction=self.advance
+      submitFunction=lambda e: self.advance()
     )
     
     self.userCI = CustomTextField(
@@ -68,7 +69,7 @@ class RegisterForm(CustomSimpleContainer):
       hint_text=None,
       field="ci",
       expand=False,
-      submitFunction=self.advance
+      submitFunction=lambda e: self.advance()
     )
 
     # inputs
@@ -120,7 +121,7 @@ class RegisterForm(CustomSimpleContainer):
       revealPassword=True,
       field="others",
       expand=False,
-      submitFunction=self.advance
+      submitFunction=lambda e: self.advance()
     )
     
     self.questionTwo = CustomDropdown(
@@ -136,7 +137,7 @@ class RegisterForm(CustomSimpleContainer):
       revealPassword=True,
       field="others",
       expand=False,
-      submitFunction=self.advance
+      submitFunction=lambda e: self.advance()
     )
 
     self.questionsInputs = ft.Column(
@@ -154,7 +155,7 @@ class RegisterForm(CustomSimpleContainer):
 
     self.finishButton = ft.Row(
       controls=[
-        CustomFilledButton(text="Crear Usuario", clickFunction=self.advance)
+        CustomFilledButton(text="Crear Usuario", clickFunction=lambda e: self.advance())
       ],
       alignment=ft.MainAxisAlignment.CENTER
     )
@@ -199,12 +200,12 @@ class RegisterForm(CustomSimpleContainer):
     self.adminUsernameField = CustomTextField(
       label="Nombre de usuario",
       field="username",
-      submitFunction=self.advance,
+      submitFunction=lambda e: self.advance(),
     )
     self.adminPasswordField = CustomTextField(
       label="Contraseña",
       field="password",
-      submitFunction=self.advance
+      submitFunction=lambda e: self.advance()
     )
     self.thirdContent = ft.Column(
       expand=True,
@@ -275,7 +276,7 @@ class RegisterForm(CustomSimpleContainer):
     # content
     self.content = self.operation
     
-  def advance(self, e):
+  def advance(self):
     isValid = True
     try:
       if self.animatedContainer.content == self.formFirst:
@@ -326,7 +327,10 @@ class RegisterForm(CustomSimpleContainer):
               )
               
               self.operation.actionSuccess("Usuario creado")
-              threading.Timer(1.5, lambda: showLogin(self.page)).start()
+              if self.login:
+                threading.Timer(1.5, lambda: showLogin(self.page)).start()
+              else: 
+                return True
             else:
               raise InvalidData("Contraseña incorrecta.")
             
@@ -337,6 +341,7 @@ class RegisterForm(CustomSimpleContainer):
         if self.currentForm < len(self.formList) - 1:
           self.currentForm += 1
           self.animatedContainer.setNewContent(self.formList[self.currentForm])
+          return False
     except InvalidData as err:
       self.operation.actionFailed(err)
       threading.Timer(1.5, self.operation.restartContainer).start()
