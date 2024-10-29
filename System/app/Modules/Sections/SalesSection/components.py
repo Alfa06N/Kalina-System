@@ -43,18 +43,18 @@ class SaleItemsList(CustomAnimatedContainerSwitcher):
       horizontal_alignment=ft.CrossAxisAlignment.CENTER,
       expand=True,
       controls=[
-        ft.Row(
-          alignment=ft.MainAxisAlignment.CENTER,
-          vertical_alignment=ft.CrossAxisAlignment.CENTER,
-          controls=[
-            ft.Icon(
-              name=ft.icons.ADD_SHOPPING_CART_ROUNDED,
-              size=40,
-              color=constants.BLACK,
-            ),
-            self.titleText,
-          ]
-        ),
+        # ft.Row(
+        #   alignment=ft.MainAxisAlignment.CENTER,
+        #   vertical_alignment=ft.CrossAxisAlignment.CENTER,
+        #   controls=[
+        #     ft.Icon(
+        #       name=ft.icons.ADD_SHOPPING_CART_ROUNDED,
+        #       size=40,
+        #       color=constants.BLACK,
+        #     ),
+        #     self.titleText,
+        #   ]
+        # ),
         self.itemsSelector
       ]
     )
@@ -154,12 +154,12 @@ class SaleForm(CustomAnimatedContainerSwitcher):
       horizontal_alignment=ft.CrossAxisAlignment.CENTER,
       expand=True,
       controls=[
-        ft.Text(
-          value="Datos",
-          size=42,
-          color=constants.BLACK,
-          weight=ft.FontWeight.W_700,
-        ),
+        # ft.Text(
+        #   value="Datos",
+        #   size=42,
+        #   color=constants.BLACK,
+        #   weight=ft.FontWeight.W_700,
+        # ),
         self.cardsContent,
         self.finishButton,
       ]
@@ -202,16 +202,7 @@ class SaleForm(CustomAnimatedContainerSwitcher):
         )
 
         saleContainer = saleMakerManager.saleContainer
-        saleContainer.setNewContent(ft.Container(
-          expand=True,
-          alignment=ft.alignment.center,
-          content=ft.Text(
-            value="¡Venta realizada!",
-            color=constants.BLACK,
-            weight=ft.FontWeight.W_700,
-            size=42,
-          )
-        ))
+        saleContainer.saleSuccessContent()
     except ErrorOperation as err:
       dialog = CustomAlertDialog(
         title="No es posible realizar la operación",

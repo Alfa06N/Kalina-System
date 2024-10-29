@@ -347,10 +347,15 @@ class ClientSelection(ft.Container):
       form.surnameField.on_submit = lambda e: customSubmitForm()
       form.secondSurnameField.on_submit = lambda e: customSubmitForm()
       
-      form = ft.Stack(
+      newForm = ft.Stack(
         expand=True,
         controls=[
-          form,
+          ft.Column(
+            expand=True,
+            alignment=ft.MainAxisAlignment.CENTER,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            controls=[form,]
+          ),
           ft.Container(
             left=10,
             top=10,
@@ -361,7 +366,7 @@ class ClientSelection(ft.Container):
         ]
       )
       
-      self.animatedMainContainer.setNewContent(form)
+      self.animatedMainContainer.setNewContent(newForm)
     except:
       raise
   

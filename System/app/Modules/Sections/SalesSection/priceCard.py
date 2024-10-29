@@ -22,12 +22,12 @@ class PriceCard(ft.Container):
     self.ink_color = constants.WHITE_GRAY
     self.on_click = None
     
-    self.price = 0
-    self.exchange = 0
+    self.price = 0.0
+    self.exchange = 0.0
     
     self.priceText = ft.Text(
       value=f"{self.price}$",
-      size=20,
+      size=24,
       weight=ft.FontWeight.W_700,
       color=constants.GREEN_TEXT,
       text_align=ft.TextAlign.CENTER,
@@ -36,7 +36,7 @@ class PriceCard(ft.Container):
     
     self.exchangeText = ft.Text(
       value=f"{self.exchange}Bs",
-      size=20,
+      size=24,
       weight=ft.FontWeight.W_700,
       color=constants.ORANGE_TEXT,
       text_align=ft.TextAlign.CENTER,
@@ -53,8 +53,8 @@ class PriceCard(ft.Container):
           color=constants.BLACK,
         ),
         ft.Text(
-          value=f"Precio:",
-          size=20,
+          value=f"Dólares:",
+          size=24,
           text_align=ft.TextAlign.CENTER,
           overflow=ft.TextOverflow.ELLIPSIS,
           color=constants.BLACK,
@@ -74,7 +74,7 @@ class PriceCard(ft.Container):
         ),
         ft.Text(
           value="Bolívares:",
-          size=20,
+          size=24,
           text_align=ft.TextAlign.CENTER,
           overflow=ft.TextOverflow.ELLIPSIS,
           color=constants.BLACK,

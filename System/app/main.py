@@ -32,9 +32,9 @@ def main(page: ft.Page):
   
   init_db() 
 
-  # setUser("Alfa06N")
-  # showPrincipal(page)
-  initApp(page)
+  setUser("Alfa06N")
+  showPrincipal(page)
+  # initApp(page)
   
 
 if __name__ == "__main__":

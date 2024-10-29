@@ -24,8 +24,11 @@ class ExchangeRateManager:
     self.subscribers.append(container)
     
   def notifySubscribers(self):
-    for container in self.subscribers:
-      container.updateAboutRate(self.currentRate)
+    try:
+      for container in self.subscribers:
+        container.updateAboutRate(self.currentRate)
+    except Exception as err:
+      print(err)
 
 # What is supposed to be imported
 exchangeRateManager = ExchangeRateManager()
