@@ -36,6 +36,27 @@ def main(page: ft.Page):
   showPrincipal(page)
   # initApp(page)
   
+  # from Modules.Sections.SalesSection.components import SaleRecord
+  # from DataBase.crud.sale import getSales, getSaleById
+  
+  # with getDB() as db:
+  #   sale = getSaleById(db, 3)
+    
+  #   saleRecord = SaleRecord(
+  #     page=page,
+  #     idSale=sale.idSale
+  #   )
+    
+  #   for register in sale.products:
+  #     print(register.product.name)
+    
+  #   page.add(ft.Container(
+  #     height=500,
+  #     width=600,
+  #     content=saleRecord,
+  #     alignment=ft.alignment.center,
+  #   ))
+  
 
 if __name__ == "__main__":
   

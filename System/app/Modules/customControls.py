@@ -2407,3 +2407,31 @@ class CustomCheckControl(ft.Container):
     
     self.scale = 1 if self.selected else 0
     self.update()
+
+class CustomExpansionTile(ft.ExpansionTile):
+  def __init__(self, title:str, subtitle, controls:list=[]):
+    super().__init__(
+      title=ft.Text(
+        value=title,
+        color=constants.BLACK,
+        size=20,
+        weight=ft.FontWeight.W_600,
+      ),
+      subtitle=subtitle,
+      controls=controls,
+      affinity=ft.TileAffinity.PLATFORM,
+      maintain_state=True,
+    )
+    
+class CustomListTile(ft.ListTile):
+  def __init__(self, title:str, leading, subtitle, trailing=None):
+    super().__init__(
+      title=ft.Text(
+        value=title,
+        color=constants.BLACK,
+        size=20,
+      ),
+      leading=leading,
+      subtitle=subtitle,
+      trailing=trailing
+    )

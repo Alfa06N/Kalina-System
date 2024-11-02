@@ -1,7 +1,7 @@
 import flet as ft
 import constants
 from Modules.customControls import CustomAlertDialog, CustomAnimatedContainer, CustomAnimatedContainerSwitcher, CustomOperationContainer, CustomTextField, CustomDropdown, CustomImageContainer, CustomFloatingActionButton, CustomFilledButton, CustomTooltip, CustomNavigationOptions
-from Modules.Sections.SalesSection.components import SaleItemsList, SaleForm
+from Modules.Sections.SalesSection.components import SaleItemsList, SaleForm, SaleRecord
 from utils.saleManager import saleMakerManager
 from utils.exchangeManager import exchangeRateManager
 from Modules.Sections.SalesSection.history_components import SaleHistory
@@ -58,25 +58,6 @@ class Sales(ft.Column):
     self.selected = self.newSaleButton
     
     self.itemsList, self.saleForm, self.registerContent = self.createRegisterForm()
-    
-    # self.itemsList = SaleItemsList(
-    #   page=self.page,
-    # )
-    
-    # self.saleForm = SaleForm(
-    #   page=self.page,
-    # )
-    
-    # # Reference to priceCard from saleForm to itemsList:
-    # self.itemsList.itemsSelector.priceCard = self.saleForm.priceCard
-    
-    # self.registerContent = ft.Row(
-    #   expand=True,
-    #   controls=[
-    #     self.itemsList,
-    #     self.saleForm
-    #   ]
-    # )
     
     self.mainContainer = CustomAnimatedContainerSwitcher(
       content=self.registerContent,
@@ -148,23 +129,47 @@ class Sales(ft.Column):
     except:
       raise
   
-  def saleSuccessContent(self):
+  def saleSuccessContent(self, idSale):
     try:
+      saleRecord = SaleRecord(
+        page=self.page,
+        idSale=idSale,
+      )
+      
       newContent = ft.Container(
         expand=True,
         alignment=ft.alignment.center,
-        content=ft.Text(
-          value="¡Venta realizada!",
-          color=constants.BLACK,
-          weight=ft.FontWeight.W_700,
-          size=42,
+        content=ft.Row(
+          expand=True,
+          alignment=ft.MainAxisAlignment.CENTER,
+          vertical_alignment=ft.CrossAxisAlignment.CENTER,
+          controls=[
+            ft.Column(
+              expand=True,
+              alignment=ft.MainAxisAlignment.CENTER,
+              horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+              spacing=20,
+              controls=[
+                ft.Text(
+                  value="¡Venta realizada!",
+                  color=constants.BLACK,
+                  weight=ft.FontWeight.W_700,
+                  size=42,
+                ),
+                CustomFilledButton(
+                  text="Finalizar",
+                  clickFunction=lambda e: self.showViewSelected(),
+                )
+              ]
+            ),
+            saleRecord,
+          ]
         )
       )
+      
+      def animateSuccessContent():
+        pass
       self.mainContainer.setNewContent(newContent)
-      
       self.resetRegisterForm()
-      
-      threading.Timer(1.5, self.showViewSelected).start()
     except:
       raise
-  
