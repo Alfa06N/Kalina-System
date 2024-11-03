@@ -190,7 +190,9 @@ class Clients(ft.Stack):
               infoContainer=self.infoContainer,
               mainContainer=self,
             )   
-            containers.append(container)  
+            containers.append(container) 
+        else:
+          containers.append(self.textForEmptyContainer("No hay clientes.")) 
       return containers
     except:
       raise

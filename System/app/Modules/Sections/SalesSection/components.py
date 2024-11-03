@@ -127,7 +127,7 @@ class SaleForm(CustomAnimatedContainerSwitcher):
     
     self.finishButton = CustomFilledButton(
       text="Realizar Venta",
-      clickFunction=lambda e: self.askToMakeSale(),
+      clickFunction=lambda e: self.ConfirmToMakeSale(),
     )
     
     self.formContent = ft.Column(
@@ -150,52 +150,36 @@ class SaleForm(CustomAnimatedContainerSwitcher):
       padding=ft.padding.symmetric(horizontal=20, vertical=30)
     )
     
-  def askToMakeSale(self):
-    self.dialog = CustomAlertDialog(
-      title="Confirmar acción",
-      content=ft.Text(
-        value="¿Estás seguro de crear esta venta?",
-        size=18,
-        color=constants.BLACK,
-      ),
-      modal=True,
-      actions=[
-        CustomTextButton(text="Confirmar", on_click=lambda e: self.makeSale()),
-        CustomTextButton(text="Cancelar", on_click=lambda e: self.page.close(self.dialog))
-      ]
-    )
-    
-    self.page.open(self.dialog)
-    
-  def makeSale(self):
+  def ConfirmToMakeSale(self):
     try:
-      self.page.close(self.dialog)
       self.itemsSelector = saleMakerManager.itemsSelector
-      
+    
       user = getCurrentUser()
       if not user:
         raise DataNotFoundError("No se encontró el usuario de la sesión.")
-      
+    
       with getDB() as db:
         user = getUserByUsername(db, user)
-      
-      if self.itemsSelector.validateAllItemFields():
         
+      if self.itemsSelector.validateAllItemFields():
         validClient, ciClient, message = self.clientCard.validateCard()
         validPayments, selectedPayments, message = self.paymentCard.validateCard()
-        selectedChanges = self.changeCard.selectedChanges
-        price = self.priceCard.price
         
-        sale, payments, changes, products, combos = saleMakerManager.makeSale(
-          price=price,
-          ciClient=ciClient,
-          idUser=user.idUser,
-          payments=selectedPayments,
-          changes=selectedChanges,
+        self.dialog = CustomAlertDialog(
+          title="Confirmar acción",
+          content=ft.Text(
+            value="¿Estás seguro de concretar esta venta?",
+            size=18,
+            color=constants.BLACK,
+          ),
+          modal=True,
+          actions=[
+            CustomTextButton(text="Confirmar", on_click=lambda e: self.makeSale(ciClient=ciClient, selectedPayments=selectedPayments, idUser=user.idUser)),
+            CustomTextButton(text="Cancelar", on_click=lambda e: self.page.close(self.dialog))
+          ]
         )
-
-        saleContainer = saleMakerManager.saleContainer
-        saleContainer.saleSuccessContent(idSale=sale.idSale)
+        
+        self.page.open(self.dialog)
     except ErrorOperation as err:
       dialog = CustomAlertDialog(
         title="No es posible realizar la operación",
@@ -225,6 +209,37 @@ class SaleForm(CustomAnimatedContainerSwitcher):
           value=err,
           size=18,
           color=constants.BLACK
+        ),
+        modal=False,
+      )
+      self.page.open(dialog)
+    except:
+      raise
+    
+  def makeSale(self, ciClient, selectedPayments, idUser):
+    try:
+      self.page.close(self.dialog)
+
+      selectedChanges = self.changeCard.selectedChanges
+      price = self.priceCard.price
+        
+      sale, payments, changes, products, combos = saleMakerManager.makeSale(
+        price=price,
+        ciClient=ciClient,
+        idUser=idUser,
+        payments=selectedPayments,
+        changes=selectedChanges,
+      )
+
+      saleContainer = saleMakerManager.saleContainer
+      saleContainer.saleSuccessContent(idSale=sale.idSale)
+    except ErrorOperation as err:
+      dialog = CustomAlertDialog(
+        title="No es posible realizar la operación",
+        content=ft.Text(
+          value=err,
+          size=18,
+          color=constants.BLACK,
         ),
         modal=False,
       )
@@ -263,7 +278,6 @@ class SaleRecord(ft.Container):
   def __init__(self, page, idSale):
     super().__init__()
     self.idSale = idSale
-    self.width = 500
     self.border_radius = 20
     self.padding = ft.padding.symmetric(horizontal=10, vertical=20)
     self.expand = True

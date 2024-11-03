@@ -29,10 +29,12 @@ def createSaleWithoutCommit(db: Session, totalPrice: float, gain: float, ciClien
   except Exception:
     raise
 
-def getSales(db: Session):
+def getSales(db: Session, page:int=1, quantity:int=50):
   try:
     def func():
-      return db.query(Sale).all()
+      offset = (page - 1) * quantity
+      
+      return db.query(Sale).order_by(desc(Sale.date)).offset(offset).limit(quantity).all()
     
     return handleDatabaseErrors(db, func)
   except Exception:

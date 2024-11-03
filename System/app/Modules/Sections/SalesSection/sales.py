@@ -4,7 +4,7 @@ from Modules.customControls import CustomAlertDialog, CustomAnimatedContainer, C
 from Modules.Sections.SalesSection.components import SaleItemsList, SaleForm, SaleRecord
 from utils.saleManager import saleMakerManager
 from utils.exchangeManager import exchangeRateManager
-from Modules.Sections.SalesSection.history_components import SaleHistory
+from Modules.Sections.SalesSection.sale_history import SaleHistory
 import threading
 
 class Sales(ft.Column):
@@ -89,7 +89,9 @@ class Sales(ft.Column):
   def showViewSelected(self):
     try:
       if self.selected == self.historySaleButton:
-        newContent = SaleHistory()
+        newContent = SaleHistory(
+          page=self.page
+        )
         
         self.mainContainer.setNewContent(newContent)
       else:
