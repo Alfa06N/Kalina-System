@@ -829,8 +829,8 @@ class CustomSidebar(ft.Container):
       )
     )
     
-    self.home = CustomNavigationOptions(icon=ft.icons.HOME_WORK_ROUNDED, text="Inicio", function=self.selectOne, inkColor="#666666", default=True)
-    self.sales = CustomNavigationOptions(icon=ft.icons.SELL_ROUNDED, text="Ventas", function=self.selectOne, inkColor="#666666",)
+    self.home = CustomNavigationOptions(icon=ft.icons.HOME_WORK_ROUNDED, text="Inicio", function=self.selectOne, inkColor="#666666",)
+    self.sales = CustomNavigationOptions(icon=ft.icons.SELL_ROUNDED, text="Ventas", function=self.selectOne, inkColor="#666666", default=True)
     self.payments = CustomNavigationOptions(icon=ft.icons.WALLET_ROUNDED, text="Pagos", function=self.selectOne, inkColor="#666666",)
     self.users = CustomNavigationOptions(icon=ft.icons.SECURITY_ROUNDED, text="Usuarios", function=self.selectOne, inkColor="#666666",)
     self.clients = CustomNavigationOptions(icon=ft.icons.PEOPLE_ROUNDED, text="Clientes", function=self.selectOne, inkColor="#666666",)
@@ -841,7 +841,7 @@ class CustomSidebar(ft.Container):
     
     
     self.navigationOptions = [
-      self.home,
+      # self.home,
       self.users,
       self.clients,
       self.employees,
@@ -866,7 +866,7 @@ class CustomSidebar(ft.Container):
           alignment=ft.MainAxisAlignment.CENTER,
           scroll=ft.ScrollMode.AUTO,
           controls=[
-            ft.Row([self.home]),
+            # ft.Row([self.home]),
             ft.Row([self.users]),
             ft.Row([self.clients]),
             ft.Row([self.employees]),
@@ -879,7 +879,7 @@ class CustomSidebar(ft.Container):
         ),
       ]
     )
-    self.selected = self.home
+    self.selected = self.sales
   
   def toggleIconButton(self, e):
     self.openButton.selected = not e.control.selected

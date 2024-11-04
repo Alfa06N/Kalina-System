@@ -110,6 +110,8 @@ class SaleHistory(ft.Stack):
             containers.append(container)
           if getSales(db, self.currentPage + 1):
             containers.append(self.downButton)
+        else:
+          containers.append(self.textForEmptyContainer("No se han realizado ventas"))
       return containers
     except:
       raise

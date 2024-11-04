@@ -34,7 +34,8 @@ def main(page: ft.Page):
 
   setUser("Alfa06N")
   showPrincipal(page)
-
+  # initApp()
+ 
 if __name__ == "__main__":
   
   ft.app(target=main)

@@ -1,5 +1,5 @@
 import flet as ft 
-from Modules.customControls import CustomAnimatedContainer, CustomOperationContainer, CustomUserIcon, CustomCardInfo, CustomDeleteButton
+from Modules.customControls import CustomAnimatedContainer, CustomOperationContainer, CustomUserIcon, CustomCardInfo, CustomDeleteButton, CustomReturnButton
 import constants
 from DataBase.crud.client import getClientById, getClients, removeClient
 from config import getDB
@@ -89,7 +89,7 @@ class ClientContainer(ft.Container):
     except Exception as err:
       raise 
 
-class ClientInfo(ft.Stack):
+class ClientInfo(ft.Container):
   def __init__(self, page, ciClient, initial, fullname, clientContainer, mainContainer):
     super().__init__()
     self.page = page
@@ -133,16 +133,9 @@ class ClientInfo(ft.Stack):
     self.activityList = ft.Column(
       expand=True,
       alignment=ft.MainAxisAlignment.CENTER,
+      scroll=ft.ScrollMode.ALWAYS,
       horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-      controls=[
-        ft.Text(
-          value="No hay movimientos aún",
-          color=constants.BLACK,
-          size=24,
-          text_align=ft.TextAlign.CENTER,
-          overflow=ft.TextOverflow.ELLIPSIS,
-        )
-      ]
+      controls=self.getSaleContainers()
     )
     
     self.deleteButton = CustomDeleteButton(
@@ -186,14 +179,27 @@ class ClientInfo(ft.Stack):
       ]
     )
     
-    self.controls = [
-      self.columnContent,
-      ft.Container(
-        right=10,
-        top=10,
-        content=self.deleteButton
-      )
-    ]
+    self.returnButton = CustomReturnButton(
+      function=lambda e: self.switchMainContent(content=self.infoContent)
+    )
+    
+    self.infoContent = ft.Stack(
+      expand=True,
+      controls=[
+        self.columnContent,
+        ft.Container(
+          right=10,
+          top=10,
+          content=self.deleteButton
+        )
+      ]
+    )
+    
+    self.animatedContainer = CustomAnimatedContainer(
+      actualContent=self.infoContent
+    )
+    
+    self.content = self.animatedContainer
   
   def deleteClient(self):
     try:
@@ -205,6 +211,58 @@ class ClientInfo(ft.Stack):
           self.mainContainer.resetAll()
     except:
       raise
+  
+  def getSaleContainers(self):
+    from Modules.Sections.SalesSection.history_components import SaleContainer
+    from Modules.Sections.SalesSection.components import SaleRecord
+    try:
+      containers = []
+      with getDB() as db:
+        client = getClientById(db, ciClient=self.ciClient)
+        if client.sales:
+          for sale in client.sales:
+            container = SaleContainer(
+              page=self.page,
+              idSale=sale.idSale,
+              infoContainer=None,
+              mainContainer=None,
+            )
+            
+            def customizedClickFunction():
+              saleRecord = SaleRecord(
+                page=self.page,
+                idSale=sale.idSale,
+              )
+              newContent = ft.Stack(
+                expand=True,
+                controls=[
+                  saleRecord,
+                  ft.Container(
+                    left=10,
+                    top=10,
+                    content=self.returnButton,
+                  )
+                ]
+              )
+              self.switchMainContent(newContent)
+            
+            container.on_click = lambda e: customizedClickFunction()
+            container.margin = ft.margin.all(4)
+            containers.append(container)
+        else: 
+          containers.append(ft.Text(
+            value="Este cliente no ha realizado ninguna compra",
+            size=32,
+            color=constants.BLACK,
+            weight=ft.FontWeight.W_700,
+            text_align=ft.TextAlign.CENTER,
+          ))
+      return containers
+    except:
+      raise
+  
+  def switchMainContent(self, content):
+    self.animatedContainer.setNewContent(content)
     
 class ClientSearchBar(ft.SearchBar):
   def __init__(self, page, controls:list=[], on_submit=None):

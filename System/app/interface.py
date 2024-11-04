@@ -45,7 +45,7 @@ def showRecovery(page: ft.Page):
   
 def showPrincipal(page: ft.Page):
   from Modules.customControls import CustomAppBar, CustomSidebar, CustomAnimatedContainer, CustomMainContainer, CustomExchangeDialog
-  from Modules.Sections.HomeSection.home import Home
+  from Modules.Sections.SalesSection.sales import Sales
   from config import getDB
   from DataBase.crud.user import getUserByUsername
   from utils.sessionManager import getCurrentUser
@@ -65,7 +65,7 @@ def showPrincipal(page: ft.Page):
   
   appBar = CustomAppBar("Kariña System", page, initial)
   sideBar = CustomSidebar(page)
-  mainContainer = CustomMainContainer(Home(page))
+  mainContainer = CustomMainContainer(Sales(page))
   
   page.mainContainer = mainContainer
   

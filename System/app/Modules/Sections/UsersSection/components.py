@@ -57,6 +57,7 @@ class UserContainer(ft.Container):
         ft.Column(
           expand=True,
           alignment=ft.MainAxisAlignment.CENTER,
+          spacing=0,
           controls=[
             self.usernameTitle,
             ft.Text(
