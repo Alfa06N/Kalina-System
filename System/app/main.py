@@ -31,9 +31,9 @@ def main(page: ft.Page):
   
   init_db()
   
-  showPrincipal(page)
+  # showPrincipal(page)
   
-  # initApp(page)
+  initApp(page)
 
 if __name__ == "__main__":
   
