@@ -39,13 +39,24 @@ class ImageManager():
       print("Permiso denegado. Verifica los permisos del archivo o carpeta.")
       return None
     except InvalidData as err:
-      print(err)
+      raise
       return None
     except Exception as err:
-      print(err)
+      raise
       return None
   
   def getImagePath(self, filePath):
+    try:
+      if filePath:
+        destinationPath = os.path.join(self.storage_path, filePath)
+        return destinationPath
+      else:
+        return None
+    except Exception as err:
+      raise
+      return None
+
+  def removeOldImage(self, filePath):
     try:
       destinationPath = os.path.join(self.storage_path, filePath)
       os.remove(destinationPath)
@@ -53,10 +64,22 @@ class ImageManager():
     except Exception as err:
       print(err)
       return None
-
-  def removeOldImage(self, filePath):
+  
+  def updateImage(self, idData, oldImage, newImage):
     try:
-      destinationPath = os.path.join(self.storage_path, filePath)
+      oldPath = self.getImagePath(oldImage)
+      
+      # Guardar nueva:
+      newPath = self.storageImage(idData, newImage)
+      
+      # Eliminar vieja
+      if oldPath:
+        if os.path.exists(oldPath):
+          os.remove(oldPath)
+          print(f"Vieja imagen eliminada: {oldPath}")
+      
+      return newPath
+        
     except Exception as err:
       print(err)
       return None

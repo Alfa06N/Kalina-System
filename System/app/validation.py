@@ -4,32 +4,49 @@ import constants
 import exceptions
 from config import getDB
 from DataBase.crud.employee import getEmployeeById
+import re
 
 def validateField(field, condition):
   
-  if not field.error_text == None and condition(field.value):
-    field.error_text = None
-    field.focused_border_color = constants.BLACK
-    field.update()
-  
-  return condition(field.value)
+  try:
+    if not field.error_text == None and condition(field.value.strip()):
+      field.error_text = None
+      field.focused_border_color = constants.BLACK
+      field.update()
+    
+    return condition(field.value)
+  except ValueError as err:
+    print(err)
+    pass
 
 def validateUsername(field):
-  validateField(field, lambda value: len(value) > 0)
+  validateField(field, lambda value: len(value.strip()) > 0)
 
 def validatePassword(field):
   validateField(field, lambda value: len(value) >= 8)
   
 def validateCI(field):
-  validateField(field, lambda value: len(value) > 6 and len(value) < 9)
+  validateField(field, lambda value: len(value.strip()) > 6 and len(value.strip()) < 9)
+
+def validateNumber(field):
+  validValue = re.sub(r"[^-?\d.]", "", field.value)
+  
+  if validValue.count(".") > 1:
+    validValue = validValue.replace(".", "", validValue.count(".") - 1)
+    
+  if field.value != validValue:
+    field.value = validValue
+    field.update()
+  
+  validateField(field, lambda value: float(value) > 0)
   
 def validateEmptyField(field):
-  validateField(field, lambda value: len(value) > 0)
+  validateField(field, lambda value: len(value.strip()) > 0)
 
-def evaluateForm(username=[], password=[], ci=[], others=[]):
+def evaluateForm(username=[], password=[], ci=[], numbers=[], others=[]):
   isValid = True
   for field in username:
-    if len(field.value) == 0:
+    if len(field.value.strip()) == 0:
       field.error_text = "El nombre de usuario no puede estar vacío"
       field.update()
       isValid = False
@@ -41,17 +58,27 @@ def evaluateForm(username=[], password=[], ci=[], others=[]):
       isValid = False
   
   for field in ci:
-    if len(field.value) < 7 or len(field.value) > 9:
+    if len(field.value.strip()) < 7 or len(field.value.strip()) > 9:
       field.error_text = "Número fuera de rango"
       field.update()
       isValid = False
   
   for field in others:
-    if field.value == None or len(field.value) == 0:
+    if field.value == None or len(field.value.strip()) == 0:
       field.error_text = "Este campo no puede estar vacío"
       field.update()
       isValid = False
   
+  for field in numbers:
+    try:
+      if float(field.value) <= 0:
+        field.error_text = "Este valor debe ser mayor a 0"
+        field.update()
+        isValid = False
+    except ValueError:
+      field.error_text = "Debe ingresar un valor numérico válido"
+      field.update()
+      isValid = False
   # print("Campos válidos")
   print(isValid)
   return isValid

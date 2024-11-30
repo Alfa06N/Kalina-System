@@ -1,12 +1,16 @@
 import flet as ft
 import constants
 from Modules.customControls import CustomAnimatedContainerSwitcher, CustomNavigationOptions, CustomAnimatedContainer, CustomFloatingActionButton
-from Modules.Sections.InventorySection.products_components import ProductInfo
-from Modules.Sections.InventorySection.combos_components import ComboInfo
+from Modules.Sections.InventorySection.products_components import ProductInfo, ProductContainer
+from Modules.Sections.InventorySection.combos_components import ComboInfo, ComboContainer
 from Modules.Sections.InventorySection.categories_components import CategoryInfo, CategoryContainer
 from Modules.categories_modules import CategoryForm
+from Modules.products_module import ProductForm
+from Modules.combos_module import ComboForm
 import time
 from DataBase.crud.category import getCategories
+from DataBase.crud.product import getProducts
+from DataBase.crud.combo import getCombos
 from config import getDB
 from utils.imageManager import ImageManager
 
@@ -40,9 +44,9 @@ class Inventory(ft.Stack):
     )
     
     self.comboButton = CustomNavigationOptions(
-      icon=ft.icons.FASTFOOD_ROUNDED, #
+      icon=ft.icons.FASTFOOD_ROUNDED,
       text="Combos",
-      function=self.selectView, #
+      function=self.selectView,
       color="#666666",
       focusedColor=constants.BLACK,
       opacityInitial=1,
@@ -65,45 +69,6 @@ class Inventory(ft.Stack):
           self.comboButton,
         ]
       )
-    )
-    
-    self.itemsContainer = ft.Container(
-      col={"sm": 12, "md": 9, "xl": 6},
-      margin=ft.margin.symmetric(horizontal=20, vertical=20),
-      # height=800,
-      expand=True,
-      alignment=ft.alignment.top_left,
-      border_radius=ft.border_radius.all(30),
-      bgcolor=constants.WHITE,
-      shadow=ft.BoxShadow(
-        spread_radius=1,
-        blur_radius=5,
-        color=constants.BLACK_GRAY,
-      ),
-      content=CustomAnimatedContainer(
-        actualContent=ft.Column(
-          alignment=ft.MainAxisAlignment.CENTER,
-          # height=800,
-          expand=True,
-          horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-        )
-      )
-    )
-    
-    self.itemsContainer = CustomAnimatedContainerSwitcher(
-      shadow=ft.BoxShadow(
-        spread_radius=1,
-        blur_radius=5,
-        color=constants.BLACK_INK,
-      ),
-      content=ft.Column(
-        alignment=ft.MainAxisAlignment.CENTER,
-        expand=True,
-        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-      ),
-      height=600,
-      width=700,
-      col={"sm": 12, "md": 9, "xl": 6},
     )
     
     self.categoryInitialContent = ft.Column(
@@ -159,7 +124,28 @@ class Inventory(ft.Stack):
           self.productInitialContent
         ]  
       ),
-      col={"sm": 12, "md": 9, "xl": 6}
+      expand=True,
+      col={"sm": 12, "md": 12, "lg": 8, "xl": 7}
+    )
+    
+    self.itemsContainer = CustomAnimatedContainerSwitcher(
+      shadow=ft.BoxShadow(
+        spread_radius=1,
+        blur_radius=5,
+        color=constants.BLACK_INK,
+      ),
+      padding=0,
+      content=ft.Column(
+        alignment=ft.MainAxisAlignment.CENTER,
+        expand=True,
+        scroll=ft.ScrollMode.AUTO,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        controls=[container for container in self.getProductsToFill()]
+      ),
+      height=None,
+      width=None,
+      expand=True,
+      col={"sm": 12, "md": 9, "lg": 4, "xl": 5},
     )
     
     self.addItemButton = CustomFloatingActionButton(on_click=self.addItemForm)
@@ -217,15 +203,15 @@ class Inventory(ft.Stack):
     if self.selected == self.categoryButton:
       self.newContent = CategoryForm(self.page, self)
     elif self.selected == self.productButton:
-      pass
+      self.newContent = ProductForm(self.page, self)
     elif self.selected == self.comboButton:
-      pass
+      self.newContent = ComboForm(self.page, self)
       
     if not self.infoContainer.height == 800:
       self.infoContainer.changeStyle(height=800, width=700, shadow=ft.BoxShadow(
         blur_radius=5,
         spread_radius=1,
-        color=constants.BLACK_GRAY,
+        color=constants.BLACK_INK,
       ))
     if self.newContent:
       self.infoContainer.setNewContent(self.newContent)
@@ -237,7 +223,7 @@ class Inventory(ft.Stack):
       shadow=ft.BoxShadow(
         spread_radius=1,
         blur_radius=5,
-        color=constants.BLACK_GRAY,
+        color=constants.BLACK_INK,
       )
     )
     self.infoContainer.setNewContent(newContent)
@@ -249,9 +235,9 @@ class Inventory(ft.Stack):
     if self.selected == self.categoryButton:
       items = self.getCategoriesToFill()
     elif self.selected == self.productButton:
-      pass
+      items = self.getProductsToFill()
     elif self.selected == self.comboButton:
-      pass
+      items = self.getCombosToFill()
     
     newContent = ft.Column(
       scroll=ft.ScrollMode.AUTO,
@@ -260,19 +246,8 @@ class Inventory(ft.Stack):
       horizontal_alignment=ft.CrossAxisAlignment.CENTER,
     )
       
-    if len(items) == 0:
-      newContent.controls = [
-        ft.Text(
-          value="No hay contenido que mostrar",
-          size=32,
-          color=constants.BLACK,
-          weight=ft.FontWeight.W_700,
-          text_align=ft.TextAlign.CENTER,
-        )
-      ]
-    else:
-      for item in items:
-        newContent.controls.append(item)
+    for item in items:
+      newContent.controls.append(item)
     
     self.itemsContainer.setNewContent(newContent)
   
@@ -282,7 +257,7 @@ class Inventory(ft.Stack):
         categories = getCategories(db)
         containers = []
         imageManager = ImageManager()
-        if categories:
+        if len(categories) > 0:
           for category in categories:
             container = CategoryContainer(
               idCategory=category.idCategory,
@@ -295,9 +270,72 @@ class Inventory(ft.Stack):
             
             containers.append(container)
           return containers
+        else:
+          containers.append(self.textForEmptyContainer("No hay categorías que mostrar"))
+          return containers
     except Exception as err:
-      print(err)
+      raise
+    
+  def getProductsToFill(self):
+    try:
+      with getDB() as db:
+        products = getProducts(db)
+        containers = []
+        imageManager = ImageManager()
+        if len(products) > 0:
+          for product in products:
+            container = ProductContainer(
+              idProduct=product.idProduct,
+              name=product.name,
+              description=product.description,
+              infoContainer=self.infoContainer,
+              mainContainer=self,
+              page=self.page,
+              imgPath=imageManager.getImagePath(product.imgPath),
+            )
+            containers.append(container)
+          return containers
+        else:
+          containers.append(self.textForEmptyContainer("No hay productos que mostrar"))
+          return containers
+    except Exception as err:
+      raise
+  
+  def getCombosToFill(self):
+    try:
+      with getDB() as db:
+        combos = getCombos(db)
+        containers = []
+        imageManager = ImageManager()
+        
+        if len(combos) > 0:
+          for combo in combos:
+            container = ComboContainer(
+              idCombo=combo.idCombo,
+              name=combo.name,
+              infoContainer=self.infoContainer,
+              mainContainer=self,
+              page=self.page,
+              imgPath=imageManager.getImagePath(combo.imgPath)
+            )
+            containers.append(container)
+          return containers
+        else:
+          
+          containers.append(self.textForEmptyContainer("No hay combos que mostrar"))
+          return containers
+    except Exception as err:
+      raise
   
   def resetCurrentView(self):
     self.resetInfoContainer()
     self.fillItemsContainer()
+    
+  def textForEmptyContainer(self, message):
+    return ft.Text(
+      value=message,
+      size=32,
+      color=constants.BLACK,
+      weight=ft.FontWeight.W_700,
+      text_align=ft.TextAlign.CENTER,
+    )

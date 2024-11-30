@@ -7,15 +7,22 @@ from utils.sessionManager import getCurrentUser
 from DataBase.crud.user import getUserByUsername
 from DataBase.crud.user_product import registerOperation
 from datetime import datetime
+from sqlalchemy import asc, desc
+from utils.imageManager import ImageManager
 
 def createProduct(db: Session, name: str, description: str, stock: int, minStock: int, cost: float, gain: float, iva: float, idCategory: int, imgPath: str):
   try:
+    alreadyExists = getProductByName(db, name)
     
+    if alreadyExists:
+      raise DataAlreadyExists("Nombre de producto no disponible")
+    
+    print(f"Antes de crear el producto: {stock} - {minStock}")
     product = Product(
       name=name,
       description=description,
       stock=stock,
-      minStock=stock,
+      minStock=minStock,
       cost=cost,
       gain=gain,
       iva=iva,
@@ -30,8 +37,7 @@ def createProduct(db: Session, name: str, description: str, stock: int, minStock
     handleDatabaseErrors(db, func)
     
     db.refresh(product)
-    
-    updateProductStock(db, product, product.stock)
+    print(f"Después de crear el producto: {product.stock} - {product.minStock}")
     return product
   except Exception as e:
     raise
@@ -59,13 +65,13 @@ def getProductByName(db: Session, name: str):
 def getProducts(db: Session):
   try:
     def func():
-      return db.query(Product).all()
+      return db.query(Product).order_by(asc(Product.name)).all()
     
     return handleDatabaseErrors(db, func)
   except Exception:
     raise
   
-def updateProduct(db: Session, idProduct: int, name: str, description: str, minStock: int, cost: float, gain: float, iva: float, idCategory: int):
+def updateProduct(db: Session, idProduct: int, name: str, description: str, minStock: int, cost: float, gain: float, iva: float, idCategory: int, imgPath=None):
   try:
     if getProductByName(db, name):
       raise DataAlreadyExists("Nombre de usuario no disponible")   
@@ -88,6 +94,13 @@ def updateProduct(db: Session, idProduct: int, name: str, description: str, minS
             product.iva = iva
           if idCategory:
             product.idCategory = idCategory
+            
+          imageManager = ImageManager()
+          product.imgPath = imageManager.updateImage(
+            idData=product.idProduct,
+            oldImage=product.imgPath,
+            newImage=imgPath,
+          )
           
           db.commit()
           db.refresh(product)
@@ -101,10 +114,37 @@ def updateProduct(db: Session, idProduct: int, name: str, description: str, minS
   except Exception:
     raise
 
-def removeProduct(db: Session, idProduct: int):
+def updateProductInfo(db: Session, product, name:str, description:str, idCategory:int, imgPath=None):
   try:
-    product = getProductById(db, idProduct)
+    alreadyExists = getProductByName(db, name)
+    if alreadyExists and not alreadyExists == product:
+      raise DataAlreadyExists("Nombre de producto en uso.")
     
+    def func():
+      if name:
+        product.name = name
+      product.description = description
+      if idCategory:
+        product.idCategory = idCategory
+        
+      imageManager = ImageManager()
+      product.imgPath = imageManager.updateImage(
+        idData=product.idProduct,
+        oldImage=product.imgPath,
+        newImage=imgPath,
+      )
+      db.commit()
+      db.refresh(product)
+      return product
+    
+    return handleDatabaseErrors(db, func)
+  except DataNotFoundError:
+    raise
+  except Exception as err:
+    raise
+
+def removeProduct(db: Session, product):
+  try:  
     def func():
       db.delete(product)
       db.commit()
@@ -129,13 +169,10 @@ def removeProductByName(db: Session, name: str):
   except Exception:
     raise
 
-def calculatePrice(product):
+def calculatePrice(cost, iva, gain):
   try: 
-    if product:
-      price = product.cost + (product.cost*product.iva) + (product.cost*product.gain)
-      return round(price, 3) 
-    else:
-      raise DataNotFoundError(f"Producto no encontrado")
+      price = cost + (cost*(iva/100)) + (cost*(gain/100))
+      return round(price, 2) 
   except DataNotFoundError as e:
     print(e)
     raise
@@ -149,16 +186,11 @@ def updateProductStock(db: Session, product, quantityAdded: int):
     
     if not product:
       raise DataNotFoundError(f"No se encontró el producto {name}")
-    # elif not user:
-    #   raise DataNotFoundError(f"No se encontró el usuario {username}")
+    elif not user:
+      raise DataNotFoundError(f"No se encontró el usuario {username}")
     
-    # def updateProduct():
-    #   product.stock += quantityAdded
-    #   db.refresh(product)
-    
-    # handleDatabaseErrors(db, updateProduct)
-    
-    def createOperation():
+    def func():
+      product.stock += quantityAdded
       register = registerOperation(
         db=db,
         idUser=user.idUser,
@@ -166,11 +198,37 @@ def updateProductStock(db: Session, product, quantityAdded: int):
         productQuantity=quantityAdded
       )
       db.add(register)
-      db.refresh(register)
-      
-    handleDatabaseErrors(db, createOperation)
+      db.commit()
+      return register
     
-    db.commit()
-    return product
+    
+    register = handleDatabaseErrors(db, func)
+    db.refresh(product)
+    db.refresh(register)
+    return product, register
   except Exception:
+    db.rollback()
+    raise
+
+def updateProductPrices(db: Session, product, cost:float, iva:float, gain:float):
+  try:
+    if not product:
+      raise DataNotFoundError("Producto no encontrado")
+    
+    def func():
+      if cost:
+        product.cost = cost
+      if iva:
+        product.iva = iva
+      if gain:
+        product.gain = gain
+      
+      db.commit()
+      return product
+    
+    product = handleDatabaseErrors(db, func)
+    db.refresh(product)
+    return product
+  except Exception as err:
+    db.rollback()
     raise

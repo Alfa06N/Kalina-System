@@ -1,10 +1,11 @@
 import flet as ft 
-from Modules.customControls import CustomAnimatedContainer, CustomOperationContainer, CustomUserIcon, CustomCardInfo, CustomDeleteButton
+from Modules.customControls import CustomAnimatedContainer, CustomOperationContainer, CustomUserIcon, CustomCardInfo, CustomDeleteButton, CustomAlertDialog
 import constants
 from DataBase.crud.employee import getEmployeeById, removeEmployee, calculateAge
 from config import getDB
 import time
-from exceptions import DataAlreadyExists, DataNotFoundError
+from exceptions import DataAlreadyExists, DataNotFoundError, ErrorOperation
+from utils.sessionManager import getCurrentUser
 
 class EmployeeContainer(ft.Container):
   def __init__(self, page, ciEmployee, initial, name, surname, infoContainer, principalContainer, secondSurname=""):
@@ -18,8 +19,13 @@ class EmployeeContainer(ft.Container):
     self.principalContainer = principalContainer
     self.page = page
     
+    self.shadow = ft.BoxShadow(
+      spread_radius=1,
+      blur_radius=1,
+      color=constants.WHITE_GRAY,
+    )
     self.padding = ft.padding.all(10)
-    self.bgcolor = ft.colors.TRANSPARENT
+    self.bgcolor = constants.WHITE
     self.border_radius = ft.border_radius.all(30)
     self.ink = True
     self.ink_color = constants.BLACK_INK
@@ -28,7 +34,7 @@ class EmployeeContainer(ft.Container):
     self.employeeTitle = CustomAnimatedContainer(
       actualContent=ft.Text(
         value=f"{self.name} {self.surname} {self.secondSurname}",
-        size=18,
+        size=20,
         color=constants.BLACK,
         weight=ft.FontWeight.W_700,
         overflow=ft.TextOverflow.ELLIPSIS,
@@ -54,7 +60,7 @@ class EmployeeContainer(ft.Container):
             self.employeeTitle,
             ft.Text(
               value=f"V-{self.ciEmployee}",
-              size=18,
+              size=20,
               color=constants.BLACK,
               overflow=ft.TextOverflow.ELLIPSIS
             )
@@ -80,7 +86,6 @@ class EmployeeContainer(ft.Container):
         spread_radius=1,
         color=constants.BLACK_GRAY,
       ))
-      time.sleep(0.3)
     self.infoContainer.setNewContent(newContent=newContent)
     
 class EmployeeInfo(ft.Stack):
@@ -120,11 +125,11 @@ class EmployeeInfo(ft.Stack):
     )
     
     self.birthdateText = ft.Text(
-      size=18,
+      size=20,
       color=constants.BLACK,
     )
     self.ageText = ft.Text(
-      size=18,
+      size=20,
       color=constants.BLACK,
     )
     self.birthdateIcon = ft.Icon(
@@ -147,7 +152,7 @@ class EmployeeInfo(ft.Stack):
                 controls=[
                   ft.Text(
                     value="Fecha de nacimiento:",
-                    size=18,
+                    size=20,
                     color=constants.BLACK,
                     weight=ft.FontWeight.BOLD,
                   ),
@@ -158,7 +163,7 @@ class EmployeeInfo(ft.Stack):
                 controls=[
                   ft.Text(
                     value="Edad:",
-                    size=18,
+                    size=20,
                     color=constants.BLACK,
                     weight=ft.FontWeight.BOLD,
                   ),
@@ -203,31 +208,30 @@ class EmployeeInfo(ft.Stack):
                   ),
                   ft.Text(
                     value=f"Usuario:",
-                    size=18,
+                    size=20,
                     color=constants.BLACK,
                     weight=ft.FontWeight.BOLD,
                   ),
                   ft.Text(
                     value=f"{employee.user.username} ({employee.user.role})",
-                    size=18,
+                    size=20,
                     color=constants.BLACK,
                   )
                 ]
                 
               ),
             ))
-            print("Si tiene usuario")
           else:
             self.employeeInfo.controls.append(ft.Text(
               value=f"Este empleado no posee un usuario",
-              size=18,
+              size=20,
               color=constants.BLACK,
             ))
         else:
           raise DataNotFoundError("No se encontró el empleado")
         
     except Exception as e:
-      print(e)
+      raise
       
     self.columnContent = ft.Column(
       scroll=ft.ScrollMode.AUTO,
@@ -276,6 +280,8 @@ class EmployeeInfo(ft.Stack):
         employee = getEmployeeById(db, self.ciEmployee)
         
         if employee:
+          if employee.user.username == getCurrentUser():
+            raise ErrorOperation("No se puede eliminar al empleado vinculado al usuario de la sesión")
           employee = removeEmployee(db, employee)
           self.principalContainer.resetEmployeesContainer()
           self.principalContainer.resetInfoContainer()
@@ -283,5 +289,16 @@ class EmployeeInfo(ft.Stack):
           raise DataNotFoundError(f"Can't delete employee V-{self.ciEmployee}")
     except DataNotFoundError:
       raise
+    except ErrorOperation as err:
+      dialog = CustomAlertDialog(
+        title="Operación bloquada",
+        content=ft.Text(
+          value=err,
+          size=18,
+          color=constants.BLACK,
+        ),
+        modal=False,
+      )
+      self.page.open(dialog)
     except Exception as err:
       print(f"Error deleting employee V-{self.ciEmployee}: {err}")

@@ -47,7 +47,7 @@ def getRegisterByProductId(db: Session, idProduct: int):
 def getRegisterByComboId(db: Session, idCombo: int):
   try:
     def func():
-      return db.query(ProductCombo).filter(ProductCombo.idProduct == idProduct).all()
+      return db.query(ProductCombo).filter(ProductCombo.idCombo == idCombo).all()
     return handleDatabaseErrors(db, func)
   except Exception:
     raise

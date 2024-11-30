@@ -1,5 +1,5 @@
 import flet as ft 
-from Modules.customControls import CustomSimpleContainer, CustomFilledButton, CustomOutlinedButton, CustomCheckbox, CustomReturnButton, CustomTextField, CustomAnimatedContainerSwitcher, CustomAnimatedContainer, CustomOperationContainer, CustomDatePicker, CustomAlertDialog
+from Modules.customControls import CustomSimpleContainer, CustomFilledButton, CustomOutlinedButton, CustomCheckbox, CustomReturnButton, CustomTextField, CustomAnimatedContainerSwitcher, CustomAnimatedContainer, CustomOperationContainer, CustomDatePicker, CustomAlertDialog, CustomTextButton
 from validation import evaluateForm
 import time 
 from exceptions import InvalidData, DataAlreadyExists
@@ -26,7 +26,7 @@ class EmployeesForm(CustomOperationContainer):
     )
     
     self.ciField = CustomTextField(
-      label="Cédula de Identidad",
+      label="Documento",
       field="ci",
       submitFunction=self.submitForm,
       expand=True,
@@ -55,7 +55,7 @@ class EmployeesForm(CustomOperationContainer):
     
     self.birthdateText = ft.Text(
       value="Fecha de nacimiento",
-      size=18,
+      size=20,
       color=constants.BLACK,
     )
     self.birthdateIcon = ft.Icon(
@@ -81,7 +81,7 @@ class EmployeesForm(CustomOperationContainer):
     )
     
     self.finishButton = CustomFilledButton(
-      text="Crear Empleado",
+      text="Crear empleado",
       clickFunction=self.submitForm
     )
     
@@ -134,16 +134,19 @@ class EmployeesForm(CustomOperationContainer):
   
   def submitForm(self, e):
     try:
-      print(self.ciField.value)
       if evaluateForm(ci=[self.ciField], others=[self.nameField, self.surnameField]):
         if not self.birthdateText.value == "Fecha de nacimiento":
           self.confirmDialog = CustomAlertDialog(
             modal=True,
             title=f"Crear empleado",
-            content=f"Se creará el empleado \"{self.nameField.value} {self.surnameField.value} {self.secondSurnameField.value}\" portador de la cédula \"V-{self.ciField.value}\"",
+            content=ft.Text(
+              value=f"Se creará el empleado \"{self.nameField.value} {self.surnameField.value} {self.secondSurnameField.value}\" portador de la cédula \"V-{self.ciField.value}\"",
+              size=18,
+              color=constants.BLACK,
+            ),
             actions=[
-              ft.TextButton("Confirmar", on_click=self.createEmployee),
-              ft.TextButton("Cancelar", on_click=lambda e: self.page.close(self.confirmDialog)),
+              CustomTextButton(text="Confirmar", on_click=self.createEmployee),
+              CustomTextButton("Cancelar", on_click=lambda e: self.page.close(self.confirmDialog)),
             ]
           )
           self.page.open(self.confirmDialog)
@@ -162,13 +165,13 @@ class EmployeesForm(CustomOperationContainer):
       with getDB() as db:
         newEmployee = createEmployee(
           db=db,
-          ciEmployee=self.ciField.value,
-          name=self.nameField.value,
-          surname=self.surnameField.value,
-          secondSurname=self.secondSurnameField.value,
+          ciEmployee=self.ciField.value.strip(),
+          name=self.nameField.value.strip(),
+          surname=self.surnameField.value.strip(),
+          secondSurname=self.secondSurnameField.value.strip(),
           birthdate=self.birthdateText.value,
         )
-        self.actionSuccess("Empleado creado exitosamente")
+        self.actionSuccess("Empleado creado exitosamente.")
         time.sleep(1.5)
       
       self.employeesContent.resetEmployeesContainer()

@@ -22,7 +22,12 @@ class UserContainer(ft.Container):
     self.principalContainer = principalContainer
     
     self.padding = ft.padding.all(10)
-    self.bgcolor=ft.colors.TRANSPARENT
+    self.shadow = ft.BoxShadow(
+      spread_radius=1,
+      blur_radius=1,
+      color=constants.WHITE_GRAY,
+    )
+    self.bgcolor= constants.WHITE
     self.border_radius = ft.border_radius.all(30)
     self.ink = True
     self.ink_color = constants.BLACK_INK
@@ -31,7 +36,7 @@ class UserContainer(ft.Container):
     self.usernameTitle = CustomAnimatedContainer(
       actualContent=ft.Text(
         value=self.username,
-        size=18,
+        size=20,
         color=constants.BLACK,
         weight=ft.FontWeight.W_700,
         overflow=ft.TextOverflow.ELLIPSIS,
@@ -52,11 +57,12 @@ class UserContainer(ft.Container):
         ft.Column(
           expand=True,
           alignment=ft.MainAxisAlignment.CENTER,
+          spacing=0,
           controls=[
             self.usernameTitle,
             ft.Text(
               value=self.fullname,
-              size=18,
+              size=20,
               color=constants.BLACK,
               overflow=ft.TextOverflow.ELLIPSIS,
             )
@@ -76,19 +82,18 @@ class UserContainer(ft.Container):
       userContainer=self
     )
     if self.infoContainer.height == 150:
-      self.infoContainer.changeStyle(height=600, width=300, shadow=ft.BoxShadow(
+      self.infoContainer.changeStyle(height=600, width=500, shadow=ft.BoxShadow(
         blur_radius=5,
         spread_radius=1,
-        color=constants.BLACK_GRAY,
+        color=constants.BLACK_INK,
       ))
-      time.sleep(0.3)
     self.infoContainer.setNewContent(newContent=newContent)
     
   def updateUsername(self, newUsername):
     self.username = newUsername
     self.usernameTitle.setNewContent(ft.Text(
         value=newUsername,
-        size=18,
+        size=20,
         color=constants.BLACK,
         weight=ft.FontWeight.W_700,
         overflow=ft.TextOverflow.ELLIPSIS,
@@ -235,8 +240,12 @@ class UserInfo(ft.Stack):
     try:
       if self.username == getCurrentUser():
         dialog = CustomAlertDialog(
-          title="Usuario no eliminado",
-          content=f"No puedes eliminar a \"{self.username}\" en este momento",
+          title="Operación bloqueada",
+          content=ft.Text(
+            value=f"No puedes eliminar al usuario de la sesión actual",
+            size=18,
+            color=constants.BLACK,  
+          ),
           modal=False,
         )
         self.page.open(dialog)
@@ -277,7 +286,7 @@ class UserInfo(ft.Stack):
         self.editContainer.setNewOperation(ft.Text(
           value="Ingresa aquí el siguiente paso",
           color=constants.BLACK,
-          size=18,
+          size=20,
         ))
         return True
       else:
@@ -328,7 +337,7 @@ class EditContainer(CustomOperationContainer):
               ),
               ft.Text(
                 value="Valida tu identidad",
-                size=18,
+                size=20,
                 color=constants.BLACK,
               )
             ]
@@ -387,7 +396,7 @@ class EditContainer(CustomOperationContainer):
               ),
               ft.Text(
                 value="Edita tu usuario",
-                size=18,
+                size=20,
                 color=constants.BLACK,
               )
             ]
@@ -407,10 +416,6 @@ class EditContainer(CustomOperationContainer):
             controls=[
               CustomFilledButton(
                 text="Enviar",
-                overlay=constants.BROWN_OVERLAY,
-                bgcolor=constants.BROWN,
-                color=constants.WHITE,
-                size=18,
                 clickFunction=self.submitForm
               )
             ]

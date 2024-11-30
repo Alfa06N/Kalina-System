@@ -9,6 +9,7 @@ from utils.sessionManager import setUser
 from DataBase.crud.user import getUserByUsername, queryUserData
 from config import getDB
 from exceptions import DataNotFoundError
+import threading
 
 class LoginForm(CustomSimpleContainer):
   def __init__(self, page, containerFather):
@@ -19,7 +20,7 @@ class LoginForm(CustomSimpleContainer):
     self.loginButton = ft.Row(
       height=100,
       controls=[
-        CustomFilledButton(text="Iniciar Sesión", bgcolor=constants.BROWN, size=18, color=constants.WHITE, overlay=constants.BROWN_OVERLAY, clickFunction=self.login)
+        CustomFilledButton(text="Iniciar Sesión", clickFunction=self.login)
       ],
       alignment=ft.MainAxisAlignment.CENTER,
       vertical_alignment=ft.CrossAxisAlignment.CENTER,
@@ -105,19 +106,16 @@ class LoginForm(CustomSimpleContainer):
     if evaluateForm(username=[self.usernameInput], password=[self.passwordInput]):
       try:
         with getDB() as db:
-          if queryUserData(db, self.usernameInput.value, self.passwordInput.value):
-            setUser(self.usernameInput.value)
-            self.operationContent.actionSuccess(f"Bienvenido {self.usernameInput.value}")
-            time.sleep(1.5)
-            showPrincipal(self.page)
+          if queryUserData(db, self.usernameInput.value.strip(), self.passwordInput.value):
+            setUser(self.usernameInput.value.strip())
+            self.operationContent.actionSuccess(f"Bienvenido {self.usernameInput.value.strip()}")
+            threading.Timer(1.5, lambda: showPrincipal(self.page)).start()
           else:
             self.operationContent.actionFailed("Contraseña incorrecta")
-            time.sleep(1.5)
-            self.operationContent.restartContainer()
+            threading.Timer(1.5, self.operationContent.restartContainer).start()
       except DataNotFoundError as e:
         self.operationContent.actionFailed(e)
-        time.sleep(1.5)
-        self.operationContent.restartContainer()
+        threading.Timer(1.5, self.operationContent.restartContainer).start()
       except Exception as e:
         print("Unexpected Error:", e)
 
@@ -129,9 +127,9 @@ class LoginPresentation(CustomSimpleContainer):
     
     self.logo = ft.Image(src=getImagePath("ks logo(only cup)edited.png"), fit="contain", width=240, height=240)
     
-    self.description = ft.Text(value="Kaip'e Alimentos", color=constants.WHITE, size=18, weight=ft.FontWeight.BOLD)
+    self.description = ft.Text(value="Kaip'e Alimentos", color=constants.WHITE, size=20, weight=ft.FontWeight.BOLD)
     
-    self.button = CustomFilledButton(text="Registrarse", bgcolor=constants.ORANGE, color=constants.BLACK, size=18, overlay=constants.ORANGE_OVERLAY, clickFunction=lambda e: showRegister(self.page))
+    self.button = CustomFilledButton(text="Registrarse", overlay=constants.ORANGE_OVERLAY, bgcolor=constants.ORANGE, color=constants.BLACK, clickFunction=lambda e: showRegister(self.page))
     self.register = ft.Row(
       controls=[
         self.button

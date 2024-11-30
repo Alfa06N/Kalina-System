@@ -5,19 +5,22 @@ import constants
 from interface import showLogin
 import time
 from utils.pathUtils import getImagePath
-from DataBase.crud.user import createUser
+from DataBase.crud.employee import getEmployeeById
+from DataBase.crud.user import createUser, getUserByUsername, queryUserData
 from DataBase.crud.recovery import createRecovery
 from config import getDB
 from exceptions import DataNotFoundError, DataAlreadyExists, InvalidData
+import threading
 
 class RegisterForm(CustomSimpleContainer):
-  def __init__(self, page):
+  def __init__(self, page, login=True):
     super().__init__()
     self.page = page
+    self.login = login
     
     self.button = ft.Row(
       controls=[
-        CustomOutlinedButton(text="Siguiente", color=constants.BLACK, size=18, icon=None, clickFunction=self.advance),
+        CustomOutlinedButton(text="Siguiente", clickFunction=lambda e: self.advance()),
       ], 
       alignment=ft.MainAxisAlignment.CENTER
     )
@@ -36,7 +39,7 @@ class RegisterForm(CustomSimpleContainer):
       hint_text=None,
       field="username",
       expand=False,
-      submitFunction=self.advance
+      submitFunction=lambda e: self.advance()
     )
     
     self.password = CustomTextField(
@@ -46,7 +49,7 @@ class RegisterForm(CustomSimpleContainer):
       hint_text=None,
       field="password",
       expand=1,
-      submitFunction=self.advance
+      submitFunction=lambda e: self.advance()
     )
     
     self.passwordConfirmation = CustomTextField(
@@ -56,7 +59,7 @@ class RegisterForm(CustomSimpleContainer):
       hint_text=None,
       field="password",
       expand=1,
-      submitFunction=self.advance
+      submitFunction=lambda e: self.advance()
     )
     
     self.userCI = CustomTextField(
@@ -66,7 +69,7 @@ class RegisterForm(CustomSimpleContainer):
       hint_text=None,
       field="ci",
       expand=False,
-      submitFunction=self.advance
+      submitFunction=lambda e: self.advance()
     )
 
     # inputs
@@ -118,7 +121,7 @@ class RegisterForm(CustomSimpleContainer):
       revealPassword=True,
       field="others",
       expand=False,
-      submitFunction=self.advance
+      submitFunction=lambda e: self.advance()
     )
     
     self.questionTwo = CustomDropdown(
@@ -134,7 +137,7 @@ class RegisterForm(CustomSimpleContainer):
       revealPassword=True,
       field="others",
       expand=False,
-      submitFunction=self.advance
+      submitFunction=lambda e: self.advance()
     )
 
     self.questionsInputs = ft.Column(
@@ -152,7 +155,7 @@ class RegisterForm(CustomSimpleContainer):
 
     self.finishButton = ft.Row(
       controls=[
-        CustomFilledButton(text="Crear Usuario", size=18, bgcolor=constants.BROWN, color=constants.WHITE, overlay=constants.BROWN_OVERLAY, clickFunction=self.advance)
+        CustomFilledButton(text="Crear Usuario", clickFunction=lambda e: self.advance())
       ],
       alignment=ft.MainAxisAlignment.CENTER
     )
@@ -197,12 +200,12 @@ class RegisterForm(CustomSimpleContainer):
     self.adminUsernameField = CustomTextField(
       label="Nombre de usuario",
       field="username",
-      submitFunction=self.advance,
+      submitFunction=lambda e: self.advance(),
     )
     self.adminPasswordField = CustomTextField(
       label="Contraseña",
       field="password",
-      submitFunction=self.advance
+      submitFunction=lambda e: self.advance()
     )
     self.thirdContent = ft.Column(
       expand=True,
@@ -273,7 +276,7 @@ class RegisterForm(CustomSimpleContainer):
     # content
     self.content = self.operation
     
-  def advance(self, e):
+  def advance(self):
     isValid = True
     try:
       if self.animatedContainer.content == self.formFirst:
@@ -281,35 +284,55 @@ class RegisterForm(CustomSimpleContainer):
         
         if isValid and not self.password.value == self.passwordConfirmation.value:
           isValid = False
-          self.operation.actionFailed("Las contraseñas no coinciden")
-          time.sleep(1.5)
-          self.operation.restartContainer()
+          self.operation.actionFailed("Las contraseñas no coinciden.")
+          threading.Timer(1.5, self.operation.restartContainer).start()
+        else:
+          with getDB() as db:
+            user = getUserByUsername(db, self.newUserName.value.strip())
+            if user:
+              isValid = False
+              raise DataAlreadyExists("Nombre de usuario en uso.")
+            employee = getEmployeeById(db, int(self.userCI.value))
+            if not employee:
+              isValid = False
+              raise DataNotFoundError("El documento no existe.")
+            elif employee.user:
+              isValid = False
+              raise DataAlreadyExists("El empleado ya posee usuario.")
 
       elif self.animatedContainer.content == self.formSecond:
         isValid = evaluateForm(others=[self.questionOne, self.questionTwo, self.answerOne, self.answerTwo])
       else:
         isValid = evaluateForm(username=[self.adminUsernameField], password=[self.adminPasswordField])
         
-        if isValid:
-          with getDB() as db:
-            role = "Administrador" if self.checkbox.value == True else "Colaborador"
-            
-            user = createUser(
-              db=db,
-              username=self.newUserName.value,
-              password=self.password.value,
-              role=role,
-              ciEmployee=self.userCI.value, 
-            )
-            recovery = createRecovery(
-              db=db,
-              questionOne=self.questionOne.value,
-              answerOne=self.answerOne.value,
-              questionTwo=self.questionTwo.value,
-              answerTwo=self.answerTwo.value,
-              idUser=user.idUser,
-            )
-            self.operation.actionSuccess("Usuario creado")
+        with getDB() as db:
+          if isValid:
+            if queryUserData(db, username=self.adminUsernameField.value.strip(), password=self.adminPasswordField.value.strip()):
+              role = "Administrador" if self.checkbox.value == True else "Colaborador"
+              
+              user = createUser(
+                db=db,
+                username=self.newUserName.value.strip(),
+                password=self.password.value.strip(),
+                role=role,
+                ciEmployee=self.userCI.value.strip(), 
+              )
+              recovery = createRecovery(
+                db=db,
+                questionOne=self.questionOne.value.strip(),
+                answerOne=self.answerOne.value.strip(),
+                questionTwo=self.questionTwo.value.strip(),
+                answerTwo=self.answerTwo.value.strip(),
+                idUser=user.idUser,
+              )
+              
+              self.operation.actionSuccess("Usuario creado")
+              if self.login:
+                threading.Timer(1.5, lambda: showLogin(self.page)).start()
+              else: 
+                return True
+            else:
+              raise InvalidData("Contraseña incorrecta.")
             
       if not isValid:
         print("Campos inválidos")
@@ -318,14 +341,16 @@ class RegisterForm(CustomSimpleContainer):
         if self.currentForm < len(self.formList) - 1:
           self.currentForm += 1
           self.animatedContainer.setNewContent(self.formList[self.currentForm])
+          return False
+    except InvalidData as err:
+      self.operation.actionFailed(err)
+      threading.Timer(1.5, self.operation.restartContainer).start()
     except DataAlreadyExists as err:
       self.operation.actionFailed(err)
-      time.sleep(1.5)
-      self.operation.restartContainer()
+      threading.Timer(1.5, self.operation.restartContainer).start()
     except DataNotFoundError as err:
       self.operation.actionFailed(err)
-      time.sleep(1.5)
-      self.operation.restartContainer()
+      threading.Timer(1.5, self.operation.restartContainer).start()
     except Exception as err:
       print(err)
       raise
@@ -366,9 +391,9 @@ class RegisterPresentation(CustomSimpleContainer):
     
     self.button = CustomFilledButton(
       text="¿Ya tienes un usuario?",
-      bgcolor=constants.ORANGE,
-      color=constants.BLACK, size=18,
       overlay=constants.ORANGE_OVERLAY,
+      bgcolor=constants.ORANGE,
+      color=constants.BLACK,
       clickFunction=lambda e: showLogin(self.page)
     )
     

@@ -44,14 +44,16 @@ def showRecovery(page: ft.Page):
   updateContainerContent(page, recovery)
   
 def showPrincipal(page: ft.Page):
-  from Modules.customControls import CustomAppBar, CustomSidebar, CustomAnimatedContainer, CustomMainContainer
-  from Modules.Sections.HomeSection.home import Home
+  from Modules.customControls import CustomAppBar, CustomSidebar, CustomAnimatedContainer, CustomMainContainer, CustomExchangeDialog
+  from Modules.Sections.SalesSection.sales import Sales
   from config import getDB
   from DataBase.crud.user import getUserByUsername
   from utils.sessionManager import getCurrentUser
+  from utils.exchangeManager import exchangeRateManager
   
   user = None
   initial = ""
+  exchangeRateManager.clearSubscribers()
   
   with getDB() as db:
     try:
@@ -63,7 +65,7 @@ def showPrincipal(page: ft.Page):
   
   appBar = CustomAppBar("Kariña System", page, initial)
   sideBar = CustomSidebar(page)
-  mainContainer = CustomMainContainer(Home(page))
+  mainContainer = CustomMainContainer(Sales(page))
   
   page.mainContainer = mainContainer
   
@@ -79,6 +81,13 @@ def showPrincipal(page: ft.Page):
       ]
     )
   )
+  
+  if not exchangeRateManager.getRate():
+    dialog = CustomExchangeDialog(
+      page=page,
+    )
+    
+    page.open(dialog)
   
 def logout(page: ft.Page):
   page.controls.clear()

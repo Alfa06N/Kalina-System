@@ -74,7 +74,7 @@ class Category(Base):
   description = Column(Text)
   imgPath = Column(String(50), default=None)
   
-  products = relationship("Product", back_populates="category")
+  products = relationship("Product", back_populates="category", cascade="all, delete-orphan")
 
 class Product(Base):
   __tablename__ = "Product"
@@ -88,12 +88,12 @@ class Product(Base):
   iva = Column(DECIMAL(5, 3), nullable=False)
   description = Column(Text)
   imgPath = Column(String(50), default=None)
-  idCategory = Column(Integer, ForeignKey("Category.idCategory"))
+  idCategory = Column(Integer, ForeignKey("Category.idCategory", ondelete="CASCADE"))
   
   users = relationship("UserProduct", back_populates="product")
   category = relationship("Category", back_populates="products")
-  sales = relationship("SaleProduct", back_populates="product")
-  combos = relationship("ProductCombo", back_populates="product", cascade="all, delete-orphan")
+  sales = relationship("SaleProduct", back_populates="product", cascade="all, delete")
+  combos = relationship("ProductCombo", back_populates="product", cascade="all, delete")
   
 class Closing(Base):
   __tablename__ = "Closing"
@@ -109,9 +109,9 @@ class Sale(Base):
   __tablename__ = "Sale"
   
   idSale = Column(Integer, primary_key=True, autoincrement=True)
-  totalPrice = Column(DECIMAL(10, 3), nullable=False)
+  totalPrice = Column(DECIMAL(10, 2), nullable=False)
   date = Column(DateTime, nullable=False, default=getUTC())
-  gain = Column(DECIMAL(10, 3))
+  gain = Column(DECIMAL(10, 2))
   idClosing = Column(Integer, ForeignKey("Closing.idClosing"), default=None)
   idUser = Column(Integer, ForeignKey("User.idUser"))
   ciClient = Column(Integer, ForeignKey("Client.ciClient"))
@@ -119,10 +119,9 @@ class Sale(Base):
   closing = relationship("Closing", back_populates="sales")
   user = relationship("User", back_populates="sales")
   client = relationship("Client", back_populates="sales")
-  payments = relationship("Payment", back_populates="sale", cascade="all, delete-orphan")
-  changes = relationship("Change", back_populates="sale", cascade="all, delete-orphan")
-  combos = relationship("SaleCombo", back_populates="sale", cascade="all, delete-orphan")
-  products = relationship("SaleProduct", back_populates="sale", cascade="all, delete-orphan")
+  combos = relationship("SaleCombo", back_populates="sale", cascade="all, delete")
+  products = relationship("SaleProduct", back_populates="sale", cascade="all, delete")
+  transactions = relationship("Transaction", back_populates="sale", cascade="all, delete-orphan")
   
 class Recovery(Base):
   __tablename__ = "Recovery"
@@ -154,21 +153,11 @@ class SaleProduct(Base):
   idSaleProduct = Column(Integer, primary_key=True, autoincrement=True)
   productQuantity = Column(Integer, nullable=False)
   price = Column(DECIMAL(10, 3), nullable=False)
-  idSale = Column(Integer, ForeignKey("Sale.idSale", ondelete="CASCADE"))
-  idProduct = Column(Integer, ForeignKey("Product.idProduct"))
+  idSale = Column(Integer, ForeignKey("Sale.idSale", ondelete="SET NULL"))
+  idProduct = Column(Integer, ForeignKey("Product.idProduct", ondelete="SET NULL"))
   
   sale = relationship("Sale", back_populates="products")
   product = relationship("Product", back_populates="sales")
-  
-class Change(Base):
-  __tablename__ = "Change"
-  
-  idChange = Column(Integer, primary_key=True, autoincrement=True)
-  amountReturned = Column(DECIMAL(10, 2), nullable=False)
-  method = Column(String(20), nullable=False)
-  idSale = Column(Integer, ForeignKey("Sale.idSale", ondelete="CASCADE"))
-  
-  sale = relationship("Sale", back_populates="changes")
 
 class Combo(Base):
   __tablename__ = "Combo"
@@ -178,8 +167,8 @@ class Combo(Base):
   cost = Column(DECIMAL(10, 3), nullable=False, default=0.0)
   price = Column(DECIMAL(10, 3), default=None)
   imgPath = Column(String(50), default=None)
-  sales = relationship("SaleCombo", back_populates="combo")
-  products = relationship("ProductCombo", back_populates="combo", cascade="all, delete-orphan")
+  sales = relationship("SaleCombo", back_populates="combo", cascade="all, delete")
+  products = relationship("ProductCombo", back_populates="combo", cascade="all, delete")
   
 class ProductCombo(Base):
   __tablename__ = "ProductCombo"
@@ -196,23 +185,26 @@ class SaleCombo(Base):
   __tablename__ = "SaleCombo"
   
   idSaleCombo = Column(Integer, primary_key=True, autoincrement=True)
-  idSale = Column(Integer, ForeignKey("Sale.idSale", ondelete="CASCADE"))
+  idSale = Column(Integer, ForeignKey("Sale.idSale", ondelete="SET NULL"))
   price = Column(DECIMAL(10, 3))
-  idCombo = Column(Integer, ForeignKey("Combo.idCombo"))
+  idCombo = Column(Integer, ForeignKey("Combo.idCombo", ondelete="SET NULL"))
   comboQuantity = Column(Integer, nullable=False)
   sale = relationship("Sale", back_populates="combos")
   combo = relationship("Combo", back_populates="sales")
   
-class Payment(Base):
-  __tablename__ = "Payment"
+class Transaction(Base):
+  __tablename__ = "Transaction"
   
-  idPayment = Column(Integer, primary_key=True, autoincrement=True)
-  amount = Column(DECIMAL(10, 3), nullable=False)
+  idTransaction = Column(Integer, primary_key=True)
+  amountUSD = Column(DECIMAL(10, 3), nullable=True, default=None)
+  amountVES = Column(DECIMAL(10, 3), nullable=True, default=None)
+  exchangeRate = Column(DECIMAL(10, 4), nullable=False)
   method = Column(Enum(MethodEnum), nullable=False)
-  reference = Column(String(100))
+  transactionType = Column(Enum("Payment", "Change"))
+  reference = Column(String(255), nullable=True)
   idSale = Column(Integer, ForeignKey("Sale.idSale", ondelete="CASCADE"))
   
-  sale = relationship("Sale", back_populates="payments")
+  sale = relationship("Sale", back_populates="transactions")
 
 class Statistic(Base):
   __tablename__ = "Statistic"
