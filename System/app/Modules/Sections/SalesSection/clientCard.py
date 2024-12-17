@@ -94,9 +94,9 @@ class ClientCard(ft.Container):
         clientIcon = CustomUserIcon(
           initial=f"{client.name[0]}{client.surname[0]}",
           gradient=False,
-          fontSize=32,
-          height=80,
-          width=80,
+          fontSize=28,
+          height=70,
+          width=70,
         )
         
         return ft.Container(
@@ -106,22 +106,30 @@ class ClientCard(ft.Container):
             alignment=ft.MainAxisAlignment.CENTER,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             controls=[
-              ft.Text(
-                value=f"{client.name.split()[0]} {client.surname}",
-                size=22,
-                color=constants.BLACK,
-                weight=ft.FontWeight.W_600,
-                overflow=ft.TextOverflow.ELLIPSIS,
-                text_align=ft.TextAlign.CENTER,
-              ),
               clientIcon,
-              ft.Text(
-                value=f"V-{client.ciClient}",
-                size=22,
-                color=constants.BLACK,
-                overflow=ft.TextOverflow.ELLIPSIS,
-                text_align=ft.TextAlign.CENTER,
-              )
+              ft.Column(
+                expand=True,
+                alignment=ft.MainAxisAlignment.CENTER,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                spacing=0,
+                controls=[
+                  ft.Text(
+                    value=f"{client.name.split()[0]} {client.surname}",
+                    size=18,
+                    color=constants.BLACK,
+                    weight=ft.FontWeight.W_600,
+                    overflow=ft.TextOverflow.ELLIPSIS,
+                    text_align=ft.TextAlign.CENTER,
+                  ),
+                  ft.Text(
+                    value=f"V-{client.ciClient}",
+                    size=18,
+                    color=constants.BLACK,
+                    overflow=ft.TextOverflow.ELLIPSIS,
+                    text_align=ft.TextAlign.CENTER,
+                  )
+                ]
+              ),
             ]
           )
         )
@@ -188,7 +196,7 @@ class ClientSelection(ft.Container):
     
     self.animatedClientContainer = ft.Container(
       border=ft.border.all(2, constants.BLACK),
-      height=120,
+      height=100,
       border_radius=20,
       alignment=ft.alignment.center,
       content=CustomAnimatedContainer(
@@ -198,8 +206,8 @@ class ClientSelection(ft.Container):
     
     self.columnMainContent = ft.Column(
       expand=True,
-      alignment=ft.MainAxisAlignment.CENTER,
-      spacing=40,
+      alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+      spacing=20,
       horizontal_alignment=ft.CrossAxisAlignment.CENTER,
       controls=[
         ft.Row(

@@ -51,14 +51,14 @@ class SaleHistory(ft.Stack):
     
     self.salesContainer = CustomAnimatedContainerSwitcher(
       padding=0,
-      alignment=ft.alignment.top_center,
+      alignment=ft.alignment.center,
       shadow=ft.BoxShadow(
         spread_radius=1,
         blur_radius=5,
         color=constants.BLACK_INK,
       ),
       content=ft.Column(
-        alignment=ft.MainAxisAlignment.START,
+        alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         scroll=ft.ScrollMode.AUTO,
         expand=True,

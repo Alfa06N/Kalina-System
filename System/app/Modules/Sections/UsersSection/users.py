@@ -25,7 +25,7 @@ class Users(ft.Stack):
       shadow=ft.BoxShadow(
         spread_radius=1,
         blur_radius=5,
-        color=constants.BLACK_GRAY
+        color=constants.BLACK_INK
       ),
       content=ft.Column(
         alignment=ft.MainAxisAlignment.START,

@@ -33,25 +33,29 @@ class Clients(ft.Stack):
     
     self.clientsContainer = CustomAnimatedContainerSwitcher(
       padding=0,
-      alignment=ft.alignment.top_center,
+      alignment=ft.alignment.center,
       shadow=ft.BoxShadow(
         spread_radius=1,
         blur_radius=5,
         color=constants.BLACK_INK,
       ),
       content=ft.Column(
-        alignment=ft.MainAxisAlignment.START,
+        alignment=ft.MainAxisAlignment.CENTER,
         expand=True,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         controls=[
           self.clientSearchBar,
-          ft.Column(
-            alignment=ft.MainAxisAlignment.START,
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-            scroll=ft.ScrollMode.AUTO,
+          ft.Container(
             expand=True,
-            controls=self.getClientsContainers()
-          )
+            alignment=ft.alignment.center,
+            content=ft.Column(
+              alignment=ft.MainAxisAlignment.CENTER,
+              horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+              scroll=ft.ScrollMode.AUTO,
+              expand=True,
+              controls=self.getClientsContainers()
+            )
+          ),
         ],
       ),
       height=None,
@@ -192,7 +196,7 @@ class Clients(ft.Stack):
             )   
             containers.append(container) 
         else:
-          containers.append(self.textForEmptyContainer("No hay clientes.")) 
+          containers.append(self.textForEmptyContainer("No hay clientes")) 
       return containers
     except:
       raise
@@ -207,13 +211,17 @@ class Clients(ft.Stack):
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         controls=[
           self.clientSearchBar,
-          ft.Column(
-            alignment=ft.MainAxisAlignment.START,
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-            scroll=ft.ScrollMode.AUTO,
+          ft.Container(
             expand=True,
-            controls=self.getClientsContainers()
-          )
+            alignment=ft.alignment.center,
+            content=ft.Column(
+              alignment=ft.MainAxisAlignment.CENTER,
+              horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+              scroll=ft.ScrollMode.AUTO,
+              expand=True,
+              controls=self.getClientsContainers()
+            )
+          ),
         ],
       )
       self.clientsContainer.setNewContent(newContent)

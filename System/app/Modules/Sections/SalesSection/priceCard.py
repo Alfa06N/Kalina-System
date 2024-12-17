@@ -7,7 +7,7 @@ from utils.exchangeManager import exchangeRateManager
 from exceptions import InvalidData
 
 class PriceCard(ft.Container):
-  def __init__(self, page, formContainer, height=100):
+  def __init__(self, page, formContainer, height=80):
     super().__init__()
     self.page = page
     self.height = height

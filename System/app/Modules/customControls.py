@@ -93,7 +93,7 @@ class CustomOperationContainer(ft.Container):
             width=50,
             bgcolor=ft.colors.TRANSPARENT,
             content=ft.Icon(
-              name=ft.icons.CHECK_CIRCLE_SHARP,
+              name=ft.Icons.CHECK_CIRCLE_SHARP,
               color=constants.ORANGE_LIGHT,
             ),
             alignment=ft.alignment.center,
@@ -120,7 +120,7 @@ class CustomOperationContainer(ft.Container):
             width=50,
             bgcolor=constants.WHITE,
             content=ft.Icon(
-              name=ft.icons.CHECK_CIRCLE_SHARP,
+              name=ft.Icons.CHECK_CIRCLE_SHARP,
               color=ft.colors.GREEN,
             ),
             alignment=ft.alignment.center,
@@ -150,7 +150,7 @@ class CustomOperationContainer(ft.Container):
             width=50,
             bgcolor=ft.colors.TRANSPARENT,
             content=ft.Icon(
-              name=ft.icons.ERROR_OUTLINE_SHARP,
+              name=ft.Icons.ERROR_OUTLINE_SHARP,
               color=constants.RED_FAILED_LIGHT,
             ),
             alignment=ft.alignment.center,
@@ -177,7 +177,7 @@ class CustomOperationContainer(ft.Container):
             width=50,
             bgcolor=constants.WHITE,
             content=ft.Icon(
-              name=ft.icons.ERROR_OUTLINE_SHARP,
+              name=ft.Icons.ERROR_OUTLINE_SHARP,
               color=constants.RED_FAILED,
             ),
             alignment=ft.alignment.center,
@@ -297,7 +297,7 @@ class CustomFilledButton(ft.FilledButton):
     )
 
 class CustomFloatingActionButton(ft.FloatingActionButton):
-  def __init__(self, icon=ft.icons.ADD, height:int=70, width:int=70, bgcolor=constants.BROWN, color=constants.WHITE, on_click=None):
+  def __init__(self, icon=ft.Icons.ADD, height:int=70, width:int=70, bgcolor=constants.BROWN, color=constants.WHITE, on_click=None):
     super().__init__()
     self.height = height
     self.width = width
@@ -351,7 +351,7 @@ class CustomReturnButton(ft.OutlinedButton):
     self.size = size
     
     self.content = ft.Icon(
-      name=ft.icons.ARROW_BACK,
+      name=ft.Icons.ARROW_BACK,
       color=self.color,
       size=self.size,
     )
@@ -538,7 +538,7 @@ class CustomAppBar(ft.AppBar):
               vertical_alignment=ft.CrossAxisAlignment.CENTER,
               controls=[
                 ft.Icon(
-                  name=ft.icons.SETTINGS_ROUNDED,
+                  name=ft.Icons.SETTINGS_ROUNDED,
                   size=32,
                   color=constants.BLACK,
                 ),
@@ -557,7 +557,7 @@ class CustomAppBar(ft.AppBar):
               vertical_alignment=ft.CrossAxisAlignment.CENTER,
               controls=[
                 ft.Icon(
-                  name=ft.icons.CURRENCY_EXCHANGE_ROUNDED,
+                  name=ft.Icons.CURRENCY_EXCHANGE_ROUNDED,
                   color=constants.BLACK,
                   size=32,
                 ),
@@ -577,7 +577,7 @@ class CustomAppBar(ft.AppBar):
               vertical_alignment=ft.CrossAxisAlignment.CENTER,
               controls=[
                 ft.Icon(
-                  name=ft.icons.LOGOUT_OUTLINED,
+                  name=ft.Icons.LOGOUT_OUTLINED,
                   color=constants.BLACK,
                   size=32,
                 ),
@@ -710,7 +710,7 @@ class CustomExchangeContainer(ft.Container):
     self.alignment=ft.alignment.center
     
     self.defaultIcon = ft.Icon(
-      name=ft.icons.WARNING_ROUNDED,
+      name=ft.Icons.WARNING_ROUNDED,
       color=constants.RED_TEXT,
       size=32,
     )
@@ -733,7 +733,7 @@ class CustomExchangeContainer(ft.Container):
     )
     
     self.exchangeIcon = ft.Icon(
-      name=ft.icons.CURRENCY_EXCHANGE_ROUNDED,
+      name=ft.Icons.CURRENCY_EXCHANGE_ROUNDED,
       color=constants.BLACK,
       size=32,
     )
@@ -815,9 +815,9 @@ class CustomSidebar(ft.Container):
     )
     
     self.openButton = ft.IconButton(
-      icon=ft.icons.ARROW_RIGHT,
+      icon=ft.Icons.ARROW_RIGHT,
       # icon_color=constants.WHITE,
-      selected_icon=ft.icons.ARROW_LEFT,
+      selected_icon=ft.Icons.ARROW_LEFT,
       on_click=self.toggleIconButton,
       icon_size=50,
       selected=False,
@@ -829,15 +829,15 @@ class CustomSidebar(ft.Container):
       )
     )
     
-    self.home = CustomNavigationOptions(icon=ft.icons.HOME_WORK_ROUNDED, text="Inicio", function=self.selectOne, inkColor="#666666",)
-    self.sales = CustomNavigationOptions(icon=ft.icons.SELL_ROUNDED, text="Ventas", function=self.selectOne, inkColor="#666666", default=True)
-    self.payments = CustomNavigationOptions(icon=ft.icons.WALLET_ROUNDED, text="Pagos", function=self.selectOne, inkColor="#666666",)
-    self.users = CustomNavigationOptions(icon=ft.icons.SECURITY_ROUNDED, text="Usuarios", function=self.selectOne, inkColor="#666666",)
-    self.clients = CustomNavigationOptions(icon=ft.icons.PEOPLE_ROUNDED, text="Clientes", function=self.selectOne, inkColor="#666666",)
-    self.employees = CustomNavigationOptions(icon=ft.icons.WORK_ROUNDED, text="Empleados", function=self.selectOne, inkColor="#666666",)
-    self.closings = CustomNavigationOptions(icon=ft.icons.MONEY_ROUNDED, text="Cierres", function=self.selectOne, inkColor="#666666",)
-    self.statistics = CustomNavigationOptions(icon=ft.icons.SSID_CHART_ROUNDED, text="Estadísticas", function=self.selectOne, inkColor="#666666",)
-    self.inventory = CustomNavigationOptions(icon=ft.icons.INVENTORY_2_ROUNDED, text="Inventario", function=self.selectOne, inkColor="#666666")
+    self.home = CustomNavigationOptions(icon=ft.Icons.HOME_WORK_ROUNDED, text="Inicio", function=self.selectOne, inkColor="#666666",)
+    self.sales = CustomNavigationOptions(icon=ft.Icons.SELL_ROUNDED, text="Ventas", function=self.selectOne, inkColor="#666666", default=True)
+    self.payments = CustomNavigationOptions(icon=ft.Icons.WALLET_ROUNDED, text="Pagos", function=self.selectOne, inkColor="#666666",)
+    self.users = CustomNavigationOptions(icon=ft.Icons.SECURITY_ROUNDED, text="Usuarios", function=self.selectOne, inkColor="#666666",)
+    self.clients = CustomNavigationOptions(icon=ft.Icons.PEOPLE_ROUNDED, text="Clientes", function=self.selectOne, inkColor="#666666",)
+    self.employees = CustomNavigationOptions(icon=ft.Icons.WORK_ROUNDED, text="Empleados", function=self.selectOne, inkColor="#666666",)
+    self.closings = CustomNavigationOptions(icon=ft.Icons.MONEY_ROUNDED, text="Cierres", function=self.selectOne, inkColor="#666666",)
+    self.statistics = CustomNavigationOptions(icon=ft.Icons.SSID_CHART_ROUNDED, text="Estadísticas", function=self.selectOne, inkColor="#666666",)
+    self.inventory = CustomNavigationOptions(icon=ft.Icons.INVENTORY_2_ROUNDED, text="Inventario", function=self.selectOne, inkColor="#666666")
     
     
     self.navigationOptions = [
@@ -1114,7 +1114,7 @@ class CustomEditButton(ft.OutlinedButton):
     )
     
     self.content = ft.Icon(
-      name=ft.icons.EDIT_ROUNDED,
+      name=ft.Icons.EDIT_ROUNDED,
       color=self.color,
       size=self.size
     )
@@ -1140,7 +1140,7 @@ class CustomDeleteButton(ft.OutlinedButton):
     )
     
     self.content = ft.Icon(
-      name=ft.icons.DELETE_ROUNDED,
+      name=ft.Icons.DELETE_ROUNDED,
       color=self.color,
       size=self.size
     )
@@ -1194,7 +1194,7 @@ class CustomImageSelectionContainer(ft.Container):
         spacing=10,
         controls=[
           ft.Icon(
-            name=ft.icons.ADD_PHOTO_ALTERNATE_ROUNDED,
+            name=ft.Icons.ADD_PHOTO_ALTERNATE_ROUNDED,
             color=constants.BLACK,
             size=32,
           ),
@@ -1325,7 +1325,7 @@ class CustomImageContainer(ft.Container):
     else:
       # self.border = ft.border.all(2, constants.WHITE_GRAY) if border == True else None
       self.content = ft.Icon(
-        name=ft.icons.IMAGE_ROUNDED,
+        name=ft.Icons.IMAGE_ROUNDED,
         color=constants.BLACK,
         size=32,
       )
@@ -1381,14 +1381,14 @@ class CustomNumberField(ft.Container):
       spacing=5,
       controls=[
         ft.IconButton(
-          icon=ft.icons.REMOVE_ROUNDED,
+          icon=ft.Icons.REMOVE_ROUNDED,
           icon_color=constants.BLACK,
           icon_size=24,
           on_click=self.removeOne,
         ),
         self.field,
         ft.IconButton(
-          icon=ft.icons.ADD_ROUNDED,
+          icon=ft.Icons.ADD_ROUNDED,
           icon_color=constants.BLACK,
           icon_size=24,
           on_click=self.addOne,
@@ -1496,7 +1496,7 @@ class CustomItemsDialog(ft.AlertDialog):
     )
     
     self.productButton = CustomNavigationOptions(
-      icon=ft.icons.COFFEE_ROUNDED,
+      icon=ft.Icons.COFFEE_ROUNDED,
       text="Productos",
       function=self.switchView,
       color="#666666",
@@ -1508,7 +1508,7 @@ class CustomItemsDialog(ft.AlertDialog):
     )
     
     self.comboButton = CustomNavigationOptions(
-      icon=ft.icons.FASTFOOD_ROUNDED,
+      icon=ft.Icons.FASTFOOD_ROUNDED,
       text="Combos",
       function=self.switchView,
       color="#666666",
@@ -1751,7 +1751,7 @@ class CustomItemCard(ft.Container):
       scale=0 if self.selected == False else 1,
       animate_scale=ft.animation.Animation(600, ft.AnimationCurve.ELASTIC_OUT),
       content=ft.Icon(
-        name=ft.icons.CHECK_CIRCLE_ROUNDED,
+        name=ft.Icons.CHECK_CIRCLE_ROUNDED,
         size=32,
         color=constants.GREEN_SUCCESS,
       ),
@@ -2147,7 +2147,7 @@ class CustomItemQuantityInput(ft.Container):
         alignment=ft.MainAxisAlignment.CENTER,
         controls=[
           ft.Icon(
-            name=ft.icons.COFFEE_ROUNDED if isinstance(self.item, Product) else ft.icons.FASTFOOD_ROUNDED,
+            name=ft.Icons.COFFEE_ROUNDED if isinstance(self.item, Product) else ft.Icons.FASTFOOD_ROUNDED,
             size=24,
             color=constants.BLACK,
           ),
@@ -2184,7 +2184,7 @@ class CustomItemQuantityInput(ft.Container):
           alignment=ft.MainAxisAlignment.CENTER,
           controls=[
             ft.Icon(
-              name=ft.icons.INFO_OUTLINE_ROUNDED,
+              name=ft.Icons.INFO_OUTLINE_ROUNDED,
               color=constants.BLACK,
               size=24,
             ),
@@ -2210,7 +2210,7 @@ class CustomItemQuantityInput(ft.Container):
           alignment=ft.MainAxisAlignment.CENTER,
           controls=[
             ft.Icon(
-              name=ft.icons.INFO_OUTLINE_ROUNDED,
+              name=ft.Icons.INFO_OUTLINE_ROUNDED,
               color=constants.BLACK,
               size=24,
             ),
@@ -2265,7 +2265,7 @@ class CustomItemQuantityInput(ft.Container):
         ft.Row(
           controls=[
             ft.Icon(
-              name=ft.icons.ATTACH_MONEY_ROUNDED,
+              name=ft.Icons.ATTACH_MONEY_ROUNDED,
               size=24,
               color=constants.BLACK,
             ),
@@ -2354,7 +2354,7 @@ class CustomInitialRowContent(ft.Row):
     ]
   
 class CustomRemoveButton(ft.Container):
-  def __init__(self, on_click=None, height=150, width=80, icon=ft.icons.DELETE_OUTLINE_ROUNDED, border_radius=ft.border_radius.all(10), bgcolor=constants.RED_FAILED_LIGHT, shadow:bool=True):
+  def __init__(self, on_click=None, height=150, width=80, icon=ft.Icons.DELETE_OUTLINE_ROUNDED, border_radius=ft.border_radius.all(10), bgcolor=constants.RED_FAILED_LIGHT, shadow:bool=True):
     super().__init__()
     self.height = height
     self.width = width
@@ -2386,7 +2386,7 @@ class CustomRemoveButton(ft.Container):
     self.content = self.icon
     
 class CustomCheckControl(ft.Container):
-  def __init__ (self, selected:bool=False, iconColor=constants.GREEN_TEXT, iconSize=32, iconName=ft.icons.CHECK_CIRCLE_ROUNDED, shadow=None):
+  def __init__ (self, selected:bool=False, iconColor=constants.GREEN_TEXT, Iconsize=32, iconName=ft.Icons.CHECK_CIRCLE_ROUNDED, shadow=None):
     super().__init__()
     self.selected = selected
     self.shadow = shadow

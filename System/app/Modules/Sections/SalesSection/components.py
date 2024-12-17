@@ -83,14 +83,14 @@ class SaleForm(CustomAnimatedContainerSwitcher):
 
     self.cardsContainer = ft.Container(
       alignment=ft.alignment.center,
-      height=300,
+      height=250,
       width=800,
       expand=False,
       content=ft.Column(
         expand=True,
         controls=[
           ft.Row(
-            expand=True,
+            expand=2,
             controls=[
               self.clientCard,
               ft.Column(
@@ -109,6 +109,7 @@ class SaleForm(CustomAnimatedContainerSwitcher):
             ]
           ),
           ft.Row(
+            expand=1,
             controls=[self.priceCard]
           )
         ]

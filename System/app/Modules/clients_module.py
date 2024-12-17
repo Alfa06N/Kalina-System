@@ -59,7 +59,7 @@ class ClientForm(CustomOperationContainer):
     )
     
     self.form = ft.Column(
-      height=500,
+      height=400,
       width=700,
       horizontal_alignment=ft.CrossAxisAlignment.CENTER,
       controls=[
