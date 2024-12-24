@@ -31,8 +31,8 @@ class ProductContainer(ft.Container):
     self.imageContainer = CustomAnimatedContainer(
       actualContent=CustomImageContainer(
         src=self.imgPath,
-        width=150,
-        height=150,
+        width=120,
+        height=120,
         border_radius=30,
       )
     )
@@ -152,9 +152,9 @@ class ProductInfo(ft.Stack):
       self.nameText = CustomAnimatedContainer(
         actualContent=ft.Text(
           value=product.name,
-          size=32,
+          size=28,
           color=constants.BLACK,
-          weight=ft.FontWeight.W_700,
+          weight=ft.FontWeight.W_600,
           text_align=ft.TextAlign.CENTER,
         )
       )
@@ -163,7 +163,7 @@ class ProductInfo(ft.Stack):
         actualContent=ft.Text(
           value=product.description if not product.description == "" else "Sin descripción",
           size=20,
-          color=constants.BLACK,
+          color=constants.BLACK if product.description != "" else constants.BLACK_GRAY,
           max_lines=2,
           overflow=ft.TextOverflow.ELLIPSIS,
           text_align=ft.TextAlign.CENTER,

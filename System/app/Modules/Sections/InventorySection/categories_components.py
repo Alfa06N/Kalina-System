@@ -33,8 +33,8 @@ class CategoryContainer(ft.Container):
     self.imageContainer = CustomAnimatedContainer(
       actualContent=CustomImageContainer(
         src=self.imgPath,
-        width=150,
-        height=150,
+        width=120,
+        height=120,
         border_radius=30,
       )
     )
@@ -116,15 +116,15 @@ class CategoryInfo(ft.Stack):
     
     self.nameText = ft.Text(
       value=self.name,
-      size=24,
+      size=28,
       color=constants.BLACK,
       weight=ft.FontWeight.W_700,
     )
     
     self.descriptionText = ft.Text(
-      value=self.description,
+      value=self.description if self.description != "" else "Sin descripción",
       size=20,
-      color=constants.BLACK,
+      color=constants.BLACK if self.description != "" else constants.BLACK_GRAY,
       max_lines=2,
       overflow=ft.TextOverflow.ELLIPSIS,
     )

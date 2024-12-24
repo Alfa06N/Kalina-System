@@ -31,8 +31,8 @@ class ComboContainer(ft.Container):
     self.imageContainer = CustomAnimatedContainer(
       actualContent=CustomImageContainer(
         src=self.imgPath,
-        width=150,
-        height=150,
+        width=120,
+        height=120,
         border_radius=30,
       )
     )
@@ -132,7 +132,7 @@ class ComboInfo(ft.Stack):
       self.nameText = CustomAnimatedContainer(
         actualContent=ft.Text(
           value=combo.name,
-          size=32,
+          size=28,
           color=constants.BLACK,
           weight=ft.FontWeight.W_700,
           text_align=ft.TextAlign.CENTER,
@@ -212,8 +212,8 @@ class ComboInfo(ft.Stack):
                     ),
                     ft.Text(
                       value=f"Productos:",
-                      size=32,
-                      # weight=ft.FontWeight.W_700,
+                      size=24,
+                      weight=ft.FontWeight.W_600,
                       color=constants.BLACK,
                       
                     )
@@ -222,6 +222,7 @@ class ComboInfo(ft.Stack):
                 ft.Container(
                   border=ft.border.all(2, constants.WHITE_GRAY),
                   border_radius=20,
+                  margin=ft.margin.symmetric(vertical=10),
                   expand=True,
                   padding=10,
                   content=ft.Row(
@@ -237,12 +238,12 @@ class ComboInfo(ft.Stack):
         ft.Container(
           content=self.deleteButton,
           right=10,
-          top=10,
+          top=0,
         ),
         ft.Container(
           content=self.editButton,
           right=80,
-          top=10,
+          top=0,
         )
       ]
     )
