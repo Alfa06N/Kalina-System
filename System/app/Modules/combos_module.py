@@ -36,7 +36,7 @@ class ComboForm(CustomOperationContainer):
       expand=True,
     )
     
-    self.image = CustomImageSelectionContainer(
+    self.imageContainer = CustomImageSelectionContainer(
       page=self.page,
       src=None,
     )
@@ -85,7 +85,7 @@ class ComboForm(CustomOperationContainer):
           horizontal_alignment=ft.CrossAxisAlignment.CENTER,
           controls=[
             self.title,
-            self.image
+            self.imageContainer
           ]
         ),
         ft.Divider(color=constants.WHITE_GRAY),
@@ -155,7 +155,7 @@ class ComboForm(CustomOperationContainer):
           imageManager = ImageManager()
           name = self.nameField.value.strip()
           
-          imgPath = self.image.selectedImagePath
+          imgPath = self.imageContainer.selectedImagePath
           
           products, combos = self.productsSelector.getItemsWithQuantity()
           price = self.productsSelector.price
@@ -165,7 +165,7 @@ class ComboForm(CustomOperationContainer):
             name=self.nameField.value.strip(),
             cost=self.productsSelector.price,
             price=float(self.priceField.value.strip()),
-            imgPath=self.image.selectedImagePath
+            imgPath=self.imageContainer.selectedImagePath
           )
           
           if combo:
@@ -206,7 +206,7 @@ class UpdateInfoForm(ft.Stack):
         value=f"Actualizar información de:\n\"{combo.name}\"",
         size=32,
         color=constants.BLACK,
-        weight=ft.FontWeight.W_700,
+        weight=ft.FontWeight.W_600,
         text_align=ft.TextAlign.CENTER,
       )
       
@@ -239,7 +239,7 @@ class UpdateInfoForm(ft.Stack):
       )
       
       imageManager = ImageManager()
-      self.image = CustomImageSelectionContainer(
+      self.imageContainer = CustomImageSelectionContainer(
         page=self.page,
         src=imageManager.getImagePath(combo.imgPath),
       )
@@ -251,7 +251,7 @@ class UpdateInfoForm(ft.Stack):
     
     self.operationContent = CustomOperationContainer(
       operationContent=ft.Column(
-        height=400,
+        height=350,
         width=400,
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -262,7 +262,7 @@ class UpdateInfoForm(ft.Stack):
                 expand=True,
                 alignment=ft.MainAxisAlignment.CENTER,
                 controls=[
-                  self.image,
+                  self.imageContainer,
                 ]
               ),
               ft.Column(
@@ -289,7 +289,7 @@ class UpdateInfoForm(ft.Stack):
             expand=True,
             alignment=ft.MainAxisAlignment.CENTER,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-            spacing=20,
+            spacing=10,
             controls=[
               ft.Row(
                   alignment=ft.MainAxisAlignment.CENTER,
@@ -326,7 +326,7 @@ class UpdateInfoForm(ft.Stack):
             combo=combo,
             name=self.nameField.value.strip(),
             price=float(self.priceField.value),
-            imgPath=self.image.selectedImagePath,
+            imgPath=self.imageContainer.selectedImagePath,
           )
           
           if updatedCombo:

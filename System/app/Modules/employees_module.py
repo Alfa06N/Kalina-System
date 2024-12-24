@@ -70,8 +70,9 @@ class EmployeesForm(CustomOperationContainer):
       margin=ft.margin.all(10),
       on_click=self.showDatePicker,
       ink_color=constants.BLACK_INK,
+      alignment=ft.alignment.center,
       content=ft.Row(
-        alignment=ft.MainAxisAlignment.START,
+        alignment=ft.MainAxisAlignment.CENTER,
         vertical_alignment=ft.CrossAxisAlignment.CENTER,
         controls=[
           self.birthdateIcon, 

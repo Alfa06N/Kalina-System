@@ -10,7 +10,6 @@ import time
 class ProductContainer(ft.Container):
   def __init__(self, idProduct, name, description, infoContainer, mainContainer, page, imgPath=None):
     super().__init__()
-    # super().__init__(col={"xl": 6, "xxl": 6})
     self.name = name 
     self.idProduct = idProduct
     self.description = description
@@ -43,7 +42,7 @@ class ProductContainer(ft.Container):
         value=self.name,
         color=constants.BLACK,
         size=20,
-        weight=ft.FontWeight.W_700,
+        weight=ft.FontWeight.W_600,
         overflow=ft.TextOverflow.ELLIPSIS,
       )
     )
@@ -52,7 +51,7 @@ class ProductContainer(ft.Container):
       actualContent=ft.Text(
         value=self.description,
         color=constants.BLACK,
-        size=20,
+        size=18,
         overflow=ft.TextOverflow.ELLIPSIS,
       )
     )
@@ -88,7 +87,7 @@ class ProductContainer(ft.Container):
       self.infoContainer.changeStyle(height=600, width=700, shadow=ft.BoxShadow(
         blur_radius=5,
         spread_radius=1,
-        color=constants.BLACK_GRAY,
+        color=constants.BLACK_INK,
       ))
     self.infoContainer.setNewContent(newContent)
   
@@ -176,7 +175,7 @@ class ProductInfo(ft.Stack):
           value=f"Stock: {product.stock}",
           size=20,
           color=constants.BLACK,
-          weight=ft.FontWeight.W_700,
+          weight=ft.FontWeight.W_600,
         )
       )
       
@@ -195,7 +194,7 @@ class ProductInfo(ft.Stack):
       self.minStockText = CustomAnimatedContainer(
         actualContent=ft.Text(
           value=f"Se enviará una notificación cuando el stock sea menor o igual a {product.minStock}",
-          size=20,
+          size=18,
           color=constants.BLACK,
           text_align=ft.TextAlign.CENTER,
         )
@@ -222,7 +221,7 @@ class ProductInfo(ft.Stack):
           value=f"Precio final: {round(calculatePrice(product.cost, product.iva, product.gain), 2)}$",
           color=constants.BLACK,
           size=20,
-          weight=ft.FontWeight.W_700,
+          weight=ft.FontWeight.W_600,
         )
       )
       
@@ -238,7 +237,7 @@ class ProductInfo(ft.Stack):
         value=f"{product.category.name}",
         size=20,
         color=constants.BLACK,
-        weight=ft.FontWeight.W_700,
+        weight=ft.FontWeight.W_600,
       )
     
     self.deleteButton = CustomDeleteButton(
@@ -294,8 +293,8 @@ class ProductInfo(ft.Stack):
                   border=ft.border.all(2, constants.BLACK),
                   alignment=ft.alignment.center_left,
                   border_radius=ft.border_radius.all(20),
-                  height=240,
-                  width=600,
+                  # height=240,
+                  # width=600,
                   padding=ft.padding.all(20),
                   content=ft.Column(
                     alignment=ft.MainAxisAlignment.CENTER,
@@ -349,7 +348,7 @@ class ProductInfo(ft.Stack):
               value=product.name,
               size=32,
               color=constants.BLACK,
-              weight=ft.FontWeight.W_700,
+              weight=ft.FontWeight.W_600,
               text_align=ft.TextAlign.CENTER,
             )
           )
@@ -383,7 +382,7 @@ class ProductInfo(ft.Stack):
               value=f"Stock: {product.stock}",
               size=20,
               color=constants.BLACK,
-              weight=ft.FontWeight.W_700,
+              weight=ft.FontWeight.W_600,
             )
           )
           
@@ -426,7 +425,7 @@ class ProductInfo(ft.Stack):
               value=f"Precio final: {round(calculatePrice(product.cost, product.iva, product.gain), 2)}$",
               color=constants.BLACK,
               size=20,
-              weight=ft.FontWeight.W_700,
+              weight=ft.FontWeight.W_600,
             )
           )
         

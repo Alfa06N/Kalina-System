@@ -141,6 +141,7 @@ class EmployeeInfo(ft.Stack):
       padding=ft.padding.all(20),
       border_radius=ft.border_radius.all(10),
       margin=ft.margin.all(10),
+      alignment=ft.alignment.center,
       content=ft.Row(
         alignment=ft.MainAxisAlignment.CENTER,
         vertical_alignment=ft.CrossAxisAlignment.CENTER,

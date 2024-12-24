@@ -7,6 +7,7 @@ from utils.sessionManager import getCurrentUser, setUser
 from config import getDB
 from DataBase.crud.user import getUsers
 from DataBase.crud.product import getProductByName, getProducts
+from DataBase.crud.category import getCategories, removeCategory
 from utils.imageManager import ImageManager
 import time
 import asyncio

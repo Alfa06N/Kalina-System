@@ -126,8 +126,9 @@ class Users(ft.Stack):
         height=600, width=500, shadow=ft.BoxShadow(
           blur_radius=5,
           spread_radius=1,
-          color=constants.BLACK_INK
-        )
+          color=constants.BLACK_INK,
+        ),
+        bgcolor=constants.WHITE,
       )
       
       form = RegisterForm(

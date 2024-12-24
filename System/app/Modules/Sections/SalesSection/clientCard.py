@@ -38,7 +38,7 @@ class ClientCard(ft.Container):
           value="Agregar cliente",
           size=20,
           color=constants.BLACK,
-          weight=ft.FontWeight.W_600,
+          # weight=ft.FontWeight.W_600,
           text_align=ft.TextAlign.CENTER,
           overflow=ft.TextOverflow.ELLIPSIS,
         )

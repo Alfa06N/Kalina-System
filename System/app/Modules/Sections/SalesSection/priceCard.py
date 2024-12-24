@@ -54,10 +54,11 @@ class PriceCard(ft.Container):
         ),
         ft.Text(
           value=f"Dólares:",
-          size=24,
+          size=20,
           text_align=ft.TextAlign.CENTER,
           overflow=ft.TextOverflow.ELLIPSIS,
           color=constants.BLACK,
+          weight=ft.FontWeight.W_600,
         ),
         self.priceText,
       ]
@@ -74,10 +75,11 @@ class PriceCard(ft.Container):
         ),
         ft.Text(
           value="Bolívares:",
-          size=24,
+          size=20,
           text_align=ft.TextAlign.CENTER,
           overflow=ft.TextOverflow.ELLIPSIS,
           color=constants.BLACK,
+          weight=ft.FontWeight.W_600,
         ),
         self.exchangeText,
       ]

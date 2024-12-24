@@ -45,16 +45,11 @@ class Clients(ft.Stack):
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         controls=[
           self.clientSearchBar,
-          ft.Container(
+          ft.Column(
+            alignment=ft.MainAxisAlignment.START,
             expand=True,
-            alignment=ft.alignment.center,
-            content=ft.Column(
-              alignment=ft.MainAxisAlignment.CENTER,
-              horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-              scroll=ft.ScrollMode.AUTO,
-              expand=True,
-              controls=self.getClientsContainers()
-            )
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER, 
+            controls=self.getClientsContainers()
           ),
         ],
       ),
@@ -194,9 +189,7 @@ class Clients(ft.Stack):
               infoContainer=self.infoContainer,
               mainContainer=self,
             )   
-            containers.append(container) 
-        else:
-          containers.append(self.textForEmptyContainer("No hay clientes")) 
+            containers.append(container)  
       return containers
     except:
       raise
@@ -211,17 +204,13 @@ class Clients(ft.Stack):
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         controls=[
           self.clientSearchBar,
-          ft.Container(
+          ft.Column(
+            alignment=ft.MainAxisAlignment.CENTER,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            scroll=ft.ScrollMode.AUTO,
             expand=True,
-            alignment=ft.alignment.center,
-            content=ft.Column(
-              alignment=ft.MainAxisAlignment.CENTER,
-              horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-              scroll=ft.ScrollMode.AUTO,
-              expand=True,
-              controls=self.getClientsContainers()
-            )
-          ),
+            controls=self.getClientsContainers()
+          )
         ],
       )
       self.clientsContainer.setNewContent(newContent)

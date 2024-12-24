@@ -518,11 +518,11 @@ class CustomAppBar(ft.AppBar):
       )
     
     self.leading_width = 70
-    self.title = ft.Text(title, color=constants.BLACK, weight=ft.FontWeight.W_700, size=36)
+    self.title = ft.Text(title, color=constants.BLACK, weight=ft.FontWeight.W_700, size=32)
     self.toolbar_height = 70
     self.center_title = True
     self.surface_tint_color = constants.BLACK
-    self.elevation = 2
+    self.elevation = 1
     self.shadow_color = constants.WHITE_GRAY
     self.bgcolor = constants.WHITE
     self.actions = [
@@ -1170,7 +1170,7 @@ class CustomDeleteButton(ft.OutlinedButton):
     self.page.close(self.newDialog)
     
 class CustomImageSelectionContainer(ft.Container):
-  def __init__(self, page, src=None,  height:int=200, width:int=200):
+  def __init__(self, page, src=None, height:int=200, width:int=200):
     super().__init__()
     self.height = height
     self.width = width
@@ -1302,7 +1302,7 @@ class CustomImageSelectionContainer(ft.Container):
       self.turnOffButtonVisibility()
       
 class CustomImageContainer(ft.Container):
-  def __init__(self, src, border_radius=10, fit=ft.ImageFit.COVER, width:int=200, height:int=200, border=True, bgcolor=constants.WHITE, shadow=True):
+  def __init__(self, src=None, border_radius=10, fit=ft.ImageFit.COVER, width:int=200, height:int=200, border=True, bgcolor=constants.WHITE, shadow=True):
     super().__init__()
     self.height = height
     self.width = width

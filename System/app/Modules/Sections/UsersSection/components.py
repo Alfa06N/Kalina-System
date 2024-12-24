@@ -82,7 +82,7 @@ class UserContainer(ft.Container):
       userContainer=self
     )
     if self.infoContainer.height == 150:
-      self.infoContainer.changeStyle(height=600, width=500, shadow=ft.BoxShadow(
+      self.infoContainer.changeStyle(bgcolor=constants.WHITE, height=600, width=500, shadow=ft.BoxShadow(
         blur_radius=5,
         spread_radius=1,
         color=constants.BLACK_INK,

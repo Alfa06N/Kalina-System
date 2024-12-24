@@ -40,7 +40,7 @@ class CategoryForm(CustomOperationContainer):
       expand=True,
     )
     
-    self.image = CustomImageSelectionContainer(
+    self.imageContainer = CustomImageSelectionContainer(
       page=self.page, 
     )
     
@@ -60,7 +60,7 @@ class CategoryForm(CustomOperationContainer):
           spacing=20,
           controls=[
             self.title,
-            self.image,
+            self.imageContainer,
           ]
         ),
         ft.Column(
@@ -100,9 +100,9 @@ class CategoryForm(CustomOperationContainer):
             imgPath=None,
           )
           
-          if not self.image.selectedImagePath == None:
+          if not self.imageContainer.selectedImagePath == None:
             imageManager = ImageManager()
-            destinationPath = imageManager.storageImage(category.idCategory, self.image.selectedImagePath)
+            destinationPath = imageManager.storageImage(category.idCategory, self.imageContainer.selectedImagePath)
             category.imgPath = destinationPath
             db.commit()
           

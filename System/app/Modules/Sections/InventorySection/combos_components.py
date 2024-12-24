@@ -42,7 +42,7 @@ class ComboContainer(ft.Container):
         value=self.name,
         color=constants.BLACK,
         size=20,
-        weight=ft.FontWeight.W_700,
+        weight=ft.FontWeight.W_600,
         overflow=ft.TextOverflow.ELLIPSIS,
       )
     )
@@ -77,7 +77,7 @@ class ComboContainer(ft.Container):
       self.infoContainer.changeStyle(height=600, width=700, shadow=ft.BoxShadow(
         blur_radius=5,
         spread_radius=1,
-        color=constants.BLACK_GRAY,
+        color=constants.BLACK_INK,
       ))
     self.infoContainer.setNewContent(newContent)
     
@@ -152,7 +152,7 @@ class ComboInfo(ft.Stack):
           value=f"Precio: {round(combo.price, 2)}$",
           size=20,
           color=constants.BLACK,
-          weight=ft.FontWeight.W_700,
+          weight=ft.FontWeight.W_600,
         )
       )
       
@@ -193,7 +193,7 @@ class ComboInfo(ft.Stack):
               controls=[
                 self.nameText,
                 self.imageContainer,
-                self.priceContainer,
+                self.priceText,
               ]
             ),
             ft.Column(

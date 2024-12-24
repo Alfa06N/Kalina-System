@@ -52,22 +52,30 @@ class ProductForm(CustomOperationContainer):
       expand=True,
     )
     
-    self.helpText = CustomTooltip(
-      message="Se emitirá una alerta cuando el stock del producto sea menor que el mínimo establecido.",
-      content=ft.Row(
-        alignment=ft.MainAxisAlignment.CENTER,
-        controls=[
-          ft.Icon(
-            name=ft.icons.HELP_ROUNDED,
-            color=constants.BLACK,
-          ),
-          ft.Text(
-            value="¿Cuál es la función del stock mínimo?",
-            size=20,
-            color=constants.BLACK,
+    self.helpText = ft.Row(
+      alignment=ft.MainAxisAlignment.CENTER,
+      controls=[
+        ft.Icon(
+          name=ft.icons.HELP_ROUNDED,
+          color=constants.BLACK,
+        ),
+        ft.Text(
+          value="¿Cuál es la función del stock mínimo?",
+          size=20,
+          color=constants.BLACK,
+          tooltip=ft.Tooltip(
+            message="Se emitirá una alerta cuando el stock del producto sea menor que el mínimo establecido.",
+            padding=20,
+            border_radius=10,
+            text_style=ft.TextStyle(
+              color=constants.BLACK,
+              size=20,
+            ),
+            bgcolor=constants.WHITE,
+            border=ft.border.all(2, color=constants.BLACK),
           )
-        ]
-      )
+        )
+      ]
     )
     
     self.costField = CustomTextField(
@@ -97,7 +105,7 @@ class ProductForm(CustomOperationContainer):
       on_changeFunction=self.calculateFinalPrice
     )
     
-    self.image = CustomImageSelectionContainer(
+    self.imageContainer = CustomImageSelectionContainer(
       page=self.page, 
     )
     
@@ -148,7 +156,7 @@ class ProductForm(CustomOperationContainer):
           horizontal_alignment=ft.CrossAxisAlignment.CENTER,
           controls=[
             self.title,
-            self.image,
+            self.imageContainer,
           ]
         ),
         ft.Divider(color=constants.WHITE_GRAY),
@@ -220,6 +228,12 @@ class ProductForm(CustomOperationContainer):
                 self.minimStockField,
               ]
             ),
+            ft.Row(
+              alignment=ft.MainAxisAlignment.CENTER,
+              controls=[
+                self.helpText,
+              ]
+            )
           ]
         ),
         ft.Divider(color=constants.WHITE_GRAY),
@@ -326,9 +340,9 @@ class ProductForm(CustomOperationContainer):
         
         print(product.stock, product.minStock)
         
-        if not self.image.selectedImagePath == None:
+        if not self.imageContainer.selectedImagePath == None:
           imageManager = ImageManager()
-          destinationPath = imageManager.storageImage(product.idCategory, self.image.selectedImagePath)
+          destinationPath = imageManager.storageImage(product.idCategory, self.imageContainer.selectedImagePath)
           product.imgPath = destinationPath
           db.commit()
         
@@ -362,7 +376,7 @@ class UpdateStockForm(ft.Stack):
         value=f"Actualización del inventario de:\n\"{product.name}\"",
         size=32,
         color=constants.BLACK,
-        weight=ft.FontWeight.W_700,
+        weight=ft.FontWeight.W_600,
         text_align=ft.TextAlign.CENTER,
       )
       
@@ -489,7 +503,7 @@ class UpdateInfoForm(ft.Stack):
         value=f"Actualizar información de:\n\"{product.name}\"",
         size=32,
         color=constants.BLACK,
-        weight=ft.FontWeight.W_700,
+        weight=ft.FontWeight.W_600,
         text_align=ft.TextAlign.CENTER,
       )
       
@@ -517,7 +531,7 @@ class UpdateInfoForm(ft.Stack):
       )
       
       imageManager = ImageManager()
-      self.image = CustomImageSelectionContainer(
+      self.imageContainer = CustomImageSelectionContainer(
         page=self.page,
         src=imageManager.getImagePath(product.imgPath),
       )
@@ -602,7 +616,7 @@ class UpdateInfoForm(ft.Stack):
             spacing=20,
             controls=[
               self.title,
-              self.image,
+              self.imageContainer,
             ]
           ),
           ft.Column(
@@ -647,7 +661,7 @@ class UpdateInfoForm(ft.Stack):
             name=self.nameField.value.strip(),
             description=self.descriptionField.value.strip(),
             idCategory=category.idCategory,
-            imgPath=self.image.selectedImagePath,
+            imgPath=self.imageContainer.selectedImagePath,
           )
           
           if updatedProduct:
@@ -676,7 +690,7 @@ class UpdatePriceForm(ft.Stack):
         value=f"Actualizar precios de:\n\"{product.name}\"",
         size=32,
         color=constants.BLACK,
-        weight=ft.FontWeight.W_700,
+        weight=ft.FontWeight.W_600,
         text_align=ft.TextAlign.CENTER,
       )
       
@@ -714,7 +728,7 @@ class UpdatePriceForm(ft.Stack):
         value=f"{round(calculatePrice(cost=product.cost, iva=product.iva, gain=product.gain), 2)}$",
         size=20,
         color=constants.BLACK,
-        weight=ft.FontWeight.W_700,
+        weight=ft.FontWeight.W_600,
       )
       self.finalPrice = ft.Container(
         expand=True,

@@ -44,7 +44,7 @@ class CategoryContainer(ft.Container):
         value=self.name,
         color=constants.BLACK,
         size=20,
-        weight=ft.FontWeight.W_700,
+        weight=ft.FontWeight.W_600,
         overflow=ft.TextOverflow.ELLIPSIS,
       ),
     )
@@ -91,7 +91,7 @@ class CategoryContainer(ft.Container):
       self.infoContainer.changeStyle(height=400, width=700, shadow=ft.BoxShadow(
         blur_radius=5,
         spread_radius=1,
-        color=constants.BLACK_GRAY,
+        color=constants.BLACK_INK,
       ))
     self.infoContainer.setNewContent(newContent)
 
