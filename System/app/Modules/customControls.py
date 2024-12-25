@@ -9,9 +9,14 @@ import re
 from config import getDB
 import threading
 from exceptions import InvalidData
-from DataBase.crud.product import calculatePrice
-from DataBase.crud.combo import calculateComboCost
+from DataBase.crud.product import calculatePrice, getProducts, getProductByName
+from DataBase.crud.combo import calculateComboCost, getCombos
 from utils.exchangeManager import exchangeRateManager
+from DataBase.crud.product_combo import getRegisterByComboId
+from DataBase.crud.product_combo import getRegisterByComboId
+from DataBase.models import Product, Combo
+from DataBase.crud.product import getProductById
+from DataBase.crud.combo import getComboById
 
 class CustomPrincipalContainer(ft.Container):
   def __init__(self, containerContent, width=900, height=550):
@@ -269,7 +274,7 @@ class CustomFilledButton(ft.FilledButton):
     self.content = ft.Text(
       value=self.text,
       size=self.size,
-      weight=ft.FontWeight.BOLD
+      weight=ft.FontWeight.W_700,
     )
     
     # Evento Click
@@ -618,9 +623,10 @@ class CustomAppBar(ft.AppBar):
     self.page.open(self.dialog)
     
   def logout(self, e):
+    from interface import initApp
     self.page.close(self.dialog)
     self.page.controls.clear()
-    from interface import initApp
+    
     initApp(self.page)
     
 class CustomAlertDialog(ft.AlertDialog):
@@ -1349,7 +1355,7 @@ class CustomNumberField(ft.Container):
   def __init__(self, label, expand=False, helper_text=None, value=0, on_change=None):
     super().__init__()
     self.width = 220
-    self.height = 80
+    self.height = 60
     self.expand = True
     self.label = label
     self.alignment = ft.alignment.center
@@ -1373,7 +1379,8 @@ class CustomNumberField(ft.Container):
       text_align=ft.TextAlign.CENTER,
       text_size=18,
       on_blur=self.onBlurFunction,
-      on_change=lambda e: self.on_changeFun()
+      on_change=lambda e: self.on_changeFun(),
+      content_padding=ft.padding.symmetric(horizontal=20, vertical=10),
     )
     
     self.content = ft.Row(
@@ -1476,14 +1483,13 @@ class CustomContainerButtonGradient(ft.Container):
     self.update()
     
 class CustomItemsDialog(ft.AlertDialog):
-  def __init__(self, page, parent, width:int=800, height:int=500, title:str="Buscar Productos y Combos", finalFunction=None, products:bool=True, combos:bool=False):
+  def __init__(self, page, width:int=800, height:int=500, title:str="Buscar Productos y Combos", finalFunction=None, products:bool=True, combos:bool=False):
     super().__init__()
     self.page = page
     
     self.products = products
     self.combos = combos
     self.modal = True
-    self.parent = parent
     self.selectedItems = []
     self.finalFunction = finalFunction
     
@@ -1598,40 +1604,33 @@ class CustomItemsDialog(ft.AlertDialog):
         )
       ]
     )
-  
-    self.page.overlay.append(self)
     
-  def openDialog(self, parent):
-    self.parent = parent
-    
-    if hasattr(self.parent, 'selectedItems'):
-      self.selectedItems = self.parent.selectedItems.copy()
-    else: 
-      return
-    self.open = True
-    self.page.update()
+  def openDialog(self, selectedItems):
+    self.selectedItems = selectedItems.copy()
+
+    self.page.open(self)
     self.updateItemSelection()
     
   def updateItemSelection(self):
     for container in self.productsView.controls:
-      if container.selected and container.item not in self.selectedItems:
+      print(f"Product: {container.item.name} - Selected: {container.item.name in self.selectedItems}")
+      if container.selected and container.item.name not in self.selectedItems:
         container.selectImage(select=False)
-      elif not container.selected and container.item in self.parent.selectedItems:
+      elif not container.selected and container.item.name in self.selectedItems:
         container.selectImage(select=True)
     for container in self.combosView.controls:
-      if container.selected and container.item not in self.selectedItems:
+      if container.selected and container.item.name not in self.selectedItems:
         container.selectImage(select=False)
-      elif not container.selected and container.item in self.parent.selectedItems:
+      elif not container.selected and container.item.name in self.selectedItems:
         container.selectImage(select=True)
     self.update()
   
   def closeDialog(self):
-    self.open = False
-    self.page.update()
+    self.page.close(self)
     
   def confirmFunction(self):
     self.closeDialog()
-    self.finalFunction()
+    self.finalFunction(self.selectedItems)
     
   def updateView(self):
     try:
@@ -1659,7 +1658,6 @@ class CustomItemsDialog(ft.AlertDialog):
       with getDB() as db:
         content = []
         if view == "Products" and self.products:
-          from DataBase.crud.product import getProducts
           products = getProducts(db)
           
           for product in products:
@@ -1667,11 +1665,11 @@ class CustomItemsDialog(ft.AlertDialog):
               page=self.page,
               item=product,
               on_click=self.selectItem,
-              selected=False,
+              selected=True if product.name in self.selectedItems else False,
             )
+            print(f"Product: {product.name} - Selected: {product.name in self.selectedItems}")
             content.append(itemCard)
         elif view == "Combos" and self.combos:
-          from DataBase.crud.combo import getCombos
           combos = getCombos(db)
           
           for combo in combos:
@@ -1679,7 +1677,7 @@ class CustomItemsDialog(ft.AlertDialog):
               page=self.page,
               item=combo,
               on_click=self.selectItem,
-              selected=False,
+              selected=True if combo.name in self.selectedItems else False,
             )
             content.append(itemCard)
         return content
@@ -1691,9 +1689,9 @@ class CustomItemsDialog(ft.AlertDialog):
       e.control.selectImage(select=not e.control.selected)
       e.control.update()
       if e.control.selected:
-        self.selectedItems.append(e.control.item)
+        self.selectedItems.append(e.control.item.name)
       else:
-        self.selectedItems.remove(e.control.item)
+        self.selectedItems.remove(e.control.item.name)
     except:
       raise
     
@@ -1818,14 +1816,6 @@ class CustomItemsSelector(ft.Container):
     self.showedItems = []
     self.sale = sale
     self.priceCard = priceCard
-    
-    self.dialog = CustomItemsDialog(
-      page=self.page,
-      products=self.products,
-      combos=self.combos,
-      parent=self,
-      finalFunction=self.getItemsSelected,
-    )
 
     self.alignment = ft.alignment.center
     self.expand = True
@@ -1874,7 +1864,6 @@ class CustomItemsSelector(ft.Container):
       expand=True,
       bgcolor=constants.WHITE,
       padding=ft.padding.symmetric(vertical=10, horizontal=10),
-      # border=ft.border.all(2, constants.BLACK),
       margin=ft.margin.only(bottom=10),
       border_radius=ft.border_radius.all(10),
       shadow=ft.BoxShadow(
@@ -1891,12 +1880,12 @@ class CustomItemsSelector(ft.Container):
     
     self.addButton = CustomFilledButton(
       text="Añadir",
-      clickFunction=lambda e: self.dialog.openDialog(parent=self),
+      clickFunction=lambda e: self.showSelectionDialog(),
     )
     
     self.resetListButton = CustomOutlinedButton(
       text="Vaciar", 
-      clickFunction=self.resetItemList,
+      clickFunction=lambda e: self.removeAllItems(),
     )
     
     self.content = ft.Column(
@@ -1916,6 +1905,16 @@ class CustomItemsSelector(ft.Container):
         )
       ]
     )
+    
+    self.dialog = CustomItemsDialog(
+      page=self.page,
+      products=self.products,
+      combos=self.combos,
+      finalFunction=self.getItemsSelected,
+    )
+    
+  def showSelectionDialog(self):
+    self.dialog.openDialog(self.selectedItems)
   
   def addItemToList(self, item):
     self.itemsList.controls.append(item)
@@ -1927,12 +1926,6 @@ class CustomItemsSelector(ft.Container):
     item.offset=ft.transform.Offset(0, 0)
     time.sleep(0.05)
     item.update()
-  
-  def resetItemList(self, e):
-    for itemField in reversed(self.itemsList.controls):
-      itemField.animateOpacity()
-    
-    threading.Timer(0.5, self.removeAllItems).start()
     
   def calculateItemsPrice(self):
     cost = 0
@@ -1963,14 +1956,17 @@ class CustomItemsSelector(ft.Container):
     if self.priceCard:
       self.priceCard.updatePriceText(round(cost, 2))
   
+  def updateItemsList(self):
+    self.itemsList.controls = []
+    self.itemsList.update()
+    self.itemsList.controls = self.showedItems
+    self.itemsList.update()
+  
   def removeItem(self, itemField):
     try:
-      self.selectedItems.remove(itemField.item)
+      self.selectedItems.remove(itemField.name)
       self.showedItems.remove(itemField)
-      self.itemsList.controls.remove(itemField)
-      
-      itemField.animateOpacity()
-      threading.Timer(0.3, lambda: self.itemsList.update()).start()
+      self.updateItemsList()
       
       self.calculateItemsPrice()
     except:
@@ -1978,9 +1974,9 @@ class CustomItemsSelector(ft.Container):
   
   def removeAllItems(self):
     try:
-      self.itemsList.controls.clear()
       self.selectedItems.clear()
       self.showedItems.clear()
+      self.itemsList.controls = self.showedItems
       self.itemsList.update()
       
       self.calculateItemsPrice()
@@ -1988,9 +1984,11 @@ class CustomItemsSelector(ft.Container):
       raise
       
     
-  def getItemsSelected(self):
+  def getItemsSelected(self, selectedItems):
     try:
-      self.selectedItems = self.dialog.selectedItems
+      print(f"selectedItems: {selectedItems}")
+      self.selectedItems = selectedItems.copy()
+      print(f"self.selectedItems: {self.selectedItems}")
       
       self.showItemsSelected()
     except:
@@ -1999,40 +1997,54 @@ class CustomItemsSelector(ft.Container):
   def showItemsSelected(self):
     try:
       with getDB() as db:
-        if len(self.selectedItems) > 0 and self.initialContent in self.itemsList.controls:
-          self.itemsList.controls.remove(self.initialContent)
-          
-        for item in self.selectedItems:
-          if item not in [field.item for field in self.showedItems]:
-            itemField = CustomItemQuantityInput(
-              page=self.page,
-              item=item,
-              sell=self.sale,
-              removeFunction=self.removeItem,
-              on_change=self.calculateItemsPrice,
-            )
-            self.showedItems.append(itemField)
-            self.itemsList.controls.append(itemField)
+        # Obtener los nombres de los ítems mostrados actualmente
+        currentItems = [itemField.name for itemField in self.showedItems]
+        print(f"Items mostrados actualmente: {currentItems}")
             
-        toRemove = [itemField for itemField in self.showedItems if itemField.item not in self.selectedItems]
+        # Calcular ítems nuevos y eliminados
+        newItems = [item for item in self.selectedItems if item not in currentItems]
+        removedItems = [itemField for itemField in self.showedItems if itemField.name not in self.selectedItems]
+        print(f"Items nuevos: {newItems}")
+        print(f"Items eliminados: {[itemField.name for itemField in removedItems]}")
         
-        for itemField in toRemove:
+        if newItems:
+          products = {product.name: product for product in getProducts(db)}
+          combos = {combo.name: combo for combo in getCombos(db)}
+          
+          for itemName in newItems:
+            item = products.get(itemName) or combos.get(itemName)
+            
+            if item:
+              itemField = CustomItemQuantityInput(
+                page=self.page,
+                item=item,
+                name=item.name,
+                sell=self.sale,
+                removeFunction=self.removeItem,
+                on_change=self.calculateItemsPrice,
+              )
+              self.showedItems.append(itemField)
+              print(f"Nuevo ítem añadido a la lista de selección: {itemField.item.name}")
+        
+        for itemField in removedItems:
           self.showedItems.remove(itemField)
-          self.itemsList.controls.remove(itemField)
-          
-        if len(self.itemsList.controls) == 0:
-          self.itemsList.controls.append(self.initialContent)
-          
-      self.itemsList.update()
-      self.calculateItemsPrice()
-    except:
-      raise
+          print(f"Item eliminado: {itemField.name}")
+        
+        self.updateItemsList()
+        self.calculateItemsPrice()
+        
+        print(f"Items mostrados: {[itemField.name for itemField in self.showedItems]}")
+        print(f"Containers: {self.showedItems}")
+        print(f"Son iguales los showedItems y los itemsList: {self.itemsList.controls == self.showedItems}")
+        print(f"Items seleccionados: {self.selectedItems}")
+    except Exception as err:
+      print(f"Error al mostrar los ítems seleccionados: {err}")
+      pass
   
   def getItemsWithQuantity(self):
     try:
       products = []
       combos = []
-      
       
       for itemField in self.itemsList.controls:
         item = itemField.item
@@ -2056,8 +2068,6 @@ class CustomItemsSelector(ft.Container):
             "price": round(float(itemField.quantityField.fieldValue * item.price), 2),
             "products": [],
           }
-          
-          from DataBase.crud.product_combo import getRegisterByComboId
           
           with getDB() as db:
             comboProducts = getRegisterByComboId(db, item.idCombo)
@@ -2104,9 +2114,11 @@ class CustomGridView(ft.GridView):
     self.controls = controls
     
 class CustomItemQuantityInput(ft.Container):
-  def __init__(self, page, item, sell=False, opacity=1, removeFunction=None, on_change=None):
+  def __init__(self, page, item, name, sell=False, opacity=1, removeFunction=None, on_change=None):
     super().__init__()
     self.item = item
+    self.name = name
+    self.type = "Product" if hasattr(self.item, "idProduct") else "Combo"
     self.page = page
     self.sell = sell
     self.border_radius = ft.border_radius.all(10)
@@ -2124,9 +2136,6 @@ class CustomItemQuantityInput(ft.Container):
     self.animate_opacity=300
     
     with getDB() as db:
-      from DataBase.models import Product, Combo
-      from DataBase.crud.product import getProductById
-      from DataBase.crud.combo import getComboById
       
       if isinstance(self.item, Product):
         self.object = "Producto"
@@ -2139,8 +2148,8 @@ class CustomItemQuantityInput(ft.Container):
 
       self.image = CustomImageContainer(
         src=imageManager.getImagePath(self.item.imgPath),
-        height=150,
-        width=150,
+        height=120,
+        width=120,
       )
       
       self.nameText = ft.Row(
@@ -2153,13 +2162,13 @@ class CustomItemQuantityInput(ft.Container):
           ),
           ft.Text(
             value=f"{self.object}:",
-            size=20,
+            size=18,
             color=constants.BLACK,
             weight=ft.FontWeight.W_700,
           ),
           ft.Text(
-            value=f"{self.item.name}",
-            size=20,
+            value=f"{self.name}",
+            size=18,
             color=constants.BLACK,
             overflow=ft.TextOverflow.ELLIPSIS,
           )
@@ -2175,7 +2184,7 @@ class CustomItemQuantityInput(ft.Container):
       self.priceText = ft.Text(
         value=f"0.00$",
         color=constants.BLACK,
-        size=20,
+        size=18,
         overflow=ft.TextOverflow.ELLIPSIS,
       )
       
@@ -2191,7 +2200,7 @@ class CustomItemQuantityInput(ft.Container):
             ft.Text(
               value=f"Stock:",
               color=constants.BLACK,
-              size=20,
+              size=18,
               weight=ft.FontWeight.W_700,
               text_align=ft.TextAlign.CENTER,
               overflow=ft.TextOverflow.ELLIPSIS,
@@ -2199,13 +2208,17 @@ class CustomItemQuantityInput(ft.Container):
             ft.Text(
               value=f"{self.item.stock} unidades",
               color=constants.BLACK,
-              size=20,
+              size=18,
               text_align=ft.TextAlign.CENTER,
               overflow=ft.TextOverflow.ELLIPSIS,
             )
           ]
         )
       else: 
+        products = getRegisterByComboId(db=db, idCombo=self.item.idCombo)
+        message = f"Productos que conforman el combo \"{self.item.name}\":"
+        for register in products:
+          message += f"\n◆ {register.product.name} • {register.productQuantity}"
         self.productsList = ft.Row(
           alignment=ft.MainAxisAlignment.CENTER,
           controls=[
@@ -2217,22 +2230,24 @@ class CustomItemQuantityInput(ft.Container):
             ft.Text(
               value=f"Productos",
               color=constants.BLACK,
-              size=20,
+              size=18,
               weight=ft.FontWeight.W_700,
               text_align=ft.TextAlign.CENTER,
               overflow=ft.TextOverflow.ELLIPSIS,
+              tooltip=ft.Tooltip(
+                message=message,
+                padding=20,
+                border_radius=10,
+                text_style=ft.TextStyle(
+                  size=20,
+                  color=constants.BLACK,
+                ),
+                bgcolor=constants.WHITE,
+                border=ft.border.all(2, constants.BLACK),
+              )
             )
           ]
         )
-        self.productsList = CustomTooltip(
-          content=self.productsList,
-          message=f"Productos que conforman el combo \"{self.item.name}\":"
-        )
-        from DataBase.crud.product_combo import getRegisterByComboId
-        products = getRegisterByComboId(db=db, idCombo=self.item.idCombo)
-        for register in products:
-          self.productsList.message += f"\n◆ {register.product.name} • {register.productQuantity}"
-
     
     self.removeButton = CustomRemoveButton(
       on_click=lambda e: removeFunction(itemField=self) if not removeFunction == None else None,
@@ -2258,7 +2273,6 @@ class CustomItemQuantityInput(ft.Container):
     )
     
     self.bottomContent = ft.Row(
-      # expand=True,
       alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
       vertical_alignment=ft.CrossAxisAlignment.CENTER,
       controls=[
@@ -2273,7 +2287,7 @@ class CustomItemQuantityInput(ft.Container):
               value="Precio:",
               color=constants.BLACK,
               weight=ft.FontWeight.W_700,
-              size=20,
+              size=18,
             ),
             self.priceText
           ]
@@ -2288,14 +2302,12 @@ class CustomItemQuantityInput(ft.Container):
       self.bottomContent.controls.append(self.productsList)
     
     self.content = ft.Column(
-      # expand=True,
       alignment=ft.MainAxisAlignment.CENTER,
-      height=200,
+      height=170,
       horizontal_alignment=ft.CrossAxisAlignment.CENTER,
       spacing=0,
       controls=[
         self.topContent,
-        # ft.Divider(color=constants.BLACK_GRAY),
         ft.Container(
           height=2,
           bgcolor=constants.BLACK_GRAY,
@@ -2312,19 +2324,20 @@ class CustomItemQuantityInput(ft.Container):
     try:
       with getDB() as db:
         fieldValue = self.quantityField.fieldValue
+        stock = getProductByName(db, self.name).stock if self.type == "Product" else 0
         
-        if hasattr(self.item, "idProduct"):
-          if int(fieldValue) > self.item.stock:
-            self.quantityField.field.value = self.item.stock
-            self.quantityField.fieldValue = self.item.stock
-            fieldValue = self.quantityField.fieldValue
-            self.quantityField.field.update()
-          if self.sell:
-            self.priceText.value = f"{round(calculatePrice(cost=self.item.cost, iva=self.item.iva, gain=self.item.gain), 2) * fieldValue}$"
-          else:
-            self.priceText.value = f"{round(self.item.cost, 2) * fieldValue}$"
+        # Verifica la entrada
+        if int(fieldValue) > stock and self.type == "Product":
+          self.quantityField.field.value = stock
+          self.quantityField.fieldValue = stock
+          fieldValue = self.quantityField.fieldValue
+          self.quantityField.field.update()
+        
+        if self.sell:
+          self.priceText.value = f"{round(calculatePrice(cost=self.item.cost, iva=self.item.iva, gain=self.item.gain), 2) * fieldValue}$" if self.type == "Product" else f"{round(self.item.price, 2) * fieldValue}$"
+        
         else:
-          self.priceText.value = f"{round(self.item.price, 2) * fieldValue}$"
+          self.priceText.value = f"{round(self.item.cost, 2) * fieldValue}$" if self.type == "Product" else f"{round(self.item.price, 2) * fieldValue}$"
         
         self.priceText.update()
         
@@ -2354,7 +2367,7 @@ class CustomInitialRowContent(ft.Row):
     ]
   
 class CustomRemoveButton(ft.Container):
-  def __init__(self, on_click=None, height=150, width=80, icon=ft.Icons.DELETE_OUTLINE_ROUNDED, border_radius=ft.border_radius.all(10), bgcolor=constants.RED_FAILED_LIGHT, shadow:bool=True):
+  def __init__(self, on_click=None, height=120, width=80, icon=ft.Icons.DELETE_OUTLINE_ROUNDED, border_radius=ft.border_radius.all(10), bgcolor=constants.RED_FAILED_LIGHT, shadow:bool=True):
     super().__init__()
     self.height = height
     self.width = width

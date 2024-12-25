@@ -111,7 +111,7 @@ class SaleMakerManager:
         for register in saleCombos:
           print(f"Combo: {getComboById(db, register.idCombo).name} - {register.comboQuantity} {register.price}")
         
-      return sale, salePayments, saleChanges, saleProducts, saleCombos
+        return sale.idSale, salePayments, saleChanges, saleProducts, saleCombos
     except:
       raise
   

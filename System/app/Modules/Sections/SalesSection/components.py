@@ -224,7 +224,7 @@ class SaleForm(CustomAnimatedContainerSwitcher):
       selectedChanges = self.changeCard.selectedChanges
       price = self.priceCard.price
         
-      sale, payments, changes, products, combos = saleMakerManager.makeSale(
+      idSale, payments, changes, products, combos = saleMakerManager.makeSale(
         price=price,
         ciClient=ciClient,
         idUser=idUser,
@@ -233,7 +233,7 @@ class SaleForm(CustomAnimatedContainerSwitcher):
       )
 
       saleContainer = saleMakerManager.saleContainer
-      saleContainer.saleSuccessContent(idSale=sale.idSale)
+      saleContainer.saleSuccessContent(idSale=idSale)
     except ErrorOperation as err:
       dialog = CustomAlertDialog(
         title="No es posible realizar la operación",
@@ -315,7 +315,7 @@ class SaleRecord(ft.Container):
           spacing=40,
           controls=[
             ft.Text(
-              value=f"{sale.totalPrice} $",
+              value=f"{round(sale.totalPrice, 2)} $",
               color=constants.GREEN_TEXT,
               weight=ft.FontWeight.W_700,
               size=24,

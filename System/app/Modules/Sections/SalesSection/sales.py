@@ -102,6 +102,7 @@ class Sales(ft.Column):
   def createRegisterForm(self):
     try:
       exchangeRateManager.clearSubscribers()
+      print(exchangeRateManager.subscribers)
 
       self.itemsList = SaleItemsList(
         page=self.page,
@@ -138,6 +139,10 @@ class Sales(ft.Column):
         idSale=idSale,
       )
       
+      def finishAction():
+        self.showViewSelected()
+        self.resetRegisterForm()
+      
       newContent = ft.Container(
         expand=True,
         alignment=ft.alignment.center,
@@ -160,7 +165,7 @@ class Sales(ft.Column):
                 ),
                 CustomFilledButton(
                   text="Finalizar",
-                  clickFunction=lambda e: self.showViewSelected(),
+                  clickFunction=lambda e: finishAction(),
                 )
               ]
             ),
@@ -169,9 +174,6 @@ class Sales(ft.Column):
         )
       )
       
-      def animateSuccessContent():
-        pass
       self.mainContainer.setNewContent(newContent)
-      self.resetRegisterForm()
     except:
       raise
