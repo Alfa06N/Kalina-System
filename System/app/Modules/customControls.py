@@ -17,6 +17,8 @@ from DataBase.crud.product_combo import getRegisterByComboId
 from DataBase.models import Product, Combo
 from DataBase.crud.product import getProductById
 from DataBase.crud.combo import getComboById
+from utils.inventoryManager import inventoryManager
+from utils.sessionManager import verifyPermission
 
 class CustomPrincipalContainer(ft.Container):
   def __init__(self, containerContent, width=900, height=550):
@@ -582,6 +584,27 @@ class CustomAppBar(ft.AppBar):
               vertical_alignment=ft.CrossAxisAlignment.CENTER,
               controls=[
                 ft.Icon(
+                  name=ft.icons.INVENTORY_ROUNDED,
+                  color=constants.BLACK_GRAY,
+                  size=32,
+                ),
+                ft.Text(
+                  value="Estado de inventario",
+                  color=constants.BLACK,
+                  weight=ft.FontWeight.W_400,
+                  size=20,
+                )
+              ]  
+            ),  
+            on_click=lambda e: self.openStockDialog()
+          ),
+          ft.PopupMenuItem(),
+          ft.PopupMenuItem(
+            content=ft.Row(
+              alignment=ft.MainAxisAlignment.START,
+              vertical_alignment=ft.CrossAxisAlignment.CENTER,
+              controls=[
+                ft.Icon(
                   name=ft.Icons.LOGOUT_OUTLINED,
                   color=constants.BLACK,
                   size=32,
@@ -599,6 +622,16 @@ class CustomAppBar(ft.AppBar):
         ]
       )
     ]
+    
+  def openStockDialog(self):
+    try:
+      self.dialog = CustomLowStockDialog(
+        page=self.page
+      )
+      
+      self.page.open(self.dialog)
+    except: 
+      raise
     
   def openExchangeDialog(self):
     try:
@@ -847,7 +880,6 @@ class CustomSidebar(ft.Container):
     
     
     self.navigationOptions = [
-      # self.home,
       self.users,
       self.clients,
       self.employees,
@@ -855,7 +887,6 @@ class CustomSidebar(ft.Container):
       self.inventory,
       self.payments,
       self.closings,
-      self.statistics
     ]
     
     self.content = ft.Column(
@@ -872,15 +903,13 @@ class CustomSidebar(ft.Container):
           alignment=ft.MainAxisAlignment.CENTER,
           scroll=ft.ScrollMode.AUTO,
           controls=[
-            # ft.Row([self.home]),
             ft.Row([self.users]),
-            ft.Row([self.clients]),
             ft.Row([self.employees]),
-            ft.Row([self.sales]),
+            ft.Row([self.clients]),
             ft.Row([self.inventory]),
+            ft.Row([self.sales]),
             ft.Row([self.payments]),
             ft.Row([self.closings]),
-            ft.Row([self.statistics])
           ]
         ),
       ]
@@ -893,10 +922,7 @@ class CustomSidebar(ft.Container):
     self.openButton.update()
     
   def switchPage(self, pageName):
-    if pageName == "Home":
-      self.updateMainContent(Home(self.page))
-      self.switchButton(self.home)
-    elif pageName == "Users":
+    if pageName == "Users":
       self.updateMainContent(Users(self.page))
       self.switchButton(self.users)
     elif pageName == "Clients":
@@ -917,9 +943,6 @@ class CustomSidebar(ft.Container):
     elif pageName == "Closings":
       self.updateMainContent(Closings(self.page))
       self.switchButton(self.closings)
-    elif pageName == "Statistics":
-      self.updateMainContent(Statistics(self.page))
-      self.switchButton(self.statistics)
       
   def switchButton(self, newSelected):
     self.selected.deselectOption()
@@ -927,37 +950,41 @@ class CustomSidebar(ft.Container):
     self.selected.selectOption()
   
   def selectOne(self, e):
-    if not self.selected == e.control:
-      self.switchButton(e.control)
+    def switchTo(button):
+      self.switchButton(button)
       exchangeRateManager.clearSubscribers()
       
-      if e.control == self.home:
-        from Modules.Sections.HomeSection.home import Home
-        self.updateMainContent(Home(self.page))
-      elif e.control == self.users:
+    if not self.selected == e.control:
+      button = e.control
+
+      if e.control == self.users and verifyPermission(self.page):
         from Modules.Sections.UsersSection.users import Users
         self.updateMainContent(Users(self.page))  
-      elif e.control == self.clients:
+        switchTo(button)
+      elif e.control == self.clients and verifyPermission(self.page):
         from Modules.Sections.ClientsSection.clients import Clients
         self.updateMainContent(Clients(self.page))
-      elif e.control == self.employees:
+        switchTo(button)
+      elif e.control == self.employees and verifyPermission(self.page):
         from Modules.Sections.EmployeesSection.employees import Employees
         self.updateMainContent(Employees(self.page))
+        switchTo(button)
       elif e.control == self.sales:
         from Modules.Sections.SalesSection.sales import Sales
         self.updateMainContent(Sales(self.page))
+        switchTo(button)
       elif e.control == self.inventory:
         from Modules.Sections.InventorySection.inventory import Inventory
         self.updateMainContent(Inventory(self.page))
-      elif e.control == self.payments:
+        switchTo(button)
+      elif e.control == self.payments and verifyPermission(self.page):
         from Modules.Sections.PaymentsSection.payments import Payments 
         self.updateMainContent(Payments(self.page))
-      elif e.control == self.closings:
+        switchTo(button)
+      elif e.control == self.closings and verifyPermission(self.page):
         from Modules.Sections.ClosingsSection.closings import Closings
         self.updateMainContent(Closings(self.page))
-      elif e.control == self.statistics:
-        from Modules.Sections.StatisticsSection.statistics import Statistics
-        self.updateMainContent(Statistics(self.page))
+        switchTo(button)
     
   def openContainer(self):
     if self.width == 70:
@@ -2448,3 +2475,122 @@ class CustomListTile(ft.ListTile):
       subtitle=subtitle,
       trailing=trailing
     )
+    
+    
+class CustomLowStockDialog(ft.AlertDialog):
+  def __init__(self, page, products:list=[]):
+    super().__init__()
+    self.products = inventoryManager.checkLowStock()
+    self.page = page
+    self.modal = True
+    self.title = ft.Text(
+      value="Estado del inventario",
+      size=24,
+      color=constants.BLACK,
+      weight=ft.FontWeight.W_500,
+    )
+    
+    self.content = ft.Container(
+      alignment=ft.alignment.center,
+      height=300,
+      width=500,
+      border_radius=10,
+      content=ft.Column(
+        alignment=ft.MainAxisAlignment.CENTER if len(self.products) == 0 else ft.MainAxisAlignment.START,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER if len(self.products) == 0 else ft.CrossAxisAlignment.START,
+        scroll=ft.ScrollMode.ALWAYS,
+        expand=True,
+      )
+    )
+    
+    if self.products == []:
+      self.content.content.controls = [
+        ft.Icon(
+          name=ft.icons.CHECK_CIRCLE_ROUNDED,
+          size=48,
+          color=constants.GREEN_TEXT,
+        ),
+        ft.Text(
+          value="El inventario está bien abastecido.",
+          size=32,
+          color=constants.BLACK,
+          weight=ft.FontWeight.W_700,
+          text_align=ft.TextAlign.CENTER
+        )
+      ]
+    else:
+      from DataBase.crud.product import getProductById
+      with getDB() as db:
+        imageManager = ImageManager()
+        for idProduct in self.products:
+          product = getProductById(db, idProduct)
+          print("Product add: ", product.name)
+          self.content.content.controls.append(
+            ft.Container(
+              padding=10,
+              gradient=ft.LinearGradient(
+                begin=ft.alignment.center_left,
+                end=ft.alignment.center,
+                colors=[constants.ORANGE, ft.colors.WHIET38] if not product.stock < product.minStock/2 else [constants.RED_FAILED, ft.colors.WHITE38],
+              ),
+              border_radius=10,
+              border=ft.border.all(1, constants.BLACK_GRAY),
+              content=ft.Row(
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                controls=[
+                  ft.Text(
+                    value=f"{product.stock}",
+                    color=constants.BLACK,
+                    weight=ft.FontWeight.W_600,
+                    size=20,
+                  ),
+                  ft.Text(
+                    value=f"unidades restantes en stock de",
+                    color=constants.BLACK,
+                    size=20,
+                  ),
+                  ft.Text(
+                    value=f"\"{product.name}\"",
+                    color=constants.BLACK,
+                    weight=ft.FontWeight.W_600,
+                    size=20,
+                  )
+                ]
+              ),
+              ink=True,
+              on_click=lambda e: self.viewProductInfo(product.idProduct, imageManager.getImagePath(product.imgPath))
+            )
+          )
+    self.actions = [
+      CustomTextButton(
+        text="Finalizar",
+        on_click=lambda e: self.page.close(self),
+      )
+    ]
+    
+  def viewProductInfo(self, idProduct:int, imgPath):
+    try:
+      self.page.close(self)
+      
+      if hasattr(self.page, "sideBar"):
+        print("Done")
+      #   sideBar = self.page.sideBar
+      #   print(sidebar)
+      #   if not sideBar.selected == sideBar.inventory:
+      #     inventory = sideBar.switchPage(sideBar.inventory)
+      #     inventory.showItemInfo(
+      #       idItem=idProduct,
+      #       imgPath=imgPath,
+      #     )
+      #     print("first if")
+      #   else:
+      #     inventory = self.page.mainContainer.content.content
+      #     inventory.selectView(inventory.productButton)
+      #     inventory.showItemInfo(
+      #       idItem=idProduct,
+      #       imgPath=imgPath
+      #     )
+      #     print("Second if")
+    except:
+      raise
+      

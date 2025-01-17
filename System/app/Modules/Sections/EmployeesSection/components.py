@@ -281,8 +281,8 @@ class EmployeeInfo(ft.Stack):
         employee = getEmployeeById(db, self.ciEmployee)
         
         if employee:
-          if employee.user.username == getCurrentUser():
-            raise ErrorOperation("No se puede eliminar al empleado vinculado al usuario de la sesión")
+          if employee.user and employee.user.username == getCurrentUser():
+            raise ErrorOperation("No se puede eliminar al empleado vinculado al usuario de la sesión actual")
           employee = removeEmployee(db, employee)
           self.principalContainer.resetEmployeesContainer()
           self.principalContainer.resetInfoContainer()
@@ -302,4 +302,5 @@ class EmployeeInfo(ft.Stack):
       )
       self.page.open(dialog)
     except Exception as err:
+      raise err
       print(f"Error deleting employee V-{self.ciEmployee}: {err}")

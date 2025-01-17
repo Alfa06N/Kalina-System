@@ -45,7 +45,7 @@ class User(Base):
   products = relationship("UserProduct", back_populates="user")
   
 class Phone(Base):
-  __tablename__ = "Telefono"
+  __tablename__ = "Phone"
   
   idPhone = Column(Integer, primary_key=True, autoincrement=True, index=True)
   area = Column(String(4), nullable=False)
@@ -206,18 +206,18 @@ class Transaction(Base):
   
   sale = relationship("Sale", back_populates="transactions")
 
-class Statistic(Base):
-  __tablename__ = "Statistic"
+# class Statistic(Base):
+#   __tablename__ = "Statistic"
   
-  idStatistic = Column(Integer, primary_key=True, autoincrement=True)
-  productOne = Column(Integer, ForeignKey("Product.idProduct"))
-  quantityOne = Column(Integer, nullable=False)
-  productTwo = Column(Integer, ForeignKey("Product.idProduct"))
-  quantityTwo = Column(Integer, nullable=False)
-  productThree = Column(Integer, ForeignKey("Product.idProduct"))
-  quantityThree = Column(Integer, nullable=False)
-  quantityOthers = Column(Integer, nullable=False)
-  startOfMonth = Column(Date, nullable=False)
-  endOfMonth = Column(Date, nullable=False)
+#   idStatistic = Column(Integer, primary_key=True, autoincrement=True)
+#   productOne = Column(Integer, ForeignKey("Product.idProduct"))
+#   quantityOne = Column(Integer, nullable=False)
+#   productTwo = Column(Integer, ForeignKey("Product.idProduct"))
+#   quantityTwo = Column(Integer, nullable=False)
+#   productThree = Column(Integer, ForeignKey("Product.idProduct"))
+#   quantityThree = Column(Integer, nullable=False)
+#   quantityOthers = Column(Integer, nullable=False)
+#   startOfMonth = Column(Date, nullable=False)
+#   endOfMonth = Column(Date, nullable=False)
   
 Base.metadata.create_all(engine)

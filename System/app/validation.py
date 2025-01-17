@@ -18,9 +18,12 @@ def validateField(field, condition):
   except ValueError as err:
     print(err)
     pass
+  
+def validateName(field):
+  validateField(field, lambda value: len(value.strip()) > 0 and not any(char.isdigit() for char in value))
 
 def validateUsername(field):
-  validateField(field, lambda value: len(value.strip()) > 0)
+  validateField(field, lambda value: len(value.strip()) > 0 and not value.strip()[0].isdigit())
 
 def validatePassword(field):
   validateField(field, lambda value: len(value) >= 8)
@@ -43,11 +46,25 @@ def validateNumber(field):
 def validateEmptyField(field):
   validateField(field, lambda value: len(value.strip()) > 0)
 
-def evaluateForm(username=[], password=[], ci=[], numbers=[], others=[]):
+def evaluateForm(username=[], name=[], password=[], ci=[], numbers=[], others=[]):
   isValid = True
   for field in username:
     if len(field.value.strip()) == 0:
       field.error_text = "El nombre de usuario no puede estar vacío"
+      field.update()
+      isValid = False
+    elif field.value.strip()[0].isdigit():
+      field.error_text = "El nombre de usuario no puede empezar con dígitos"
+      field.update()
+      isValid = False
+      
+  for field in name:
+    if len(field.value.strip()) == 0:
+      field.error_text = "El nombre no puede estar vacío"
+      field.update()
+      isValid = False
+    elif any(char.isdigit() for char in field.value):
+      field.error_text = "El campo no puede contener dígitos"
       field.update()
       isValid = False
   

@@ -71,6 +71,14 @@ def getProducts(db: Session):
   except Exception:
     raise
   
+def getLowStockProducts(db: Session):
+  try:
+    def func():
+      return db.query(Product).filter(Product.stock < Product.minStock).all()
+    return handleDatabaseErrors(db, func)
+  except Exception:
+    raise
+  
 def updateProduct(db: Session, idProduct: int, name: str, description: str, minStock: int, cost: float, gain: float, iva: float, idCategory: int, imgPath=None):
   try:
     if getProductByName(db, name):

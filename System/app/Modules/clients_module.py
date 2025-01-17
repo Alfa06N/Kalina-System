@@ -91,7 +91,9 @@ class ClientForm(CustomOperationContainer):
   
   def submitForm(self):
     try:
-      if evaluateForm(ci=[self.ciField], others=[self.nameField, self.surnameField]):
+      nameFields = [self.nameField, self.surnameField] if len(self.secondSurnameField.value.strip()) == 0 else [self.nameField, self.surnameField, self.secondSurnameField]
+
+      if evaluateForm(ci=[self.ciField], name=nameFields):
         with getDB() as db:
           newClient = createClient(
             db=db,

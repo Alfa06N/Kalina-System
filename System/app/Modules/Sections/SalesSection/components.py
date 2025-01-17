@@ -18,6 +18,7 @@ from utils.exchangeManager import exchangeRateManager
 from utils.saleManager import saleMakerManager
 from utils.sessionManager import getCurrentUser
 from datetime import datetime
+from utils.inventoryManager import inventoryManager
 
 class SaleItemsList(CustomAnimatedContainerSwitcher):
   def __init__(self, page):
