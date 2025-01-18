@@ -7,14 +7,6 @@ assignees: ''
 
 ---
 
----
-name: Custom Issue Template
-about: Describe and document a task, improvement or problem
-title: "[Type] Descriptive title of the issue"
-labels: ''
-assignees: ''
----
-
 ### **Description**
 [Provide a clear and detailed description of the problem, suggestion or task. Be specific to help others understand the purpose of this issue.]
 
