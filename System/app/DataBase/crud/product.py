@@ -224,18 +224,16 @@ def updateProductPrices(db: Session, product, cost:float, iva:float, gain:float)
       raise DataNotFoundError("Producto no encontrado")
     
     def func():
-      if cost:
-        product.cost = cost
-      if iva:
-        product.iva = iva
-      if gain:
-        product.gain = gain
+      product.cost = cost
+      product.iva = iva
+      product.gain = gain
       
       db.commit()
       return product
     
     product = handleDatabaseErrors(db, func)
     db.refresh(product)
+
     return product
   except Exception as err:
     db.rollback()

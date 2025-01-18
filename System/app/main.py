@@ -11,6 +11,7 @@ from DataBase.crud.category import getCategories, removeCategory
 from utils.imageManager import ImageManager
 import time
 import asyncio
+from DataBase.crud.transaction import getTransactions
 
 def main(page: ft.Page):
   page.title = "Kariña System"
@@ -30,12 +31,17 @@ def main(page: ft.Page):
   page.vertical_alignment = ft.MainAxisAlignment.CENTER
   page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
   page.padding = 0 
-  
   init_db() 
 
   setUser("Alfa06N")
   showPrincipal(page)
   # initApp(page)
+  
+  with getDB() as db:
+    transactions = getTransactions(db)
+    for transaction in transactions:
+      print(transaction.idTransaction)
+      print(f"USD: {transaction.amountUSD}$" if transaction.amountUSD else f"VES: {transaction.amountVES}Bs")
  
 if __name__ == "__main__":
   

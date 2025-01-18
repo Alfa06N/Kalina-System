@@ -289,6 +289,16 @@ class EmployeeInfo(ft.Stack):
         else: 
           raise DataNotFoundError(f"Can't delete employee V-{self.ciEmployee}")
     except DataNotFoundError:
+      dialog = CustomAlertDialog(
+        title="No se pudo eliminar al empleado",
+        content=ft.Text(
+          value="Ocurrió un error inesperado",
+          size=18,
+          color=constants.BLACK,
+        ),
+        modal=False,
+      )
+      self.page.open(dialog)
       raise
     except ErrorOperation as err:
       dialog = CustomAlertDialog(

@@ -1,5 +1,5 @@
 import flet as ft
-from Modules.customControls import CustomPrincipalContainer, CustomSimpleContainer, CustomOperationContainer, CustomAnimatedContainer, CustomOutlinedButton, CustomImageSelectionContainer, CustomNumberField, CustomTooltip, CustomFilledButton, CustomTextField, CustomAutoComplete, CustomDropdown, CustomAlertDialog, CustomReturnButton
+from Modules.customControls import CustomPrincipalContainer, CustomSimpleContainer, CustomOperationContainer, CustomAnimatedContainer, CustomOutlinedButton, CustomImageSelectionContainer, CustomNumberField, CustomTooltip, CustomFilledButton, CustomTextField, CustomAutoComplete, CustomDropdown, CustomAlertDialog, CustomReturnButton, CustomCheckbox
 import constants
 from config import getDB
 from validation import evaluateForm
@@ -87,13 +87,19 @@ class ProductForm(CustomOperationContainer):
       on_changeFunction=self.calculateFinalPrice
     )
     
+    self.ivaCheckbox = CustomCheckbox(
+      label="Aplicar IVA al producto",
+      on_change=lambda e: self.setIva()
+    )
+    
     self.ivaField = CustomTextField(
       label="IVA",
       field="number",
       expand=True,
       suffix_text="%",
       submitFunction=None,
-      on_changeFunction=self.calculateFinalPrice
+      on_changeFunction=self.calculateFinalPrice,
+      disabled=True,
     )
     
     self.gainField = CustomTextField(
@@ -253,6 +259,13 @@ class ProductForm(CustomOperationContainer):
               ]
             ),
             ft.Row(
+              alignment=ft.MainAxisAlignment.CENTER,
+              vertical_alignment=ft.CrossAxisAlignment.CENTER,
+              controls=[
+                self.ivaCheckbox
+              ]
+            ),
+            ft.Row(
               controls=[
                 self.costField,
                 self.ivaField,
@@ -270,6 +283,13 @@ class ProductForm(CustomOperationContainer):
       ]
     )
     super().__init__(operationContent=self.content)
+    
+  def setIva(self):
+    isChecked = self.ivaCheckbox.value
+    
+    self.ivaField.value = "16.00" if isChecked else "0.00"
+    self.ivaField.update()
+    self.calculateFinalPrice()
   
   def getCategoriesName(self):
     try:
@@ -704,6 +724,12 @@ class UpdatePriceForm(ft.Stack):
         on_changeFunction=self.calculateFinalPrice
       )
       
+      self.ivaCheckbox = CustomCheckbox(
+        label="Aplicar IVA al producto",
+        on_change=lambda e: self.setIva(),
+        value=True if round(product.iva, 2) > 0 else False 
+      )
+      
       self.ivaField = CustomTextField(
         label="IVA",
         field="number",
@@ -711,7 +737,8 @@ class UpdatePriceForm(ft.Stack):
         expand=True,
         suffix_text="%",
         submitFunction=None,
-        on_changeFunction=self.calculateFinalPrice
+        on_changeFunction=self.calculateFinalPrice,
+        disabled=True,
       )
       
       self.gainField = CustomTextField(
@@ -761,6 +788,14 @@ class UpdatePriceForm(ft.Stack):
         width=800,
         spacing=15,
         controls=[
+          ft.Row(
+            alignment=ft.MainAxisAlignment.CENTER,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            width=800,
+            controls=[
+              self.ivaCheckbox,
+            ]
+          ),
           ft.Row(
             width=800,
             controls=[
@@ -812,6 +847,13 @@ class UpdatePriceForm(ft.Stack):
         )
       )
     ]
+    
+  def setIva(self):
+    isChecked = self.ivaCheckbox.value
+    
+    self.ivaField.value = "16.00" if isChecked else "0.00"
+    self.ivaField.update()
+    self.calculateFinalPrice()
   
   def calculateFinalPrice(self):
     try:
@@ -833,6 +875,9 @@ class UpdatePriceForm(ft.Stack):
       if evaluateForm(numbers=[self.costField, self.gainField]):
         with getDB() as db:
           product = getProductById(db, self.idProduct)
+          # print(f"Cost: {float(self.costField.value)}")
+          # print(f"Gain: {float(self.gainField.value)}")
+          # print(f"IVA: {float(self.ivaField.value)}")
           
           product = updateProductPrices(
             db=db,

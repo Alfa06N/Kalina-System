@@ -73,7 +73,7 @@ def getTransactions(db: Session):
   except Exception:
     raise
   
-def getPaymentById(db: Session, idPayment: int):
+def getTransactionById(db: Session, idTransaction: int):
   try:
     def func():
       return db.query(Transaction).filter(Transaction.idTransaction == idTransaction).first()

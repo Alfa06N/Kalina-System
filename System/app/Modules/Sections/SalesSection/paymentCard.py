@@ -292,6 +292,8 @@ class TransactionManager(ft.Container):
   def addPaymentToList(self, paymentInfo):
     try:
       self.selectedPayments.append(paymentInfo)
+      for payment in self.selectedPayments:
+        print(payment)
     except:
       raise
   
@@ -372,6 +374,7 @@ class TransactionRecord(ft.Container):
       overflow=ft.TextOverflow.ELLIPSIS,
     )
     
+    print(self.method, constants.methodIcons[self.method])
     self.methodRow = ft.Row(
       vertical_alignment=ft.CrossAxisAlignment.CENTER,
       controls=[

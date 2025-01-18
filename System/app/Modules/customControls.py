@@ -373,14 +373,16 @@ class CustomReturnButton(ft.OutlinedButton):
     )
     
 class CustomCheckbox(ft.Checkbox):
-  def __init__(self, label, color, fill_color):
+  def __init__(self, label, value=False, fill_color=constants.BROWN, color=constants.BLACK, on_change=None):
     super().__init__()
     self.label = label
     self.color = color
+    self.value = value
     self.label_style = ft.TextStyle(
       color=self.color,
       size=20,
     )
+    self.on_change = on_change
     self.active_color = fill_color
     
 class CustomTextField(ft.TextField):
@@ -390,7 +392,7 @@ class CustomTextField(ft.TextField):
     self.border_width = 2
     self.expand = expand
     self.on_submit = submitFunction
-    self.disabled = disabled
+    self.read_only = disabled
     self.hint_text = hint_text
     self.suffix_text = suffix_text
     self.value = value
