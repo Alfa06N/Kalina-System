@@ -38,7 +38,7 @@ class PaymentCard(ft.Container):
       vertical_alignment=ft.CrossAxisAlignment.CENTER,
       controls=[
         ft.Icon(
-          name=ft.icons.ADD_CARD,
+          name=ft.Icons.ADD_CARD,
           size=32,
           color=constants.GREEN_TEXT,
         ),
@@ -58,7 +58,7 @@ class PaymentCard(ft.Container):
       vertical_alignment=ft.CrossAxisAlignment.CENTER,
       controls=[
         ft.Icon(
-          name=ft.icons.INPUT,
+          name=ft.Icons.INPUT,
           size=32,
           color=constants.GREEN_TEXT,  
         ),
@@ -171,7 +171,7 @@ class TransactionManager(ft.Container):
     self.createPaymentButton = CustomEditButton(
       function=lambda e: self.showTransactionForm(),
     )
-    self.createPaymentButton.content.name = ft.icons.ADD_CARD_ROUNDED
+    self.createPaymentButton.content.name = ft.Icons.ADD_CARD_ROUNDED
     
     self.paymentDefaultContainer = ft.Column(
       expand=True,
@@ -179,7 +179,7 @@ class TransactionManager(ft.Container):
       horizontal_alignment=ft.CrossAxisAlignment.CENTER,
       controls=[
         ft.Icon(
-          name=ft.icons.CREDIT_CARD_OFF_OUTLINED,
+          name=ft.Icons.CREDIT_CARD_OFF_OUTLINED,
           size=32,
           color=constants.BLACK,
         ),
@@ -399,7 +399,7 @@ class TransactionRecord(ft.Container):
       self.deleteButton = CustomEditButton(
         function=lambda e: self.deleteFunction(paymentInfo=self.paymentInfo, transactionRecord=self),
       )
-      self.deleteButton.content.name = ft.icons.DELETE_ROUNDED
+      self.deleteButton.content.name = ft.Icons.DELETE_ROUNDED
     
     self.content = ft.Row(
       alignment=ft.MainAxisAlignment.SPACE_BETWEEN,

@@ -30,7 +30,7 @@ class ClientCard(ft.Container):
       horizontal_alignment=ft.CrossAxisAlignment.CENTER,
       controls=[
         ft.Icon(
-          name=ft.icons.PERSON_ADD_ROUNDED,
+          name=ft.Icons.PERSON_ADD_ROUNDED,
           size=40,
           color=constants.BLACK,
         ),
@@ -164,7 +164,7 @@ class ClientSelection(ft.Container):
     self.createClientButton = CustomEditButton(
       function=lambda e: self.showClientForm(),
     )
-    self.createClientButton.content.name = ft.icons.PERSON_ADD_ROUNDED
+    self.createClientButton.content.name = ft.Icons.PERSON_ADD_ROUNDED
     
     self.clientDefaultContainer = ft.Container(
       alignment=ft.alignment.center,
@@ -174,7 +174,7 @@ class ClientSelection(ft.Container):
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         controls=[
           ft.Icon(
-            name=ft.icons.PERSON_OFF_ROUNDED,
+            name=ft.Icons.PERSON_OFF_ROUNDED,
             size=32,
             color=constants.BLACK,
           ),
@@ -283,7 +283,7 @@ class ClientSelection(ft.Container):
           function=lambda e: self.removeClient()
         )
         
-        removeClientButton.content.name = ft.icons.DELETE_ROUNDED
+        removeClientButton.content.name = ft.Icons.DELETE_ROUNDED
         
         newContent = ft.Stack(
           controls=[

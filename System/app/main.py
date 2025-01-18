@@ -18,10 +18,10 @@ def main(page: ft.Page):
   page.theme = ft.Theme(
     scrollbar_theme=ft.ScrollbarTheme(
       track_color={
-        ft.MaterialState.DEFAULT: constants.BLACK_GRAY,
+        ft.ControlState.DEFAULT: constants.BLACK_GRAY,
       },
       thumb_color={
-        ft.MaterialState.DEFAULT: constants.BLACK_GRAY,
+        ft.ControlState.DEFAULT: constants.BLACK_GRAY,
       }
     )
   )
@@ -33,9 +33,9 @@ def main(page: ft.Page):
   page.padding = 0 
   init_db() 
 
-  # setUser("Alfa06N")
-  # showPrincipal(page)
-  initApp(page)
+  setUser("Alfa06N")
+  showPrincipal(page)
+  # initApp(page)
 
  
 if __name__ == "__main__":

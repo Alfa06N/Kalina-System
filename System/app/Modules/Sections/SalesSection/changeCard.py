@@ -37,7 +37,7 @@ class ChangeCard(ft.Container):
       vertical_alignment=ft.CrossAxisAlignment.CENTER,
       controls=[
         ft.Icon(
-          name=ft.icons.CHANGE_CIRCLE_OUTLINED,
+          name=ft.Icons.CHANGE_CIRCLE_OUTLINED,
           size=32,
           color=constants.RED_TEXT,
         ),
@@ -57,7 +57,7 @@ class ChangeCard(ft.Container):
       vertical_alignment=ft.CrossAxisAlignment.CENTER,
       controls=[
         ft.Icon(
-          name=ft.icons.OUTPUT_OUTLINED,
+          name=ft.Icons.OUTPUT_OUTLINED,
           size=32,
           color=constants.RED_TEXT,
         ),

@@ -18,7 +18,7 @@ from DataBase.models import Product, Combo
 from DataBase.crud.product import getProductById
 from DataBase.crud.combo import getComboById
 from utils.inventoryManager import inventoryManager
-from utils.sessionManager import verifyPermission, getCurrentUser
+from utils.sessionManager import  getCurrentUser
 from DataBase.crud.user import getUserByUsername
 
 class CustomPrincipalContainer(ft.Container):
@@ -129,7 +129,7 @@ class CustomOperationContainer(ft.Container):
             bgcolor=constants.WHITE,
             content=ft.Icon(
               name=ft.Icons.CHECK_CIRCLE_SHARP,
-              color=ft.colors.GREEN,
+              color=ft.Colors.GREEN,
             ),
             alignment=ft.alignment.center,
           ),
@@ -156,7 +156,7 @@ class CustomOperationContainer(ft.Container):
             border=ft.border.all(2, constants.WHITE),
             height=50,
             width=50,
-            bgcolor=ft.colors.TRANSPARENT,
+            bgcolor=ft.Colors.TRANSPARENT,
             content=ft.Icon(
               name=ft.Icons.ERROR_OUTLINE_SHARP,
               color=constants.RED_FAILED_LIGHT,
@@ -342,7 +342,7 @@ class CustomOutlinedButton(ft.OutlinedButton):
       padding=ft.padding.symmetric(horizontal=50, vertical=20),
       animation_duration=1000,
       bgcolor={
-        ft.ControlState.DEFAULT: ft.colors.TRANSPARENT
+        ft.ControlState.DEFAULT: ft.Colors.TRANSPARENT
       },
       color=self.color,
       side=ft.BorderSide(
@@ -507,7 +507,7 @@ class CustomUserIcon(ft.Container):
       )
       self.content = ft.Text(value=initial, size=self.fontSize, weight=ft.FontWeight.BOLD, color=constants.ORANGE_LIGHT)
     else:
-      self.bgcolor = ft.colors.TRANSPARENT
+      self.bgcolor = ft.Colors.TRANSPARENT
       self.border = ft.border.all(2, constants.BLACK_GRAY)
       self.content = ft.Text(value=initial, size=self.fontSize, weight=ft.FontWeight.BOLD, color=constants.BLACK)
     
@@ -587,8 +587,8 @@ class CustomAppBar(ft.AppBar):
               vertical_alignment=ft.CrossAxisAlignment.CENTER,
               controls=[
                 ft.Icon(
-                  name=ft.icons.INVENTORY_ROUNDED,
-                  color=constants.BLACK_GRAY,
+                  name=ft.Icons.INVENTORY_ROUNDED,
+                  color=constants.BLACK,
                   size=32,
                 ),
                 ft.Text(
@@ -640,6 +640,7 @@ class CustomAppBar(ft.AppBar):
     try:
       self.dialog = CustomExchangeDialog(
         page=self.page,
+        exchangeControl=None
       )
       
       self.page.open(self.dialog)
@@ -727,7 +728,7 @@ class CustomExchangeDialog(CustomAlertDialog):
       raise
     
 class CustomTextButton(ft.TextButton):
-  def __init__(self, text:str, on_click=None, color=ft.colors.BLUE_700):
+  def __init__(self, text:str, on_click=None, color=ft.Colors.BLUE_700):
     super().__init__()
     self.content = ft.Text(
       value=text,
@@ -826,10 +827,7 @@ class CustomExchangeContainer(ft.Container):
       
       newContent = self.exchangeContent if self.rate else self.defaultContent
       
-      if newContent == self.animatedContainer.content:
-        self.animatedContainer.content.update()
-      else:
-        self.animatedContainer.setNewContent(newContent)
+      self.animatedContainer.setNewContent(newContent)
     except:
       raise
     
@@ -884,7 +882,6 @@ class CustomSidebar(ft.Container):
     
     with getDB() as db: 
       user = getUserByUsername(db, getCurrentUser())
-      print(user.username)
       self.navigationOptions = [
         self.users,
         self.clients,
@@ -953,20 +950,19 @@ class CustomSidebar(ft.Container):
   def selectOne(self, e):
     def switchTo(button):
       self.switchButton(button)
-      exchangeRateManager.clearSubscribers()
       
     if not self.selected == e.control:
       button = e.control
 
-      if e.control == self.users and verifyPermission(self.page):
+      if e.control == self.users:
         from Modules.Sections.UsersSection.users import Users
         self.updateMainContent(Users(self.page))  
         switchTo(button)
-      elif e.control == self.clients and verifyPermission(self.page):
+      elif e.control == self.clients:
         from Modules.Sections.ClientsSection.clients import Clients
         self.updateMainContent(Clients(self.page))
         switchTo(button)
-      elif e.control == self.employees and verifyPermission(self.page):
+      elif e.control == self.employees:
         from Modules.Sections.EmployeesSection.employees import Employees
         self.updateMainContent(Employees(self.page))
         switchTo(button)
@@ -978,11 +974,11 @@ class CustomSidebar(ft.Container):
         from Modules.Sections.InventorySection.inventory import Inventory
         self.updateMainContent(Inventory(self.page))
         switchTo(button)
-      elif e.control == self.payments and verifyPermission(self.page):
+      elif e.control == self.payments:
         from Modules.Sections.PaymentsSection.payments import Payments 
         self.updateMainContent(Payments(self.page))
         switchTo(button)
-      elif e.control == self.closings and verifyPermission(self.page):
+      elif e.control == self.closings:
         from Modules.Sections.ClosingsSection.closings import Closings
         self.updateMainContent(Closings(self.page))
         switchTo(button)
@@ -1217,7 +1213,7 @@ class CustomImageSelectionContainer(ft.Container):
     self.imageIcon = ft.Container(
       border=ft.border.all(2, constants.WHITE_GRAY),
       border_radius=ft.border_radius.all(30),
-      bgcolor=ft.colors.TRANSPARENT,
+      bgcolor=ft.Colors.TRANSPARENT,
       height=150,
       width=150,
       alignment=ft.alignment.center,
@@ -1505,7 +1501,7 @@ class CustomContainerButtonGradient(ft.Container):
     self.gradient = ft.LinearGradient(
       begin=ft.alignment.bottom_center,
       end=ft.alignment.top_center,
-      colors=[self.gradientColor, ft.colors.WHITE10],
+      colors=[self.gradientColor, ft.Colors.WHITE10],
     ) if e.data == "true" else None
     
     self.update()
@@ -1555,7 +1551,7 @@ class CustomItemsDialog(ft.AlertDialog):
 
     self.navigationButtons = ft.Container(
       margin=ft.margin.symmetric(horizontal=20, vertical=10),
-      bgcolor=ft.colors.TRANSPARENT, 
+      bgcolor=ft.Colors.TRANSPARENT, 
       height=60,
       width=400,
       alignment=ft.alignment.center,
@@ -1584,7 +1580,7 @@ class CustomItemsDialog(ft.AlertDialog):
       self.navigationButtons.content.controls.append(self.comboButton)
     
     self.itemsContainer = CustomAnimatedContainerSwitcher(
-      bgcolor=ft.colors.TRANSPARENT,
+      bgcolor=ft.Colors.TRANSPARENT,
       content=ft.Column(
         expand=True,
         scroll=ft.ScrollMode.ALWAYS,
@@ -1641,7 +1637,6 @@ class CustomItemsDialog(ft.AlertDialog):
     
   def updateItemSelection(self):
     for container in self.productsView.controls:
-      print(f"Product: {container.item.name} - Selected: {container.item.name in self.selectedItems}")
       if container.selected and container.item.name not in self.selectedItems:
         container.selectImage(select=False)
       elif not container.selected and container.item.name in self.selectedItems:
@@ -1695,7 +1690,6 @@ class CustomItemsDialog(ft.AlertDialog):
               on_click=self.selectItem,
               selected=True if product.name in self.selectedItems else False,
             )
-            print(f"Product: {product.name} - Selected: {product.name in self.selectedItems}")
             content.append(itemCard)
         elif view == "Combos" and self.combos:
           combos = getCombos(db)
@@ -1757,7 +1751,7 @@ class CustomItemCard(ft.Container):
         shader=ft.LinearGradient(
           begin=ft.alignment.bottom_center,
           end=ft.alignment.center,
-          colors=[ft.colors.BLACK, ft.colors.TRANSPARENT],
+          colors=[ft.Colors.BLACK, ft.Colors.TRANSPARENT],
         ),
         border_radius=30,
       )
@@ -2014,9 +2008,7 @@ class CustomItemsSelector(ft.Container):
     
   def getItemsSelected(self, selectedItems):
     try:
-      print(f"selectedItems: {selectedItems}")
       self.selectedItems = selectedItems.copy()
-      print(f"self.selectedItems: {self.selectedItems}")
       
       self.showItemsSelected()
     except:
@@ -2027,13 +2019,10 @@ class CustomItemsSelector(ft.Container):
       with getDB() as db:
         # Obtener los nombres de los ítems mostrados actualmente
         currentItems = [itemField.name for itemField in self.showedItems]
-        print(f"Items mostrados actualmente: {currentItems}")
             
         # Calcular ítems nuevos y eliminados
         newItems = [item for item in self.selectedItems if item not in currentItems]
         removedItems = [itemField for itemField in self.showedItems if itemField.name not in self.selectedItems]
-        print(f"Items nuevos: {newItems}")
-        print(f"Items eliminados: {[itemField.name for itemField in removedItems]}")
         
         if newItems:
           products = {product.name: product for product in getProducts(db)}
@@ -2052,19 +2041,12 @@ class CustomItemsSelector(ft.Container):
                 on_change=self.calculateItemsPrice,
               )
               self.showedItems.append(itemField)
-              print(f"Nuevo ítem añadido a la lista de selección: {itemField.item.name}")
         
         for itemField in removedItems:
           self.showedItems.remove(itemField)
-          print(f"Item eliminado: {itemField.name}")
         
         self.updateItemsList()
         self.calculateItemsPrice()
-        
-        print(f"Items mostrados: {[itemField.name for itemField in self.showedItems]}")
-        print(f"Containers: {self.showedItems}")
-        print(f"Son iguales los showedItems y los itemsList: {self.itemsList.controls == self.showedItems}")
-        print(f"Items seleccionados: {self.selectedItems}")
     except Exception as err:
       print(f"Error al mostrar los ítems seleccionados: {err}")
       pass
@@ -2507,7 +2489,7 @@ class CustomLowStockDialog(ft.AlertDialog):
     if self.products == []:
       self.content.content.controls = [
         ft.Icon(
-          name=ft.icons.CHECK_CIRCLE_ROUNDED,
+          name=ft.Icons.CHECK_CIRCLE_ROUNDED,
           size=48,
           color=constants.GREEN_TEXT,
         ),
@@ -2525,14 +2507,13 @@ class CustomLowStockDialog(ft.AlertDialog):
         imageManager = ImageManager()
         for idProduct in self.products:
           product = getProductById(db, idProduct)
-          print("Product add: ", product.name)
           self.content.content.controls.append(
             ft.Container(
               padding=10,
               gradient=ft.LinearGradient(
                 begin=ft.alignment.center_left,
                 end=ft.alignment.center,
-                colors=[constants.ORANGE, ft.colors.WHIET38] if not product.stock < product.minStock/2 else [constants.RED_FAILED, ft.colors.WHITE38],
+                colors=[constants.ORANGE, ft.Colors.WHITE38] if not product.stock < product.minStock/2 else [constants.RED_FAILED, ft.Colors.WHITE38],
               ),
               border_radius=10,
               border=ft.border.all(1, constants.BLACK_GRAY),

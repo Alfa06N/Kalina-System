@@ -77,10 +77,12 @@ class SaleForm(CustomAnimatedContainerSwitcher):
       page=self.page,
       rate=exchangeRateManager.getRate()
     )
-    exchangeRateManager.subscribe(self.paymentCard)
-    exchangeRateManager.subscribe(self.changeCard)
-    exchangeRateManager.subscribe(self.priceCard)
-    exchangeRateManager.subscribe(self.exchangeRate)
+    
+    exchangeRateManager.subscribe([self.paymentCard, self.changeCard, self.priceCard, self.exchangeRate])
+    # exchangeRateManager.subscribe(self.paymentCard)
+    # exchangeRateManager.subscribe(self.changeCard)
+    # exchangeRateManager.subscribe(self.priceCard)
+    # exchangeRateManager.subscribe(self.exchangeRate)
 
     self.cardsContainer = ft.Container(
       alignment=ft.alignment.center,
