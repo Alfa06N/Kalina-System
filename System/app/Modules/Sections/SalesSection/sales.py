@@ -17,7 +17,7 @@ class Sales(ft.Column):
     self.spacing = 0
     
     self.newSaleButton = CustomNavigationOptions(
-      icon=ft.icons.NEW_LABEL_ROUNDED,
+      icon=ft.Icons.NEW_LABEL_ROUNDED,
       text="Nueva Venta",
       function=lambda e: self.selectView(self.newSaleButton),
       color="#666666",
@@ -29,7 +29,7 @@ class Sales(ft.Column):
     )
     
     self.historySaleButton = CustomNavigationOptions(
-      icon=ft.icons.HISTORY_ROUNDED,
+      icon=ft.Icons.HISTORY_ROUNDED,
       text="Historial",
       function=lambda e: self.selectView(self.historySaleButton),
       color="#666666",
@@ -41,7 +41,7 @@ class Sales(ft.Column):
     
     self.topNavigationBar = ft.Container(
       margin=ft.margin.symmetric(horizontal=20, vertical=10),
-      bgcolor=ft.colors.TRANSPARENT,
+      bgcolor=ft.Colors.TRANSPARENT,
       height=60,
       width=600,
       content=ft.Row(

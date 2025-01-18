@@ -20,15 +20,19 @@ class ExchangeRateManager:
   def clearSubscribers(self):
     self.subscribers = []
   
-  def subscribe(self, container):
-    self.subscribers.append(container)
+  def subscribe(self, containers=[]):
+    self.subscribers = containers
     
   def notifySubscribers(self):
     try:
       for container in self.subscribers:
-        container.updateAboutRate(self.currentRate)
+        try:
+          container.updateAboutRate(self.currentRate)
+        except Exception as err:
+          print(err)
     except Exception as err:
       print(err)
+      raise err
 
 # What is supposed to be imported
 exchangeRateManager = ExchangeRateManager()

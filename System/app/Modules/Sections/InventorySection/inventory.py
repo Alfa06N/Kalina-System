@@ -21,7 +21,7 @@ class Inventory(ft.Stack):
     self.page = page
     
     self.categoryButton = CustomNavigationOptions(
-      icon=ft.icons.CATEGORY_ROUNDED,
+      icon=ft.Icons.CATEGORY_ROUNDED,
       text="Categorías",
       function=self.selectView,
       color="#666666",
@@ -32,7 +32,7 @@ class Inventory(ft.Stack):
     )
     
     self.productButton = CustomNavigationOptions(
-      icon=ft.icons.COFFEE_ROUNDED,
+      icon=ft.Icons.COFFEE_ROUNDED,
       text="Productos",
       function=self.selectView,
       color="#666666",
@@ -44,7 +44,7 @@ class Inventory(ft.Stack):
     )
     
     self.comboButton = CustomNavigationOptions(
-      icon=ft.icons.FASTFOOD_ROUNDED,
+      icon=ft.Icons.FASTFOOD_ROUNDED,
       text="Combos",
       function=self.selectView,
       color="#666666",
@@ -56,7 +56,7 @@ class Inventory(ft.Stack):
     
     self.topNavigationBar = ft.Container(
       margin=ft.margin.symmetric(horizontal=20, vertical=10),
-      bgcolor=ft.colors.TRANSPARENT,
+      bgcolor=ft.Colors.TRANSPARENT,
       height=60,
       width=600,
       content=ft.Row(

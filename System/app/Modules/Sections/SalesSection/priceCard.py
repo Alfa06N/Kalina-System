@@ -48,7 +48,7 @@ class PriceCard(ft.Container):
       vertical_alignment=ft.CrossAxisAlignment.CENTER,
       controls=[
         ft.Icon(
-          name=ft.icons.ATTACH_MONEY_ROUNDED,
+          name=ft.Icons.ATTACH_MONEY_ROUNDED,
           size=32,
           color=constants.BLACK,
         ),
@@ -69,7 +69,7 @@ class PriceCard(ft.Container):
       vertical_alignment=ft.CrossAxisAlignment.CENTER,
       controls=[
         ft.Icon(
-          name=ft.icons.CURRENCY_EXCHANGE_ROUNDED,
+          name=ft.Icons.CURRENCY_EXCHANGE_ROUNDED,
           size=32,
           color=constants.BLACK,
         ),
