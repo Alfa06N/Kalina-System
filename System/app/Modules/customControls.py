@@ -18,7 +18,8 @@ from DataBase.models import Product, Combo
 from DataBase.crud.product import getProductById
 from DataBase.crud.combo import getComboById
 from utils.inventoryManager import inventoryManager
-from utils.sessionManager import verifyPermission
+from utils.sessionManager import verifyPermission, getCurrentUser
+from DataBase.crud.user import getUserByUsername
 
 class CustomPrincipalContainer(ft.Container):
   def __init__(self, containerContent, width=900, height=550):
@@ -881,42 +882,40 @@ class CustomSidebar(ft.Container):
     self.inventory = CustomNavigationOptions(icon=ft.Icons.INVENTORY_2_ROUNDED, text="Inventario", function=self.selectOne, inkColor="#666666")
     
     
-    self.navigationOptions = [
-      self.users,
-      self.clients,
-      self.employees,
-      self.sales,
-      self.inventory,
-      self.payments,
-      self.closings,
-    ]
+    with getDB() as db: 
+      user = getUserByUsername(db, getCurrentUser())
+      print(user.username)
+      self.navigationOptions = [
+        self.users,
+        self.clients,
+        self.employees,
+        self.sales,
+        self.inventory,
+        self.payments,
+        self.closings,
+      ] if user.role == "Administrador" else [
+        self.sales,
+        self.inventory,
+      ]    
     
-    self.content = ft.Column(
-      alignment=ft.MainAxisAlignment.CENTER,
-      horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-      controls=[
-        ft.Row(
-          alignment=ft.MainAxisAlignment.CENTER,
-          vertical_alignment=ft.CrossAxisAlignment.CENTER,
-          controls=[self.openButton]
-        ),
-        ft.Column(
-          expand=True,
-          alignment=ft.MainAxisAlignment.CENTER,
-          scroll=ft.ScrollMode.AUTO,
-          controls=[
-            ft.Row([self.users]),
-            ft.Row([self.employees]),
-            ft.Row([self.clients]),
-            ft.Row([self.inventory]),
-            ft.Row([self.sales]),
-            ft.Row([self.payments]),
-            ft.Row([self.closings]),
-          ]
-        ),
-      ]
-    )
-    self.selected = self.sales
+      self.content = ft.Column(
+        alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        controls=[
+          ft.Row(
+            alignment=ft.MainAxisAlignment.CENTER,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            controls=[self.openButton]
+          ),
+          ft.Column(
+            expand=True,
+            alignment=ft.MainAxisAlignment.CENTER,
+            scroll=ft.ScrollMode.AUTO,
+            controls=[ft.Row([button]) for button in self.navigationOptions],
+          ),
+        ]
+      )
+      self.selected = self.sales
   
   def toggleIconButton(self, e):
     self.openButton.selected = not e.control.selected
