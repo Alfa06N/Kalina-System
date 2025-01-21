@@ -1507,10 +1507,11 @@ class CustomContainerButtonGradient(ft.Container):
     self.update()
     
 class CustomItemsDialog(ft.AlertDialog):
-  def __init__(self, page, width:int=800, height:int=500, title:str="Buscar Productos y Combos", finalFunction=None, products:bool=True, combos:bool=False):
+  def __init__(self, page, sale, width:int=800, height:int=500, title:str="Buscar Productos y Combos", finalFunction=None, products:bool=True, combos:bool=False):
     super().__init__()
     self.page = page
     
+    self.sale = sale
     self.products = products
     self.combos = combos
     self.modal = True
@@ -1684,13 +1685,14 @@ class CustomItemsDialog(ft.AlertDialog):
           products = getProducts(db)
           
           for product in products:
-            itemCard = CustomItemCard(
-              page=self.page,
-              item=product,
-              on_click=self.selectItem,
-              selected=True if product.name in self.selectedItems else False,
-            )
-            content.append(itemCard)
+            if not self.sale or product.stock > 0:
+              itemCard = CustomItemCard(
+                page=self.page,
+                item=product,
+                on_click=self.selectItem,
+                selected=True if product.name in self.selectedItems else False,
+              )
+              content.append(itemCard)
         elif view == "Combos" and self.combos:
           combos = getCombos(db)
           
@@ -1933,6 +1935,7 @@ class CustomItemsSelector(ft.Container):
       products=self.products,
       combos=self.combos,
       finalFunction=self.getItemsSelected,
+      sale=sale,
     )
     
   def showSelectionDialog(self):
@@ -2188,7 +2191,7 @@ class CustomItemQuantityInput(ft.Container):
       self.quantityField = CustomNumberField(
         label="",
         expand=True,
-        on_change=self.customOnChange,
+        on_change=self.customOnChange if self.sell else None,
       )
       
       self.priceText = ft.Text(
