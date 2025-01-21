@@ -6,7 +6,7 @@ from interface import showLogin
 import time
 from utils.pathUtils import getImagePath
 from DataBase.crud.employee import getEmployeeById
-from DataBase.crud.user import createUser, getUserByUsername, queryUserData
+from DataBase.crud.user import createUser, getUserByUsername, queryUserData, getUsers
 from DataBase.crud.recovery import createRecovery
 from config import getDB
 from exceptions import DataNotFoundError, DataAlreadyExists, InvalidData
@@ -97,7 +97,8 @@ class RegisterForm(CustomSimpleContainer):
         self.titleRegister,
         self.inputs,
         ft.Row(
-          controls=[self.checkbox],
+          controls=[self.checkbox] if not self.existOneAdmin() else [],
+          controls=[self.checkbox] if not self.existOneAdmin() else [],
           alignment=ft.MainAxisAlignment.CENTER
         ),
         self.button,
@@ -275,6 +276,15 @@ class RegisterForm(CustomSimpleContainer):
     
     # content
     self.content = self.operation
+    
+  def existOneAdmin(self):
+    count = 0
+    with getDB() as db:
+      users = getUsers(db)
+      for user in users:
+        if user.role == "Administrador":
+          count += 1
+      return count > 1
     
   def advance(self):
     isValid = True
