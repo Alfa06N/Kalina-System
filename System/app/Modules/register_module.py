@@ -97,7 +97,7 @@ class RegisterForm(CustomSimpleContainer):
         self.titleRegister,
         self.inputs,
         ft.Row(
-          controls=[self.checkbox],
+          controls=[self.checkbox] if not self.existOneAdmin() else [],
           alignment=ft.MainAxisAlignment.CENTER
         ),
         self.button,
@@ -275,6 +275,15 @@ class RegisterForm(CustomSimpleContainer):
     
     # content
     self.content = self.operation
+    
+  def existOneAdmin(self):
+    count = 0
+    with getDB() as db:
+      users = getUsers(db)
+      for user in users:
+        if user.role == "Administrador":
+          count += 1
+      return count > 1
     
   def advance(self):
     isValid = True
