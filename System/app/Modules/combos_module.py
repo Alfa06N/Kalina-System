@@ -57,6 +57,7 @@ class ComboForm(CustomOperationContainer):
     
     self.productsSelector = CustomItemsSelector(
       page=self.page,
+      sale=False,
     )
     
     self.priceField = CustomTextField(
