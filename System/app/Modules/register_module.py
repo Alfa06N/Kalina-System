@@ -6,7 +6,7 @@ from interface import showLogin
 import time
 from utils.pathUtils import getImagePath
 from DataBase.crud.employee import getEmployeeById
-from DataBase.crud.user import createUser, getUserByUsername, queryUserData
+from DataBase.crud.user import createUser, getUserByUsername, queryUserData, getUsers
 from DataBase.crud.recovery import createRecovery
 from config import getDB
 from exceptions import DataNotFoundError, DataAlreadyExists, InvalidData
@@ -97,6 +97,7 @@ class RegisterForm(CustomSimpleContainer):
         self.titleRegister,
         self.inputs,
         ft.Row(
+          controls=[self.checkbox] if not self.existOneAdmin() else [],
           controls=[self.checkbox] if not self.existOneAdmin() else [],
           alignment=ft.MainAxisAlignment.CENTER
         ),
