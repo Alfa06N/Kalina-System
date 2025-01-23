@@ -5,6 +5,7 @@ import exceptions
 from config import getDB
 from DataBase.crud.employee import getEmployeeById
 import re
+import string
 
 def validateField(field, condition):
   
@@ -20,7 +21,8 @@ def validateField(field, condition):
     pass
   
 def validateName(field):
-  validateField(field, lambda value: len(value.strip()) > 0 and not any(char.isdigit() for char in value))
+  onlychars = string.ascii_letters
+  validateField(field, lambda value: len(value.strip()) > 0 and any(char not in onlychars for char in value))
 
 def validateUsername(field):
   validateField(field, lambda value: len(value.strip()) > 0 and not value.strip()[0].isdigit())
@@ -59,21 +61,39 @@ def evaluateForm(username=[], name=[], password=[], ci=[], numbers=[], others=[]
       isValid = False
       
   for field in name:
+    onlychars = string.ascii_letters
     if len(field.value.strip()) == 0:
       field.error_text = "El nombre no puede estar vacío"
       field.update()
       isValid = False
-    elif any(char.isdigit() for char in field.value):
-      field.error_text = "El campo no puede contener dígitos"
+    elif any(char not in onlychars for char in field.value):
+      field.error_text = "El campo solo puede contener letras"
       field.update()
       isValid = False
   
   for field in password:
+    symbols = string.punctuation
     if len(field.value) < 8:
       field.error_text = "La contraseña debe tener al menos 8 caracteres"
       field.update()
       isValid = False
-  
+    elif not any(char.isupper() for char in field.value):
+      field.error_text = "La contraseña debe tener mínimo una letra mayúscula"
+      field.update()
+      isValid = False
+    elif not any(char.islower() for char in field.value):
+      field.error_text = "La contraseña debe tener mínimo una letra minúscula"
+      field.update()
+      isValid = False
+    elif not any(char.isdigit() for char in field.value):
+      field.error_text = "La contraseña debe tener mínimo un número"
+      field.update()
+      isValid = False
+    elif not any(char in symbols for char in field.value):
+      field.error_text = "La contraseña debe tener al menos un símbolo"
+      field.update()
+      isValid = False
+
   for field in ci:
     if len(field.value.strip()) < 7 or len(field.value.strip()) > 9:
       field.error_text = "Número fuera de rango"
