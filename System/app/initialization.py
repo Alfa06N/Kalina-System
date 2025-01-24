@@ -17,7 +17,7 @@ def createDefaultUser(db):
     try: 
       user = User(
         username="Alfa",
-        password="informatica2024",
+        password="Informatica2024*",
         role="Administrador",
       )
       
