@@ -85,6 +85,12 @@ class Sales(ft.Column):
       self.selected = button
       self.selected.selectOption()
       self.showViewSelected()
+  
+  # def validateTransactions(self):
+  #   try:
+  #     if self.saleForm.
+  #   except: 
+  #     raise
     
   def showViewSelected(self):
     try:
@@ -102,7 +108,6 @@ class Sales(ft.Column):
   def createRegisterForm(self):
     try:
       exchangeRateManager.clearSubscribers()
-      print(exchangeRateManager.subscribers)
 
       self.itemsList = SaleItemsList(
         page=self.page,
@@ -110,6 +115,7 @@ class Sales(ft.Column):
       
       self.saleForm = SaleForm(
         page=self.page,
+        mainContainer=self,
       )
       
       self.itemsList.itemsSelector.priceCard = self.saleForm.priceCard

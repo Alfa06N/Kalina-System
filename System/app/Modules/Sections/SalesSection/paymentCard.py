@@ -4,6 +4,7 @@ from Modules.customControls import CustomAlertDialog, CustomAnimatedContainer, C
 from Modules.transaction_module import TransactionForm
 from utils.exchangeManager import exchangeRateManager
 from exceptions import InvalidData, DataAlreadyExists, DataNotFoundError
+from utils.saleManager import saleMakerManager
 
 
 class PaymentCard(ft.Container):
@@ -85,19 +86,33 @@ class PaymentCard(ft.Container):
     
   def clickFunction(self):
     try:
-      exchangeRate = exchangeRateManager.getRate()
-      if exchangeRate:
-        newContent = TransactionManager(
-          page=self.page,
-          paymentCard=self,
-          formContainer=self.formContainer,
-          selectedPayments=self.selectedPayments,
+      self.itemsSelector = saleMakerManager.itemsSelector
+      if self.itemsSelector.validateAllItemFields():
+        exchangeRate = exchangeRateManager.getRate()
+        if exchangeRate:
+          newContent = TransactionManager(
+            page=self.page,
+            paymentCard=self,
+            formContainer=self.formContainer,
+            selectedPayments=self.selectedPayments,
+          )
+          
+          self.formContainer.changeContent(newContent)
+        else:
+          dialog = CustomExchangeDialog(page=self.page)
+          self.page.open(dialog)
+    
+    except InvalidData as e:
+      dialog = CustomAlertDialog(
+        modal=False,
+        title="Datos incompletos",
+        content=ft.Text(
+          value=str(e),
+          color=constants.BLACK,
+          size=20,
         )
-        
-        self.formContainer.changeContent(newContent)
-      else:
-        dialog = CustomExchangeDialog(page=self.page)
-        self.page.open(dialog)
+      )
+      self.page.open(dialog)
     except:
       raise
   
@@ -110,27 +125,30 @@ class PaymentCard(ft.Container):
     except:
       raise
     
+  def calculateTotal(self):
+    try:
+      exchangeRate = exchangeRateManager.getRate()
+      self.price = 0
+      if exchangeRate:
+        for payment in self.selectedPayments:
+          amount = payment["amount"]
+          if payment["currency"] == "Bs":
+            amount = payment["amount"]/exchangeRate
+          self.price += amount
+      else:
+        self.price = 0
+        dialog = CustomAlertDialog(
+          modal=False,
+          title="No se ha establecido la tasa de intercambio.",
+          content=None
+        )
+        self.page.open(dialog)
+    except:
+      raise
+    
   def updateCard(self, transactions:list=[]):
     try:
-      self.selectedPayments = transactions
-      self.price = 0
-      exchangeRate = exchangeRateManager.getRate()
-      
-      for payment in self.selectedPayments:
-        amount = payment["amount"]
-        if payment["currency"] == "Bs":
-          if exchangeRate:
-            amount = payment["amount"]/exchangeRate
-          else:
-            self.price = 0
-            dialog = CustomAlertDialog(
-              modal=False,
-              title="No se ha establecido la tasa de intercambio.",
-              content=None
-            )
-            self.page.open(dialog)
-            return
-        self.price += amount
+      self.calculateTotal()
       
       self.paymentAmountText.value = f"{round(self.price,2)}$"
       
@@ -165,6 +183,13 @@ class TransactionManager(ft.Container):
       size=32,
       color=constants.BLACK,
       weight=ft.FontWeight.W_700,
+      text_align=ft.TextAlign.CENTER,
+    )
+    
+    self.salePrice = ft.Text(
+      value=f"Precio de la venta: {round(self.formContainer.priceCard.price, 2)}$ / {round(self.formContainer.priceCard.price*exchangeRateManager.getRate(), 2)}Bs" if self.transactionType == "Payment" else f"Cambio pendiente: {round(self.formContainer.calculateTotalChange(), 2)}$ / {round(self.formContainer.calculateTotalChange()*exchangeRateManager.getRate(), 2)}Bs",
+      color=constants.BLACK,
+      size=20,
       text_align=ft.TextAlign.CENTER,
     )
     
@@ -212,7 +237,7 @@ class TransactionManager(ft.Container):
     self.columnMainContent = ft.Column(
       expand=True,
       alignment=ft.MainAxisAlignment.CENTER,
-      spacing=40,
+      spacing=20,
       horizontal_alignment=ft.CrossAxisAlignment.CENTER,
       controls=[
         ft.Row(
@@ -234,10 +259,11 @@ class TransactionManager(ft.Container):
     self.managerContent = ft.Column(
       expand=True,
       alignment=ft.MainAxisAlignment.CENTER,
-      spacing=40,
+      spacing=20,
       horizontal_alignment=ft.CrossAxisAlignment.CENTER,
       controls=[
         self.titleText,
+        self.salePrice,
         self.columnMainContent,
       ]
     )
@@ -252,7 +278,9 @@ class TransactionManager(ft.Container):
     try:
       form = TransactionForm(
         page=self.page,
+        calculateChange=self.paymentCard.calculateChange if self.transactionType == "Change" else None,
         previousContainer=self,
+        formContainer=self.formContainer,
         transactionType=self.transactionType,
       )
       
@@ -342,6 +370,20 @@ class TransactionManager(ft.Container):
     try:
       self.formContainer.returnToBegin() 
       self.paymentCard.updateCard(transactions=self.selectedPayments)
+    except:
+      raise
+  
+  def calculateTotal(self):
+    try:
+      exchangeRate = exchangeRateManager.getRate()
+      self.price = 0
+      if exchangeRate:
+        for change in self.selectedPayments:
+          amount = change["amount"]
+          if change["currency"] == "Bs":
+            amount = change["amount"]/exchangeRate
+          self.price += amount
+      return self.price
     except:
       raise
     

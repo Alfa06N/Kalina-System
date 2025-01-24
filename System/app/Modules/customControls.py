@@ -441,8 +441,6 @@ class CustomTextField(ft.TextField):
   
   def functionOnChange(self):
     try:
-      if self.on_changeFunction:
-        self.on_changeFunction()
         
       if self.field == "username":
         validateUsername(self)
@@ -458,6 +456,9 @@ class CustomTextField(ft.TextField):
     
       elif self.field == "others":
         validateEmptyField(self)
+        
+      if self.on_changeFunction:
+        self.on_changeFunction()
     except Exception as err:
       raise
 

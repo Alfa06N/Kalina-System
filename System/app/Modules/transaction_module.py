@@ -1,5 +1,5 @@
 import flet as ft
-from Modules.customControls import CustomPrincipalContainer, CustomSimpleContainer, CustomOperationContainer, CustomAnimatedContainer, CustomOutlinedButton, CustomImageSelectionContainer, CustomNumberField, CustomTooltip, CustomFilledButton, CustomTextField, CustomAutoComplete, CustomDropdown, CustomAlertDialog, CustomReturnButton, CustomItemsSelector
+from Modules.customControls import CustomPrincipalContainer, CustomSimpleContainer, CustomOperationContainer, CustomAnimatedContainer, CustomOutlinedButton, CustomImageSelectionContainer, CustomNumberField, CustomTooltip, CustomFilledButton, CustomTextField, CustomAutoComplete, CustomDropdown, CustomAlertDialog, CustomReturnButton, CustomItemsSelector, CustomNumberField
 import constants
 from config import getDB
 from validation import evaluateForm
@@ -7,13 +7,15 @@ from DataBase.crud.client import createClient, getClientById, getClients
 import threading
 from exceptions import DataAlreadyExists, InvalidData, DataNotFoundError
 from DataBase.models import MethodEnum
+from utils.exchangeManager import exchangeRateManager
 
 # Without save the transaction
 class TransactionForm(CustomOperationContainer):
-  def __init__(self, page, previousContainer, transactionType:str="Payment"):
+  def __init__(self, page, previousContainer, formContainer, transactionType:str="Payment", calculateChange=None):
     self.page = page
     self.previousContainer = previousContainer
     self.transactionType = transactionType
+    self.formContainer = formContainer
     
     self.titleText = ft.Text(
       value="Crear Pago",
@@ -29,6 +31,7 @@ class TransactionForm(CustomOperationContainer):
       suffix_text="$",
       submitFunction=None,
       expand=True,
+      on_changeFunction=self.onChangeFunctionUSD if self.transactionType == "Change" else None,
     )
     
     self.amountVESField = CustomTextField(
@@ -37,6 +40,7 @@ class TransactionForm(CustomOperationContainer):
       suffix_text="Bs",
       submitFunction=None,
       expand=True,
+      on_changeFunction=self.onChangeFunctionVES if self.transactionType == "Change" else None,
     )
     
     self.amountFieldContainer = ft.Container(
@@ -56,6 +60,14 @@ class TransactionForm(CustomOperationContainer):
       icon_size=32,
       on_click=lambda e: self.switchField(),
       tooltip="Cambiar moneda",
+    )
+    
+    self.setChangeButton = ft.IconButton(
+      icon=ft.Icons.FILE_UPLOAD_ROUNDED,
+      icon_color=constants.BLACK,
+      icon_size=32,
+      on_click=lambda e: self.setChange(),
+      tooltip="Establecer monto",
     )
     
     self.referenceField = CustomTextField(
@@ -82,6 +94,10 @@ class TransactionForm(CustomOperationContainer):
           expand=True,
           vertical_alignment=ft.CrossAxisAlignment.CENTER,
           controls=[
+            self.amountFieldContainer,
+            self.changeFieldButton,
+            self.setChangeButton,
+          ] if self.transactionType == "Change" else [
             self.amountFieldContainer,
             self.changeFieldButton,
           ]
@@ -127,5 +143,35 @@ class TransactionForm(CustomOperationContainer):
         
         self.previousContainer.showPayments(paymentInfo)
         return True
+    except:
+      raise
+    
+  def onChangeFunctionUSD(self):
+    try:
+      field = self.amountUSDField
+      changePrice = round(self.formContainer.paymentCard.price - self.formContainer.priceCard.price - self.previousContainer.calculateTotal(), 2)
+      if float(field.value) > changePrice:
+        field.value = changePrice
+        field.update()
+    except:
+      raise
+  
+  def onChangeFunctionVES(self):
+    try:
+      field = self.amountVESField
+      changePrice = round((self.formContainer.paymentCard.price - self.formContainer.priceCard.price - self.previousContainer.calculateTotal()) * exchangeRateManager.getRate(), 2)
+      if float(field.value) > changePrice:
+        field.value = changePrice
+        field.update()
+    except:
+      raise
+  
+  def setChange(self):
+    try:
+      field = self.amountFieldContainer.content
+      price = self.formContainer.paymentCard.price - self.formContainer.priceCard.price - self.previousContainer.calculateTotal()
+      field.value = round(price, 2) if field == self.amountUSDField else round(price * exchangeRateManager.getRate(), 2)
+    
+      self.amountFieldContainer.update()
     except:
       raise
