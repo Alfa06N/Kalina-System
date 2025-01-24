@@ -9,7 +9,7 @@ from Modules.products_module import ProductForm
 from Modules.combos_module import ComboForm
 import time
 from DataBase.crud.category import getCategories
-from DataBase.crud.product import getProducts
+from DataBase.crud.product import getProducts, getProductById
 from DataBase.crud.combo import getCombos
 from config import getDB
 from utils.imageManager import ImageManager
@@ -23,7 +23,7 @@ class Inventory(ft.Stack):
     self.categoryButton = CustomNavigationOptions(
       icon=ft.Icons.CATEGORY_ROUNDED,
       text="Categorías",
-      function=self.selectView,
+      function=lambda e: self.selectView(self.categoryButton),
       color="#666666",
       focusedColor=constants.BLACK,
       opacityInitial=1,
@@ -34,7 +34,7 @@ class Inventory(ft.Stack):
     self.productButton = CustomNavigationOptions(
       icon=ft.Icons.COFFEE_ROUNDED,
       text="Productos",
-      function=self.selectView,
+      function=lambda e: self.selectView(self.productButton),
       color="#666666",
       focusedColor=constants.BLACK,
       opacityInitial=1,
@@ -46,7 +46,7 @@ class Inventory(ft.Stack):
     self.comboButton = CustomNavigationOptions(
       icon=ft.Icons.FASTFOOD_ROUNDED,
       text="Combos",
-      function=self.selectView,
+      function=lambda e: self.selectView(self.comboButton),
       color="#666666",
       focusedColor=constants.BLACK,
       opacityInitial=1,
@@ -177,10 +177,10 @@ class Inventory(ft.Stack):
       )
     ]
     
-  def selectView(self, e):
-    if not self.selected == e.control:
+  def selectView(self, target):
+    if not self.selected == target:
       self.selected.deselectOption()
-      self.selected = e.control
+      self.selected = target
       self.selected.selectOption()
       
       self.resetCurrentView()
@@ -339,3 +339,22 @@ class Inventory(ft.Stack):
       weight=ft.FontWeight.W_700,
       text_align=ft.TextAlign.CENTER,
     )
+  
+  def showLowStockProduct(self, idProduct):
+    for container in self.itemsContainer.content.content.controls:
+      if container.idProduct == idProduct:
+        newContent = ProductInfo(
+          imgPath=container.imgPath,
+          idProduct=idProduct,
+          infoContainer=self.infoContainer,
+          mainContainer=self,
+          productContainer=self,
+          page=self.page,
+        )
+        self.infoContainer.changeStyle(height=800, width=700, shadow=ft.BoxShadow(
+          blur_radius=5,
+          spread_radius=1,
+          color=constants.BLACK_INK,
+        ))
+        self.infoContainer.setNewContent(newContent)
+        break

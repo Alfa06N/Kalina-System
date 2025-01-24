@@ -98,7 +98,6 @@ class RegisterForm(CustomSimpleContainer):
         self.inputs,
         ft.Row(
           controls=[self.checkbox] if not self.existOneAdmin() else [],
-          controls=[self.checkbox] if not self.existOneAdmin() else [],
           alignment=ft.MainAxisAlignment.CENTER
         ),
         self.button,
@@ -284,7 +283,7 @@ class RegisterForm(CustomSimpleContainer):
       for user in users:
         if user.role == "Administrador":
           count += 1
-      return count > 1
+      return count > 0
     
   def advance(self):
     isValid = True

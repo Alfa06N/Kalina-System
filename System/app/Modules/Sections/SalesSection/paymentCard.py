@@ -135,6 +135,7 @@ class PaymentCard(ft.Container):
           if payment["currency"] == "Bs":
             amount = payment["amount"]/exchangeRate
           self.price += amount
+        self.price = round(self.price, 2)
       else:
         self.price = 0
         dialog = CustomAlertDialog(

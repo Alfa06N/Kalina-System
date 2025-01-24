@@ -89,6 +89,9 @@ class SaleContainer(ft.Container):
         idSale=self.idSale,
       )
       
+      with getDB() as db:
+        sale = getSaleById(db, self.idSale)
+      
       if self.infoContainer.height == 150:
         self.infoContainer.changeStyle(
           height=800,

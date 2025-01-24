@@ -93,6 +93,7 @@ class CustomOperationContainer(ft.Container):
     if (self.mode == "gradient"):
       self.border = ft.border.all(4, constants.ORANGE_LIGHT)
       self.content = ft.Row(
+        expand=True,
         controls=[
           ft.Container(
             border_radius=ft.border_radius.all(10),
@@ -107,6 +108,8 @@ class CustomOperationContainer(ft.Container):
             alignment=ft.alignment.center,
           ),
           ft.Container(
+            expand=True,
+            alignment=ft.alignment.center,
             content=ft.Text(value=message, size=20, color=constants.WHITE, overflow=ft.TextOverflow.ELLIPSIS),
           )
         ]
@@ -134,6 +137,7 @@ class CustomOperationContainer(ft.Container):
             alignment=ft.alignment.center,
           ),
           ft.Container(
+            expand=True,
             content=ft.Text(value=message, size=20, color=constants.BLACK, overflow=ft.TextOverflow.ELLIPSIS),
           )
         ]
@@ -857,7 +861,6 @@ class CustomSidebar(ft.Container):
     
     self.openButton = ft.IconButton(
       icon=ft.Icons.ARROW_RIGHT,
-      # icon_color=constants.WHITE,
       selected_icon=ft.Icons.ARROW_LEFT,
       on_click=self.toggleIconButton,
       icon_size=50,
@@ -921,6 +924,7 @@ class CustomSidebar(ft.Container):
     self.openButton.update()
     
   def switchPage(self, pageName):
+    from Modules.Sections.InventorySection.inventory import Inventory
     if pageName == "Users":
       self.updateMainContent(Users(self.page))
       self.switchButton(self.users)
@@ -1676,6 +1680,15 @@ class CustomItemsDialog(ft.AlertDialog):
         self.updateView()
     except:
       raise
+    
+  def verifyComboStock(self, db, combo):
+    try:
+      for register in combo.products:
+        if register.productQuantity > register.product.stock:
+          return False
+      return True
+    except:
+      raise
   
   def getItems(self, view:str):
     try:
@@ -1698,13 +1711,14 @@ class CustomItemsDialog(ft.AlertDialog):
           combos = getCombos(db)
           
           for combo in combos:
-            itemCard = CustomItemCard(
-              page=self.page,
-              item=combo,
-              on_click=self.selectItem,
-              selected=True if combo.name in self.selectedItems else False,
-            )
-            content.append(itemCard)
+            if self.verifyComboStock(db, combo):
+              itemCard = CustomItemCard(
+                page=self.page,
+                item=combo,
+                on_click=self.selectItem,
+                selected=True if combo.name in self.selectedItems else False,
+              )
+              content.append(itemCard)
         return content
     except:
       raise
@@ -2529,22 +2543,26 @@ class CustomLowStockDialog(ft.AlertDialog):
                     color=constants.BLACK,
                     weight=ft.FontWeight.W_600,
                     size=20,
+                    overflow=ft.TextOverflow.ELLIPSIS,
                   ),
                   ft.Text(
                     value=f"unidades restantes en stock de",
                     color=constants.BLACK,
                     size=20,
+                    overflow=ft.TextOverflow.ELLIPSIS,
                   ),
                   ft.Text(
+                    expand=True,
                     value=f"\"{product.name}\"",
                     color=constants.BLACK,
                     weight=ft.FontWeight.W_600,
                     size=20,
+                    overflow=ft.TextOverflow.ELLIPSIS,
                   )
                 ]
               ),
               ink=True,
-              on_click=lambda e: self.viewProductInfo(product.idProduct, imageManager.getImagePath(product.imgPath))
+              on_click=lambda e, idProduct=product.idProduct: self.viewProductInfo(idProduct)
             )
           )
     self.actions = [
@@ -2554,29 +2572,32 @@ class CustomLowStockDialog(ft.AlertDialog):
       )
     ]
     
-  def viewProductInfo(self, idProduct:int, imgPath):
+  def viewProductInfo(self, idProduct:int):
     try:
       self.page.close(self)
+      sideBar = self.page.sideBar
       
       if hasattr(self.page, "sideBar"):
-        print("Done")
-      #   sideBar = self.page.sideBar
-      #   print(sidebar)
-      #   if not sideBar.selected == sideBar.inventory:
-      #     inventory = sideBar.switchPage(sideBar.inventory)
-      #     inventory.showItemInfo(
-      #       idItem=idProduct,
-      #       imgPath=imgPath,
-      #     )
-      #     print("first if")
-      #   else:
-      #     inventory = self.page.mainContainer.content.content
-      #     inventory.selectView(inventory.productButton)
-      #     inventory.showItemInfo(
-      #       idItem=idProduct,
-      #       imgPath=imgPath
-      #     )
-      #     print("Second if")
+        if not sideBar.selected == sideBar.inventory:
+          print("First if")
+          sideBar.switchPage("Inventory")
+          sideBar.switchButton(sideBar.inventory)
+          inventory = self.page.mainContainer.content.content
+          inventory.showLowStockProduct(idProduct)
+        else:
+          print("Second if")
+          inventory = self.page.mainContainer.content.content
+          if inventory.selected == inventory.productButton:
+            inventory.showLowStockProduct(idProduct)
+          else: 
+            inventory.selectView(inventory.productButton)
+            inventory.showLowStockProduct(idProduct)
+          # inventory.selectView(inventory.productButton)
+          # self.page.mainContainer.showItemInfo(
+          #   idItem=idProduct,
+          #   imgPath=imgPath
+          # )
+          # print("Second if")
     except:
       raise
       

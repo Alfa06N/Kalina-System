@@ -125,6 +125,7 @@ class ChangeCard(ft.Container):
           if change["currency"] == "Bs":
             amount = change["amount"]/exchangeRate
           self.price += amount
+      self.price = round(self.price, 2)
       return self.price
     except:
       raise

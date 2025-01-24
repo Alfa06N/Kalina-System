@@ -5,7 +5,7 @@ from initialization import init_db
 from Modules.customControls import CustomAppBar, CustomUserIcon, CustomSidebar, CustomCardInfo, CustomDatePicker, CustomFilledButton, CustomAnimatedContainer, CustomAutoComplete, CustomNumberField, CustomTooltip, CustomTextField, CustomDropdown, CustomItemsSelector, CustomItemCard, CustomImageContainer
 from utils.sessionManager import getCurrentUser, setUser
 from config import getDB
-from DataBase.crud.user import getUsers
+from DataBase.crud.user import getUsers, getUserByUsername, updateUser
 from DataBase.crud.product import getProductByName, getProducts
 from DataBase.crud.category import getCategories, removeCategory
 from utils.imageManager import ImageManager
@@ -33,9 +33,9 @@ def main(page: ft.Page):
   page.padding = 0 
   init_db() 
 
-  #setUser("Alfa06N")
-  #showPrincipal(page)
-  initApp(page)
+  setUser("Alfa06N")
+  showPrincipal(page)
+  # initApp(page)
 
  
 if __name__ == "__main__":

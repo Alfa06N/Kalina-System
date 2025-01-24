@@ -34,7 +34,7 @@ def getSales(db: Session, page:int=1, quantity:int=50):
     def func():
       offset = (page - 1) * quantity
       
-      return db.query(Sale).order_by(desc(Sale.date)).offset(offset).limit(quantity).all()
+      return db.query(Sale).order_by(desc(Sale.idSale)).offset(offset).limit(quantity).all()
     
     return handleDatabaseErrors(db, func)
   except Exception:

@@ -158,7 +158,7 @@ class SaleForm(CustomAnimatedContainerSwitcher):
         raise InvalidData("El monto de los pagos es superior al de la venta. Registre los cambios entregados al cliente.")
       elif self.paymentCard.price - self.changeCard.price != self.priceCard.price:
         if not self.paymentCard.price == self.priceCard.price + self.changeCard.price:
-          raise InvalidData(f"El monto de los pagos y los cambios no coinciden con el precio de la venta.")
+          raise InvalidData(f"El monto de los pagos y los cambios no coinciden con el precio de la venta.\nPagos: {self.paymentCard.price} - Cambios: {self.changeCard.price} - Precio: {self.priceCard.price}, {self.paymentCard.price - self.changeCard.price} != {self.priceCard.price}")
       return True
     except:
       raise
@@ -315,7 +315,7 @@ class SaleRecord(ft.Container):
       sale = getSaleById(db, self.idSale)
       
       payments = [transaction for transaction in sale.transactions if transaction.transactionType == "Payment"]
-      changes = [transaction for transaction in sale.transactions if transaction.transactionType == "Changes"]
+      changes = [transaction for transaction in sale.transactions if transaction.transactionType == "Change"]
       products = [register.product for register in sale.products]
       combos = [register.combo for register in sale.combos]
       client = sale.client

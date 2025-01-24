@@ -68,6 +68,7 @@ def showPrincipal(page: ft.Page):
   mainContainer = CustomMainContainer(Sales(page))
   
   page.mainContainer = mainContainer
+  page.sideBar = sideBar
   
   page.controls.clear()
   page.add(

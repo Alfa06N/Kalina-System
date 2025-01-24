@@ -85,12 +85,6 @@ class Sales(ft.Column):
       self.selected = button
       self.selected.selectOption()
       self.showViewSelected()
-  
-  # def validateTransactions(self):
-  #   try:
-  #     if self.saleForm.
-  #   except: 
-  #     raise
     
   def showViewSelected(self):
     try:
@@ -101,6 +95,7 @@ class Sales(ft.Column):
         
         self.mainContainer.setNewContent(newContent)
       else:
+        self.itemsList, self.saleForm, self.registerContent = self.createRegisterForm()
         self.mainContainer.setNewContent(self.registerContent)
     except:
       raise
