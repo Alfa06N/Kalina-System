@@ -50,7 +50,7 @@ class SaleItemsList(CustomAnimatedContainerSwitcher):
     )
 
 class SaleForm(CustomAnimatedContainerSwitcher):
-  def __init__(self, page):
+  def __init__(self, page, mainContainer):
     self.page = page
     
     self.clientCard = ClientCard(
@@ -79,10 +79,6 @@ class SaleForm(CustomAnimatedContainerSwitcher):
     )
     
     exchangeRateManager.subscribe([self.paymentCard, self.changeCard, self.priceCard, self.exchangeRate])
-    # exchangeRateManager.subscribe(self.paymentCard)
-    # exchangeRateManager.subscribe(self.changeCard)
-    # exchangeRateManager.subscribe(self.priceCard)
-    # exchangeRateManager.subscribe(self.exchangeRate)
 
     self.cardsContainer = ft.Container(
       alignment=ft.alignment.center,
@@ -153,10 +149,39 @@ class SaleForm(CustomAnimatedContainerSwitcher):
       margin=None,
       padding=ft.padding.symmetric(horizontal=20, vertical=30)
     )
+  
+  def validateCards(self):
+    try:
+      if self.paymentCard.price < self.priceCard.price:
+        raise InvalidData("El monto de los pagos no cubre el precio de la venta.")
+      elif self.paymentCard.price > self.priceCard.price and not self.changeCard.selectedChanges:
+        raise InvalidData("El monto de los pagos es superior al de la venta. Registre los cambios entregados al cliente.")
+      elif self.paymentCard.price - self.changeCard.price != self.priceCard.price:
+        if not self.paymentCard.price == self.priceCard.price + self.changeCard.price:
+          raise InvalidData(f"El monto de los pagos y los cambios no coinciden con el precio de la venta.")
+      return True
+    except:
+      raise
+    
+  def calculateTotalChange(self):
+    try:
+      totalPrice = self.priceCard.price
+      totalPayments = self.paymentCard.price
+      totalChanges = self.changeCard.price
+      
+      if totalPayments < totalPrice:
+        return 0
+      else:
+        change = totalPayments - totalPrice
+        return change
+    except:
+      raise
     
   def ConfirmToMakeSale(self):
     try:
       self.itemsSelector = saleMakerManager.itemsSelector
+      
+      self.validateCards()
     
       user = getCurrentUser()
       if not user:

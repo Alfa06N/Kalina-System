@@ -4,6 +4,7 @@ from Modules.customControls import CustomAlertDialog, CustomAnimatedContainer, C
 from Modules.transaction_module import TransactionForm
 from utils.exchangeManager import exchangeRateManager
 from Modules.Sections.SalesSection.paymentCard import TransactionManager
+from exceptions import InvalidData
 
 class ChangeCard(ft.Container):
   def __init__(self, page, formContainer, height=140, width=140):
@@ -45,7 +46,6 @@ class ChangeCard(ft.Container):
           value=f"Agregar vueltos",
           size=20,
           color=constants.BLACK,
-          # weight=ft.FontWeight.W_600,
           text_align=ft.TextAlign.CENTER,
           overflow=ft.TextOverflow.ELLIPSIS,  
         ),
@@ -84,6 +84,8 @@ class ChangeCard(ft.Container):
     
   def clickFunction(self):
     try:
+      if self.formContainer.priceCard.price >= self.formContainer.paymentCard.price:
+        raise InvalidData("El monto de la venta es mayor o igual al monto de los pagos entrantes.")
       exchangeRate = exchangeRateManager.getRate()
       
       if exchangeRate:
@@ -99,28 +101,51 @@ class ChangeCard(ft.Container):
       else:
         dialog = CustomExchangeDialog(page=self.page)
         self.page.open(dialog)
+    except InvalidData as e:
+      dialog = CustomAlertDialog(
+        title="No hay necesidad de agregar vueltos",
+        content=ft.Text(
+          value=str(e),
+          color=constants.BLACK,
+          size=20,
+        ),
+        modal=False
+      )
+      self.page.open(dialog)
+    except:
+      raise
+    
+  def calculateTotal(self):
+    try:
+      exchangeRate = exchangeRateManager.getRate()
+      self.price = 0
+      if exchangeRate:
+        for change in self.selectedChanges:
+          amount = change["amount"]
+          if change["currency"] == "Bs":
+            amount = change["amount"]/exchangeRate
+          self.price += amount
+      return self.price
+    except:
+      raise
+    
+  def calculateChange(self):
+    try:
+      total = self.calculateTotal()
+      return round(self.formContainer.calculateTotalChange(), 2) - total
+    except:
+      raise
+    
+  def resetChangeCard(self):
+    try:
+      self.selectedChanges = []
+      self.updateCard()
     except:
       raise
     
   def updateCard(self, transactions:list=[]):
     try:
-      self.selectedChanges = transactions
-      self.price = 0
-      exchangeRate = exchangeRateManager.getRate()
-      
-      for change in self.selectedChanges:
-        amount = change["amount"]
-        if change["currency"] == "Bs":
-          if exchangeRate:
-            amount = change["amount"]/exchangeRate
-          else:
-            self.price = 0
-            dialog = ft.AlertDialog(
-              title=ft.Text("No se ha establecido la tasa de intercambio."),
-            )
-            self.page.open(dialog)
-            return
-        self.price += amount
+      self.calculateTotal()
       
       self.changeAmountText.value = f"{round(self.price, 2)}$"
       
