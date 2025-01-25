@@ -66,7 +66,7 @@ class TransactionForm(CustomOperationContainer):
       icon=ft.Icons.FILE_UPLOAD_ROUNDED,
       icon_color=constants.BLACK,
       icon_size=32,
-      on_click=lambda e: self.setChange(),
+      on_click=self.setChange if self.transactionType == "Change" else self.setAmount,
       tooltip="Establecer monto",
     )
     
@@ -93,13 +93,18 @@ class TransactionForm(CustomOperationContainer):
         ft.Row(
           expand=True,
           vertical_alignment=ft.CrossAxisAlignment.CENTER,
+          # controls=[
+          #   self.amountFieldContainer,
+          #   self.changeFieldButton,
+          #   self.setChangeButton,
+          # ] if self.transactionType == "Change" else [
+          #   self.amountFieldContainer,
+          #   self.changeFieldButton,
+          # ]
           controls=[
             self.amountFieldContainer,
             self.changeFieldButton,
             self.setChangeButton,
-          ] if self.transactionType == "Change" else [
-            self.amountFieldContainer,
-            self.changeFieldButton,
           ]
         ),
         ft.Row(
@@ -165,8 +170,18 @@ class TransactionForm(CustomOperationContainer):
         field.update()
     except:
       raise
+    
+  def setAmount(self, e):
+    try:
+      field = self.amountFieldContainer.content
+      price = self.formContainer.priceCard.price - self.previousContainer.calculateTotal()
+      field.value = round(price, 2) if field == self.amountUSDField else round(price * exchangeRateManager.getRate(), 2)
+    
+      self.amountFieldContainer.update()
+    except:
+      raise
   
-  def setChange(self):
+  def setChange(self, e):
     try:
       field = self.amountFieldContainer.content
       price = self.formContainer.paymentCard.price - self.formContainer.priceCard.price - self.previousContainer.calculateTotal()

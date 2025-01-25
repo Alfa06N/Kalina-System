@@ -42,6 +42,7 @@ dropdownTwo = [
 ]
 
 methodIcons = {
+  "All": ft.Icons.WALLET_ROUNDED,
   "Pago Móvil": ft.Icons.PHONE_ANDROID_ROUNDED,
   "Punto de Venta": ft.Icons.POINT_OF_SALE_ROUNDED,
   "Cripto Activo": ft.Icons.CURRENCY_BITCOIN_ROUNDED,

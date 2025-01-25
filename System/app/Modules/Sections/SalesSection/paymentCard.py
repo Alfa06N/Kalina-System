@@ -166,6 +166,21 @@ class PaymentCard(ft.Container):
     except:
       pass
   
+  def calculateTotal(self):
+    try:
+      exchangeRate = exchangeRateManager.getRate()
+      self.price = 0
+      if exchangeRate:
+        for payment in self.selectedPayments:
+          amount = payment["amount"]
+          if payment["currency"] == "Bs":
+            amount = payment["amount"]/exchangeRate
+          self.price += amount
+      self.price = round(self.price, 2)
+      return self.price
+    except: 
+      raise
+  
 
 class TransactionManager(ft.Container):
   def __init__(self, page, paymentCard, formContainer, selectedPayments=[], transactionType="Payment"):

@@ -3,6 +3,7 @@ import re
 import flet as ft
 import constants
 from Modules.Sections.PaymentsSection.components.PaymentInfo import PaymentInfo
+from Modules.customControls import CustomReturnButton
 
 class PaymentContainer(ft.Container):
   def __init__(self, page, idTransaction, transactionType, method, amount:str , infoContainer, mainContainer):
@@ -21,6 +22,7 @@ class PaymentContainer(ft.Container):
       color=constants.WHITE_GRAY,
     )
     self.padding = ft.padding.all(10)
+    self.margin = ft.margin.symmetric(horizontal=10, vertical=4)
     self.bgcolor = constants.WHITE
     self.border_radius = ft.border_radius.all(30)
     self.ink = True
@@ -70,21 +72,23 @@ class PaymentContainer(ft.Container):
     )
   
   def showPaymentInfo(self, e):
-    newContent = PaymentInfo(
-      page=self.page,
-      idTransaction=self.idTransaction,
+    returnButton = ft.Container(
+      left=10,
+      top=10,
+      content=CustomReturnButton(
+      function=lambda e: self.mainContainer.showLessInfo()
+      )
     )
     
-    if self.infoContainer.height <= 150:
-      self.infoContainer.changeStyle(
-        height=300,
-        width=700,
-        shadow=ft.BoxShadow(
-          blur_radius=5,
-          spread_radius=1,
-          color=constants.WHITE_GRAY,
-        )
-      )
-    self.infoContainer.setNewContent(
-      newContent=newContent
+    newContent = ft.Stack(
+      expand=True,
+      controls=[
+        PaymentInfo(
+          page=self.page,
+          idTransaction=self.idTransaction,
+        ),
+        returnButton,
+      ]
     )
+
+    self.mainContainer.showFurtherInfo(newContent)

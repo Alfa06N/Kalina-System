@@ -72,6 +72,24 @@ def getTransactions(db: Session):
     return handleDatabaseErrors(db, func)
   except Exception:
     raise
+
+def getTransactionsFiltered(db: Session, method: str, transactionType: str = None):
+  try:
+    if not method:
+      def func():
+        return db.query(Transaction).filter(Transaction).all()
+      return handleDatabaseErrors(db, func)
+    elif method == "All":
+      def func():
+        return db.query(Transaction).all()
+      return handleDatabaseErrors(db, func)
+    
+    method_enum = MethodEnum(method)
+    
+    def func():
+      return db.query(Transaction).filter(Transaction.method == method_enum).all()
+    return handleDatabaseErrors(db, func)
+  except: pass
   
 def getTransactionById(db: Session, idTransaction: int):
   try:
