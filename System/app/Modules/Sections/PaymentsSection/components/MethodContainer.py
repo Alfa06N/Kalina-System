@@ -25,7 +25,7 @@ class MethodContainer(ft.Container):
     )
     
     self.methodText = ft.Text(
-      value=method,
+      value=method if not method == "All" else "Todos",
       size=20,
       color=constants.BLACK,
       weight=ft.FontWeight.W_700,

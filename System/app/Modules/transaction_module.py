@@ -175,7 +175,10 @@ class TransactionForm(CustomOperationContainer):
     try:
       field = self.amountFieldContainer.content
       price = self.formContainer.priceCard.price - self.previousContainer.calculateTotal()
-      field.value = round(price, 2) if field == self.amountUSDField else round(price * exchangeRateManager.getRate(), 2)
+      if price > 0:
+        field.value = round(price, 2) if field == self.amountUSDField else round(price * exchangeRateManager.getRate(), 2)
+      else:
+        field.value = 0
     
       self.amountFieldContainer.update()
     except:

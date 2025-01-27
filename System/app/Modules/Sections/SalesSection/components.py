@@ -423,7 +423,7 @@ class SaleRecord(ft.Container):
             size=20,
           ),
           ft.Text(
-            value=user.username,
+            value=user.username if user else "Desconocido",
             color=constants.BLACK,
             size=20,
           ),

@@ -3,6 +3,7 @@ import constants
 import time
 from validation import validateCI, validateEmptyField, validatePassword, validateUsername, validateNumber, evaluateForm
 from utils.imageManager import ImageManager
+from utils.pathUtils import getImagePath
 from datetime import datetime
 import os
 import re
@@ -533,7 +534,19 @@ class CustomAppBar(ft.AppBar):
       )
     
     self.leading_width = 70
-    self.title = ft.Text(title, color=constants.BLACK, weight=ft.FontWeight.W_700, size=32)
+    self.title = ft.Row(
+      alignment=ft.MainAxisAlignment.CENTER,
+      vertical_alignment=ft.CrossAxisAlignment.CENTER,
+      controls=[
+        ft.Image(
+          src=getImagePath("ks logo(only cup).png"),
+          width=80,
+          height=80,
+          fit=ft.ImageFit.CONTAIN,
+        ),
+        ft.Text(title, color=constants.BLACK, weight=ft.FontWeight.W_700, size=32)
+      ]
+    )
     self.toolbar_height = 70
     self.center_title = True
     self.surface_tint_color = constants.BLACK
