@@ -17,17 +17,14 @@ class ClientContainer(ft.Container):
     self.mainContainer = mainContainer
     self.page = page
 
-    self.shadow = ft.BoxShadow(
-      spread_radius=1,
-      blur_radius=1,
-      color=constants.WHITE_GRAY,
-    )
     self.padding = ft.padding.all(10)
     self.bgcolor = constants.WHITE
     self.border_radius = ft.border_radius.all(30)
-    self.ink = True
-    self.ink_color = constants.BLACK_INK
+    self.border = ft.border.all(2, constants.BLACK_INK)
     self.on_click = self.showClientInfo
+    self.animate = ft.animation.Animation(
+      300, ft.AnimationCurve.EASE
+    )
     
     self.clientTitle = CustomAnimatedContainer(
       actualContent=ft.Text(
@@ -37,6 +34,13 @@ class ClientContainer(ft.Container):
         weight=ft.FontWeight.W_700,
         overflow=ft.TextOverflow.ELLIPSIS,
       )
+    )
+    
+    self.clientCI = ft.Text(
+      value=f"V-{self.ciClient}",
+      size=20,
+      color=constants.BLACK,
+      overflow=ft.TextOverflow.ELLIPSIS,
     )
     
     self.content = ft.Row(
@@ -53,12 +57,7 @@ class ClientContainer(ft.Container):
           spacing=0,
           controls=[
             self.clientTitle,
-            ft.Text(
-              value=f"V-{self.ciClient}",
-              size=20,
-              color=constants.BLACK,
-              overflow=ft.TextOverflow.ELLIPSIS,
-            )
+            self.clientCI,
           ]
         )
       ]
@@ -66,28 +65,30 @@ class ClientContainer(ft.Container):
     
   def showClientInfo(self, e):
     try:
-      newContent = ClientInfo(
-        page=self.page,
-        ciClient=self.ciClient,
-        initial=self.initial,
-        fullname=self.fullname,
-        mainContainer=self.mainContainer,
-        clientContainer=self,
-      )
-      
-      if self.infoContainer.height <=150:
-        self.infoContainer.changeStyle(
-          height=800,
-          width=700,
-          shadow=ft.BoxShadow(
-          blur_radius=5,
-          spread_radius=1,
-          color=constants.WHITE_GRAY,
-          )
+      if not self.mainContainer.controlSelected == self:
+        newContent = ClientInfo(
+          page=self.page,
+          ciClient=self.ciClient,
+          initial=self.initial,
+          fullname=self.fullname,
+          mainContainer=self.mainContainer,
+          clientContainer=self,
         )
-      self.infoContainer.setNewContent(newContent=newContent)
+        
+        self.mainContainer.showContentInfo(newContent, self)
     except Exception as err:
       raise 
+  
+  def select(self):
+    self.border = ft.border.all(2, constants.BLACK_GRAY)
+    self.bgcolor = constants.ORANGE
+    self.update()
+  
+  def deselect(self):
+    self.border = ft.border.all(2, constants.BLACK_INK)
+    self.bgcolor = constants.WHITE
+    
+    self.update()
 
 class ClientInfo(ft.Container):
   def __init__(self, page, ciClient, initial, fullname, clientContainer, mainContainer):

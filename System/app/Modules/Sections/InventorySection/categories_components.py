@@ -19,22 +19,19 @@ class CategoryContainer(ft.Container):
     self.infoContainer = infoContainer
     self.mainContainer = mainContainer
     
-    self.shadow = ft.BoxShadow(
-      spread_radius=1,
-      blur_radius=1,
-      color=constants.WHITE_GRAY,
-    )
+    self.border = ft.border.all(2, constants.BLACK_INK)
     self.bgcolor = constants.WHITE
     self.border_radius = ft.border_radius.all(30)
-    self.ink = True
-    self.ink_color = constants.WHITE_GRAY
     self.on_click = self.showCategoryInfo
+    self.animate = ft.animation.Animation(
+      300, ft.AnimationCurve.EASE
+    )
     
     self.imageContainer = CustomAnimatedContainer(
       actualContent=CustomImageContainer(
         src=self.imgPath,
-        width=120,
-        height=120,
+        width=110,
+        height=110,
         border_radius=30,
       )
     )
@@ -76,24 +73,30 @@ class CategoryContainer(ft.Container):
     )
     
   def showCategoryInfo(self, e):
-    newContent = CategoryInfo(
-      imgPath=self.imgPath,
-      name=self.name,
-      idCategory=self.idCategory,
-      description=self.description,
-      infoContainer=self.infoContainer,
-      categoryContainer=self,
-      mainContainer=self.mainContainer,
-      page=self.page,
-    )
+    if not self.mainContainer.controlSelected == self:
+      newContent = CategoryInfo(
+        imgPath=self.imgPath,
+        name=self.name,
+        idCategory=self.idCategory,
+        description=self.description,
+        infoContainer=self.infoContainer,
+        categoryContainer=self,
+        mainContainer=self.mainContainer,
+        page=self.page,
+      )
+      
+      self.mainContainer.showNewInfoContent(newContent, self)
     
-    if not self.infoContainer.height == 400:
-      self.infoContainer.changeStyle(height=400, width=700, shadow=ft.BoxShadow(
-        blur_radius=5,
-        spread_radius=1,
-        color=constants.BLACK_INK,
-      ))
-    self.infoContainer.setNewContent(newContent)
+  def select(self):
+    self.border = ft.border.all(2, constants.BLACK_GRAY)
+    self.bgcolor = constants.ORANGE
+    self.update()
+  
+  def deselect(self):
+    self.border = ft.border.all(2, constants.BLACK_INK)
+    self.bgcolor = constants.WHITE
+    
+    self.update()
 
 class CategoryInfo(ft.Stack):
   def __init__(self, page, idCategory, imgPath, name, description, infoContainer, categoryContainer, mainContainer):

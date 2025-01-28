@@ -63,6 +63,8 @@ class Clients(ft.Stack):
       on_click=self.addClientForm,
     )
     
+    self.controlSelected = None
+    
     self.controls = [
       ft.ResponsiveRow(
         expand=True,
@@ -214,6 +216,7 @@ class Clients(ft.Stack):
         ],
       )
       self.clientsContainer.setNewContent(newContent)
+      self.controlSelected = None
     except:
       raise
   
@@ -230,8 +233,28 @@ class Clients(ft.Stack):
           ]  
         )
       )
+      self.controlSelected = None
     except Exception as err:
       raise
+  
+  def showContentInfo(self, content, container):
+    if self.controlSelected:
+      self.controlSelected.deselect()
+    self.controlSelected = container
+    self.controlSelected.select()
+    
+    if not self.infoContainer.height == 800:
+      self.infoContainer.changeStyle(
+        height=800,
+        width=700,
+        shadow=ft.BoxShadow(
+        blur_radius=5,
+        spread_radius=1,
+        color=constants.WHITE_GRAY,
+        )
+      )
+    
+    self.infoContainer.setNewContent(content)
   
   def resetAll(self):
     try:

@@ -17,22 +17,19 @@ class ComboContainer(ft.Container):
     self.infoContainer = infoContainer
     self.mainContainer = mainContainer
     
-    self.shadow = ft.BoxShadow(
-      spread_radius=1,
-      blur_radius=1,
-      color=constants.WHITE_GRAY,
-    )
+    self.border = ft.border.all(2, constants.BLACK_INK)
     self.bgcolor = constants.WHITE
     self.border_radius = ft.border_radius.all(30)
-    self.ink = True
-    self.ink_color = constants.WHITE_GRAY
     self.on_click = self.showComboInfo
+    self.animate = ft.animation.Animation(
+      300, ft.AnimationCurve.EASE
+    )
     
     self.imageContainer = CustomAnimatedContainer(
       actualContent=CustomImageContainer(
         src=self.imgPath,
-        width=120,
-        height=120,
+        width=110,
+        height=110,
         border_radius=30,
       )
     )
@@ -63,23 +60,29 @@ class ComboContainer(ft.Container):
       ]
     )
     
-  def showComboInfo(self, e):
-    newContent = ComboInfo(
-      imgPath=self.imgPath,
-      idCombo=self.idCombo,
-      infoContainer=self.infoContainer,
-      mainContainer=self.mainContainer,
-      comboContainer=self,
-      page=self.page,
-    )
+  def select(self):
+    self.border = ft.border.all(2, constants.BLACK_GRAY)
+    self.bgcolor = constants.ORANGE
+    self.update()
+  
+  def deselect(self):
+    self.border = ft.border.all(2, constants.BLACK_INK)
+    self.bgcolor = constants.WHITE
     
-    if not self.infoContainer.height == 600:
-      self.infoContainer.changeStyle(height=600, width=700, shadow=ft.BoxShadow(
-        blur_radius=5,
-        spread_radius=1,
-        color=constants.BLACK_INK,
-      ))
-    self.infoContainer.setNewContent(newContent)
+    self.update()
+    
+  def showComboInfo(self, e):
+    if not self.mainContainer.controlSelected == self:
+      newContent = ComboInfo(
+        imgPath=self.imgPath,
+        idCombo=self.idCombo,
+        infoContainer=self.infoContainer,
+        mainContainer=self.mainContainer,
+        comboContainer=self,
+        page=self.page,
+      )
+      
+      self.mainContainer.showNewInfoContent(newContent, self)
     
   def updateContainer(self, name, imgPath):
     try:

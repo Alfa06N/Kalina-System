@@ -19,16 +19,10 @@ class EmployeeContainer(ft.Container):
     self.principalContainer = principalContainer
     self.page = page
     
-    self.shadow = ft.BoxShadow(
-      spread_radius=1,
-      blur_radius=1,
-      color=constants.WHITE_GRAY,
-    )
+    self.border = ft.border.all(2, constants.BLACK_INK)
     self.padding = ft.padding.all(10)
     self.bgcolor = constants.WHITE
     self.border_radius = ft.border_radius.all(30)
-    self.ink = True
-    self.ink_color = constants.BLACK_INK
     self.on_click = self.showEmployeeInfo
     
     self.employeeTitle = CustomAnimatedContainer(
@@ -70,23 +64,30 @@ class EmployeeContainer(ft.Container):
     )
     
   def showEmployeeInfo(self, e):
-    newContent = EmployeeInfo(
-      initial=self.initial,
-      ciEmployee=self.ciEmployee,
-      name=self.name,
-      surname=self.surname,
-      secondSurname=self.secondSurname,
-      page=self.page,
-      employeeContainer=self,
-      principalContainer=self.principalContainer
-    )
-    if not self.infoContainer.height == 400:
-      self.infoContainer.changeStyle(height=400, width=700, shadow=ft.BoxShadow(
-        blur_radius=5,
-        spread_radius=1,
-        color=constants.BLACK_GRAY,
-      ))
-    self.infoContainer.setNewContent(newContent=newContent)
+    if not self.principalContainer.controlSelected == self:
+      newContent = EmployeeInfo(
+        initial=self.initial,
+        ciEmployee=self.ciEmployee,
+        name=self.name,
+        surname=self.surname,
+        secondSurname=self.secondSurname,
+        page=self.page,
+        employeeContainer=self,
+        principalContainer=self.principalContainer
+      )
+      
+      self.principalContainer.showContentInfo(newContent, self)
+    
+  def select(self):
+    self.border = ft.border.all(2, constants.BLACK_GRAY)
+    self.bgcolor = constants.ORANGE
+    self.update()
+  
+  def deselect(self):
+    self.border = ft.border.all(2, constants.BLACK_INK)
+    self.bgcolor = constants.WHITE
+    
+    self.update()
     
 class EmployeeInfo(ft.Stack):
   def __init__(self, page, ciEmployee, initial, name, surname, secondSurname, employeeContainer, principalContainer):
@@ -180,7 +181,8 @@ class EmployeeInfo(ft.Stack):
     self.employeeInfo = ft.Column(
       alignment=ft.MainAxisAlignment.CENTER,
       horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-      height=200,
+      # height=200,
+      expand=True,
       controls=[
         self.birthdateField,
         # Also add the userInfo
@@ -236,7 +238,7 @@ class EmployeeInfo(ft.Stack):
       
     self.columnContent = ft.Column(
       scroll=ft.ScrollMode.AUTO,
-      expand=True,
+      expand=False,
       alignment=ft.MainAxisAlignment.START,
       horizontal_alignment=ft.CrossAxisAlignment.CENTER,
       controls=[

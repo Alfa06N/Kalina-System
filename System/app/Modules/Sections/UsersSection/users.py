@@ -44,6 +44,8 @@ class Users(ft.Stack):
       col={"sm": 12, "md": 6, "xl": 8},
     )
     
+    self.controlSelected = None
+    
     self.fillUsersContainer()
       
     self.usersViews = ft.ResponsiveRow(
@@ -83,6 +85,7 @@ class Users(ft.Stack):
         ],
       )
     )
+    self.controlSelected = None
     self.infoContainer.changeStyle(height=150, width=700, shadow=None)
     
   def resetUsersContainer(self):
@@ -90,6 +93,7 @@ class Users(ft.Stack):
       self.usersContainer.content.controls.clear()
       self.fillUsersContainer()
       self.usersContainer.update()
+      self.controlSelected = None
     except Exception as err:
       raise
   
@@ -113,7 +117,7 @@ class Users(ft.Stack):
               fullname=fullname,
               role=user.role,
               page=self.page,
-              principalContainer=self,
+              mainContainer=self,
               infoContainer=self.infoContainer
             )
             self.usersContainer.content.controls.append(user)
@@ -152,3 +156,22 @@ class Users(ft.Stack):
       form.adminPasswordField.on_submit = lambda e: customSubmitForm()
       
       self.infoContainer.setNewContent(form)
+  
+  def showContentInfo(self, content, container):
+    if self.controlSelected:
+      self.controlSelected.deselect()
+    self.controlSelected = container
+    self.controlSelected.select()
+    
+    if not self.infoContainer.height == 800:
+      self.infoContainer.changeStyle(
+        height=800,
+        width=700,
+        shadow=ft.BoxShadow(
+        blur_radius=5,
+        spread_radius=1,
+        color=constants.WHITE_GRAY,
+        )
+      )
+    
+    self.infoContainer.setNewContent(content)

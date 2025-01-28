@@ -17,22 +17,19 @@ class ProductContainer(ft.Container):
     self.infoContainer = infoContainer
     self.mainContainer = mainContainer
     
-    self.shadow = ft.BoxShadow(
-      spread_radius=1,
-      blur_radius=1,
-      color=constants.WHITE_GRAY,
-    )
+    self.border = ft.border.all(2, constants.BLACK_INK)
     self.bgcolor = constants.WHITE
     self.border_radius = ft.border_radius.all(30)
-    self.ink = True
-    self.ink_color = constants.WHITE_GRAY
     self.on_click = self.showProductInfo
+    self.animate = ft.animation.Animation(
+      300, ft.AnimationCurve.EASE
+    )
     
     self.imageContainer = CustomAnimatedContainer(
       actualContent=CustomImageContainer(
         src=self.imgPath,
-        width=120,
-        height=120,
+        width=110,
+        height=110,
         border_radius=30,
       )
     )
@@ -74,22 +71,28 @@ class ProductContainer(ft.Container):
     )
     
   def showProductInfo(self, e):
-    newContent = ProductInfo(
-      imgPath=self.imgPath,
-      idProduct=self.idProduct,
-      infoContainer=self.infoContainer,
-      mainContainer=self.mainContainer,
-      productContainer=self,
-      page=self.page,
-    )
+    if not self.mainContainer.controlSelected == self:
+      newContent = ProductInfo(
+        imgPath=self.imgPath,
+        idProduct=self.idProduct,
+        infoContainer=self.infoContainer,
+        mainContainer=self.mainContainer,
+        productContainer=self,
+        page=self.page,
+      )
+      
+      self.mainContainer.showNewInfoContent(newContent, self)
     
-    if not self.infoContainer.height == 600:
-      self.infoContainer.changeStyle(height=600, width=700, shadow=ft.BoxShadow(
-        blur_radius=5,
-        spread_radius=1,
-        color=constants.BLACK_INK,
-      ))
-    self.infoContainer.setNewContent(newContent)
+  def select(self):
+    self.border = ft.border.all(2, constants.BLACK_GRAY)
+    self.bgcolor = constants.ORANGE
+    self.update()
+  
+  def deselect(self):
+    self.border = ft.border.all(2, constants.BLACK_INK)
+    self.bgcolor = constants.WHITE
+    
+    self.update()
   
   def updateContainer(self, name, description, imgPath):
     try:

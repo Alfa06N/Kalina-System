@@ -18,17 +18,15 @@ class SaleContainer(ft.Container):
     self.infoContainer = infoContainer
     self.mainContainer = mainContainer
     
-    self.shadow = ft.BoxShadow(
-      spread_radius=1,
-      blur_radius=1,
-      color=constants.WHITE_GRAY,
-    )
+    self.border = ft.border.all(2, constants.BLACK_INK)
     self.padding = ft.padding.all(10)
     self.bgcolor = constants.WHITE
     self.border_radius = ft.border_radius.all(30)
-    self.ink = True
-    self.ink_color = constants.BLACK_INK
     self.on_click = lambda e: self.showSaleInfo()
+    self.animate = ft.animation.Animation(
+      duration=300,
+      curve=ft.AnimationCurve.EASE,
+    )
     
     with getDB() as db:
       sale = getSaleById(db, self.idSale)
@@ -84,24 +82,23 @@ class SaleContainer(ft.Container):
       
   def showSaleInfo(self):
     try:
-      newContent = SaleRecord(
-        page=self.page,
-        idSale=self.idSale,
-      )
-      
-      with getDB() as db:
-        sale = getSaleById(db, self.idSale)
-      
-      if self.infoContainer.height == 150:
-        self.infoContainer.changeStyle(
-          height=800,
-          width=700,
-          shadow=ft.BoxShadow(
-            blur_radius=5,
-            spread_radius=1,
-            color=constants.WHITE_GRAY,
-          )
+      if not self.mainContainer.controlSelected == self:
+        newContent = SaleRecord(
+          page=self.page,
+          idSale=self.idSale,
         )
-      self.infoContainer.setNewContent(newContent=newContent)
+        
+        self.mainContainer.showContentInfo(newContent, self)
     except:
       raise
+  
+  def select(self):
+    self.border = ft.border.all(2, constants.BLACK_GRAY)
+    self.bgcolor = constants.ORANGE
+    self.update()
+  
+  def deselect(self):
+    self.border = ft.border.all(2, constants.BLACK_INK)
+    self.bgcolor = constants.WHITE
+    
+    self.update()

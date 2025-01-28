@@ -149,6 +149,8 @@ class Inventory(ft.Stack):
     )
     
     self.addItemButton = CustomFloatingActionButton(on_click=self.addItemForm)
+    
+    self.controlSelected = None
 
     self.selected = self.productButton
     
@@ -197,6 +199,8 @@ class Inventory(ft.Stack):
       self.infoContainer.setNewContent(self.productInitialContent)
     elif self.selected == self.comboButton:
       self.infoContainer.setNewContent(self.comboInitialContent)
+    
+    self.controlSelected = None
     
   def addItemForm(self, e):
     self.newContent = None
@@ -339,10 +343,24 @@ class Inventory(ft.Stack):
       weight=ft.FontWeight.W_700,
       text_align=ft.TextAlign.CENTER,
     )
+    
+  def showNewInfoContent(self, content, controlSelected=None):
+    if self.controlSelected:
+      self.controlSelected.deselect()
+    self.controlSelected = controlSelected
+    self.controlSelected.select()
+    
+    if not self.infoContainer.height == 600:
+      self.infoContainer.changeStyle(height=600, width=700, shadow=ft.BoxShadow(
+        blur_radius=5,
+        spread_radius=1,
+        color=constants.BLACK_INK,
+      ))
+    self.infoContainer.setNewContent(content)
   
   def showLowStockProduct(self, idProduct):
     for container in self.itemsContainer.content.content.controls:
-      if container.idProduct == idProduct:
+      if container.idProduct == idProduct and not container == self.controlSelected:
         newContent = ProductInfo(
           imgPath=container.imgPath,
           idProduct=idProduct,
@@ -351,10 +369,5 @@ class Inventory(ft.Stack):
           productContainer=self,
           page=self.page,
         )
-        self.infoContainer.changeStyle(height=800, width=700, shadow=ft.BoxShadow(
-          blur_radius=5,
-          spread_radius=1,
-          color=constants.BLACK_INK,
-        ))
-        self.infoContainer.setNewContent(newContent)
+        self.showNewInfoContent(newContent, container)
         break

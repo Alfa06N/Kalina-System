@@ -45,6 +45,8 @@ class Employees(ft.Stack):
       ),
     )
     
+    self.controlSelected = None
+    
     self.fillEmployeesContainer()
     
     self.employeesViews = ft.ResponsiveRow(
@@ -89,12 +91,14 @@ class Employees(ft.Stack):
         expand=True,
       )
     )
+    self.controlSelected = None
     self.infoContainer.changeStyle(height=150, width=700, shadow=None)
     
   def resetEmployeesContainer(self):
     try:
       self.employeesContainer.content.controls.clear()
       self.fillEmployeesContainer()
+      self.controlSelected = None
       self.employeesContainer.update()
     except Exception as e:
       print(e)
@@ -122,3 +126,22 @@ class Employees(ft.Stack):
             self.employeesContainer.content.controls.append(employee)
     except Exception as e:
       print(f"Error loading employees: {e}")
+      
+  def showContentInfo(self, content, container):
+    if self.controlSelected:
+      self.controlSelected.deselect()
+    self.controlSelected = container
+    self.controlSelected.select()
+    
+    if not self.infoContainer.height == 800:
+      self.infoContainer.changeStyle(
+        height=400,
+        width=700,
+        shadow=ft.BoxShadow(
+        blur_radius=5,
+        spread_radius=1,
+        color=constants.WHITE_GRAY,
+        )
+      )
+    
+    self.infoContainer.setNewContent(content)

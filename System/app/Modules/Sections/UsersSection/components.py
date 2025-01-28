@@ -10,7 +10,7 @@ from exceptions import DataAlreadyExists, DataNotFoundError
 from utils.sessionManager import getCurrentUser, setUser
 
 class UserContainer(ft.Container):
-  def __init__(self, page, initial, username, fullname, role, infoContainer, principalContainer):
+  def __init__(self, page, initial, username, fullname, role, infoContainer, mainContainer):
     super().__init__()
     self.initial = initial
     self.username = username
@@ -19,19 +19,16 @@ class UserContainer(ft.Container):
     self.page = page
     self.infoContainer = infoContainer
     self.spacing = 0
-    self.principalContainer = principalContainer
+    self.mainContainer = mainContainer
     
     self.padding = ft.padding.all(10)
-    self.shadow = ft.BoxShadow(
-      spread_radius=1,
-      blur_radius=1,
-      color=constants.WHITE_GRAY,
-    )
+    self.border = ft.border.all(2, constants.BLACK_INK)
     self.bgcolor= constants.WHITE
     self.border_radius = ft.border_radius.all(30)
-    self.ink = True
-    self.ink_color = constants.BLACK_INK
     self.on_click = self.showUserInfo
+    self.animate = ft.animation.Animation(
+      300, ft.AnimationCurve.EASE
+    )
     
     self.usernameTitle = CustomAnimatedContainer(
       actualContent=ft.Text(
@@ -72,22 +69,28 @@ class UserContainer(ft.Container):
     )
   
   def showUserInfo(self, e):
-    newContent = UserInfo(
-      initial=self.initial,
-      page=self.page,
-      username=self.username,
-      fullname=self.fullname,
-      role=self.role,
-      principalContainer=self.principalContainer,
-      userContainer=self
-    )
-    if self.infoContainer.height == 150:
-      self.infoContainer.changeStyle(bgcolor=constants.WHITE, height=600, width=500, shadow=ft.BoxShadow(
-        blur_radius=5,
-        spread_radius=1,
-        color=constants.BLACK_INK,
-      ))
-    self.infoContainer.setNewContent(newContent=newContent)
+    if not self.mainContainer.controlSelected == self:
+      newContent = UserInfo(
+        initial=self.initial,
+        page=self.page,
+        username=self.username,
+        fullname=self.fullname,
+        role=self.role,
+        principalContainer=self.mainContainer,
+        userContainer=self
+      )
+      self.mainContainer.showContentInfo(newContent, self)
+      
+  def select(self):
+    self.border = ft.border.all(2, constants.BLACK_GRAY)
+    self.bgcolor = constants.ORANGE
+    self.update()
+  
+  def deselect(self):
+    self.border = ft.border.all(2, constants.BLACK_INK)
+    self.bgcolor = constants.WHITE
+    
+    self.update()
     
   def updateUsername(self, newUsername):
     self.username = newUsername
@@ -183,7 +186,6 @@ class UserInfo(ft.Stack):
     
     self.selected = self.editButton
     self.selectedContainer = ft.Container(
-      # border=ft.border.all(1, constants.BLACK),
       width=700,
       height=300,
       alignment=ft.alignment.center,

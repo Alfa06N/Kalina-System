@@ -502,7 +502,6 @@ class CustomUserIcon(ft.Container):
     self.height = height
     self.border_radius = ft.border_radius.all(50)
     self.fontSize = fontSize
-    # self.padding = ft.padding.all(10)
     self.alignment = ft.alignment.center
     
     if gradient:
@@ -513,7 +512,7 @@ class CustomUserIcon(ft.Container):
       )
       self.content = ft.Text(value=initial, size=self.fontSize, weight=ft.FontWeight.BOLD, color=constants.ORANGE_LIGHT)
     else:
-      self.bgcolor = ft.Colors.TRANSPARENT
+      self.bgcolor = constants.WHITE
       self.border = ft.border.all(2, constants.BLACK_GRAY)
       self.content = ft.Text(value=initial, size=self.fontSize, weight=ft.FontWeight.BOLD, color=constants.BLACK)
     

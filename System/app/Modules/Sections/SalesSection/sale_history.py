@@ -14,6 +14,7 @@ class SaleHistory(ft.Stack):
     self.page = page
     
     self.currentPage = 1
+    self.controlSelected = None
     
     self.upButton = ft.Container(
       padding=ft.padding.symmetric(vertical=10),
@@ -133,3 +134,22 @@ class SaleHistory(ft.Stack):
       self.salesContainer.setNewContent(newContent)
     except:
       raise
+  
+  def showContentInfo(self, content, container):
+    if self.controlSelected:
+      self.controlSelected.deselect()
+    self.controlSelected = container
+    self.controlSelected.select()
+    
+    if not self.infoContainer.height == 800:
+      self.infoContainer.changeStyle(
+        height=800,
+        width=700,
+        shadow=ft.BoxShadow(
+        blur_radius=5,
+        spread_radius=1,
+        color=constants.WHITE_GRAY,
+        )
+      )
+    
+    self.infoContainer.setNewContent(content)
