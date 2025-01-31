@@ -7,6 +7,7 @@ from DataBase.crud.category import getCategoryById, updateCategory, removeCatego
 from utils.imageManager import ImageManager
 from exceptions import DataAlreadyExists
 from validation import evaluateForm
+from utils.sessionManager import isAdmin
 
 class CategoryContainer(ft.Container):
   def __init__(self, idCategory, name, description, infoContainer, mainContainer, imgPath=None):
@@ -155,12 +156,12 @@ class CategoryInfo(ft.Stack):
         ]
       ),
       ft.Container(
-        content=self.deleteButton,
+        content=self.deleteButton if isAdmin() else None,
         right=10,
         top=10,
       ),
       ft.Container(
-        content=self.editButton,
+        content=self.editButton if isAdmin() else None,
         right=80,
         top=10,
       )

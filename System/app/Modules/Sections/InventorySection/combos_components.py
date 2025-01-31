@@ -7,6 +7,7 @@ from utils.imageManager import ImageManager
 from DataBase.crud.combo import createCombo, getComboById, getComboByName, getCombos, removeCombo
 from Modules.Sections.InventorySection.products_components import ProductContainer
 from Modules.combos_module import UpdateInfoForm
+from utils.sessionManager import isAdmin
 
 class ComboContainer(ft.Container):
   def __init__(self, page, infoContainer, mainContainer, idCombo, name, imgPath=None):
@@ -239,12 +240,12 @@ class ComboInfo(ft.Stack):
           ]
         ),
         ft.Container(
-          content=self.deleteButton,
+          content=self.deleteButton if isAdmin() else None,
           right=10,
           top=0,
         ),
         ft.Container(
-          content=self.editButton,
+          content=self.editButton if isAdmin() else None,
           right=80,
           top=0,
         )

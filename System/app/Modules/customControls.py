@@ -909,6 +909,8 @@ class CustomSidebar(ft.Container):
       ] if user.role == "Administrador" else [
         self.sales,
         self.inventory,
+        self.payments,
+        self.closings,
       ]    
     
       self.content = ft.Column(
@@ -1393,7 +1395,7 @@ class CustomAutoComplete(ft.Container):
     )
     
 class CustomNumberField(ft.Container):
-  def __init__(self, label, expand=False, helper_text=None, value=0, on_change=None):
+  def __init__(self, label, allowNegatives=False, expand=False, helper_text=None, value=0, on_change=None):
     super().__init__()
     self.width = 220
     self.height = 60
@@ -1401,6 +1403,7 @@ class CustomNumberField(ft.Container):
     self.label = label
     self.alignment = ft.alignment.center
     self.on_changeFunction = on_change
+    self.allowNegatives = allowNegatives
     self.fieldValue = 0
     
     self.field = ft.TextField(
@@ -1449,13 +1452,14 @@ class CustomNumberField(ft.Container):
     self.on_changeFun()
   
   def removeOne(self, e):
-    if not int(self.field.value) == 0:
+    if not int(self.field.value) == 0 or self.allowNegatives:
       self.field.value = int(self.field.value) - 1
-      self.on_changeFun()
+    self.on_changeFun()
       
   def on_changeFun(self):
     self.updateField()
-    self.on_changeFunction()
+    if self.on_changeFunction:
+      self.on_changeFunction()
   
   def updateField(self):
     self.field.update()
@@ -2604,12 +2608,7 @@ class CustomLowStockDialog(ft.AlertDialog):
           else: 
             inventory.selectView(inventory.productButton)
             inventory.showLowStockProduct(idProduct)
-          # inventory.selectView(inventory.productButton)
-          # self.page.mainContainer.showItemInfo(
-          #   idItem=idProduct,
-          #   imgPath=imgPath
-          # )
-          # print("Second if")
+          
     except:
       raise
       

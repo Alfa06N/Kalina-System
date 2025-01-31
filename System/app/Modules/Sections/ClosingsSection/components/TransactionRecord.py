@@ -2,18 +2,20 @@ from exceptions import DataAlreadyExists, DataNotFoundError
 import re
 import flet as ft
 import constants
-from Modules.Sections.PaymentsSection.components.PaymentInfo import PaymentInfo
+from DataBase.crud.transaction import getTransactionById
 from Modules.customControls import CustomReturnButton
+from Modules.Sections.ClosingsSection.components.TransactionInfo import TransactionInfo
 
-class PaymentContainer(ft.Container):
-  def __init__(self, page, transactionType, method, amount:str , infoContainer, mainContainer, idTransaction:int=None):
+class TransactionRecord(ft.Container):
+  def __init__(self, page, transactions, transactionType, method, amount:str , mainContainer, payments, changes):
     super().__init__()
     self.page = page
-    self.idTransaction = idTransaction
     self.transactionType = transactionType
+    self.transactions = transactions
+    self.payments = payments
+    self.changes = changes
     self.method = method
     self.amount = amount
-    self.infoContainer = infoContainer
     self.mainContainer = mainContainer
     
     self.shadow = ft.BoxShadow(
@@ -27,8 +29,8 @@ class PaymentContainer(ft.Container):
     self.border_radius = ft.border_radius.all(30)
     self.ink = True
     self.ink_color = constants.BLACK_INK
-    self.on_click = self.showPaymentInfo if self.mainContainer else None
-  
+    self.on_click = lambda e: self.showNewContent()
+    
     self.transactionMethodIcon = ft.Icon(
       name=constants.methodIcons[self.method],
       size=40,
@@ -36,9 +38,9 @@ class PaymentContainer(ft.Container):
     )
     
     self.transactionAmount = ft.Text(
-      value=self.amount,
+      value=f"{round(self.amount["total"], 2)}$",
       size=24,
-      color=constants.GREEN_TEXT if self.transactionType == "Payment" else constants.RED_TEXT,
+      color=constants.GREEN_TEXT if round(self.amount["total"], 2) >= 0 else constants.RED_TEXT,
       weight=ft.FontWeight.W_500,
       overflow=ft.TextOverflow.ELLIPSIS,
       text_align=ft.TextAlign.START,
@@ -70,11 +72,15 @@ class PaymentContainer(ft.Container):
         )
       ]
     )
-  
-  def showPaymentInfo(self, e):
-    newContent = PaymentInfo(
+    
+  def showNewContent(self):
+    newContent = TransactionInfo(
       page=self.page,
-      idTransaction=self.idTransaction,
-      mainContainer=self.mainContainer,
+      transactions=self.transactions,
+      payments=self.payments,
+      changes=self.changes,
+      totalAmount=self.amount,
+      mainContainer=self.mainContainer
     )
-    self.mainContainer.showFurtherInfo(newContent)
+    
+    self.mainContainer.changeContent(newContent, self.method)

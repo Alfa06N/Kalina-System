@@ -13,6 +13,7 @@ from DataBase.crud.product import getProducts, getProductById
 from DataBase.crud.combo import getCombos
 from config import getDB
 from utils.imageManager import ImageManager
+from utils.sessionManager import isAdmin
 
 class Inventory(ft.Stack):
   def __init__(self, page):
@@ -173,7 +174,7 @@ class Inventory(ft.Stack):
         ]
       ),
       ft.Container(
-        content=self.addItemButton,
+        content=self.addItemButton if isAdmin() else None,
         right=10,
         bottom=10,
       )

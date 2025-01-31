@@ -5,6 +5,7 @@ from config import getDB
 from DataBase.crud.product import getProducts, getProductById, updateProduct, updateProductStock, removeProduct, calculatePrice
 from Modules.products_module import UpdateStockForm, UpdateInfoForm, UpdatePriceForm
 from utils.imageManager import ImageManager
+from utils.sessionManager import isAdmin
 import time
 
 class ProductContainer(ft.Container):
@@ -292,12 +293,10 @@ class ProductInfo(ft.Stack):
                 ft.Container(
                   ink=True,
                   ink_color=constants.WHITE_GRAY,
-                  on_click=self.showEditPrice,
+                  on_click=self.showEditPrice if isAdmin() else None, 
                   border=ft.border.all(2, constants.BLACK),
                   alignment=ft.alignment.center_left,
                   border_radius=ft.border_radius.all(20),
-                  # height=240,
-                  # width=600,
                   padding=ft.padding.all(20),
                   content=ft.Column(
                     alignment=ft.MainAxisAlignment.CENTER,
@@ -319,12 +318,12 @@ class ProductInfo(ft.Stack):
           ]
         ),
         ft.Container(
-          content=self.deleteButton,
+          content=self.deleteButton if isAdmin() else None,
           right=10,
           top=10,
         ),
         ft.Container(
-          content=self.editButton,
+          content=self.editButton if isAdmin() else None,
           right=80,
           top=10,
         )

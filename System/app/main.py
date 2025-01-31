@@ -8,10 +8,12 @@ from config import getDB
 from DataBase.crud.user import getUsers, getUserByUsername, updateUser
 from DataBase.crud.product import getProductByName, getProducts
 from DataBase.crud.category import getCategories, removeCategory
+from DataBase.crud.closing import getSalesWithoutClosing
 from utils.imageManager import ImageManager
 import time
 import asyncio
 from DataBase.crud.transaction import getTransactions
+from Modules.Sections.ClosingsSection.components.ClosingRecord import ClosingRecord
 
 def main(page: ft.Page):
   page.title = "Kariña System"
@@ -32,8 +34,23 @@ def main(page: ft.Page):
   page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
   page.padding = 0 
   init_db() 
+  
+  # with getDB() as db:
+  #   sales, generalPrice, totals = getSalesWithoutClosing(db)
+  #   print(generalPrice)
+  #   print(list(totals.keys()))
+  #   print("Payments:", totals["payments"])
+  #   print("Changes:", totals["changes"])
+    
+  #   page.add(ClosingRecord(
+  #     page=page,
+  #     sales=sales,
+  #     amount=generalPrice,
+  #     totals=totals,
+  #   ))
+    
 
-  setUser("Alfa06N")
+  setUser("Alfa06NColaborador")
   showPrincipal(page)
   # initApp(page)
 

@@ -39,6 +39,7 @@ class User(Base):
   role = Column(Enum("Administrador", "Colaborador"), nullable=False)
   ciEmployee = Column(Integer, ForeignKey("Employee.ciEmployee", ondelete="CASCADE"))
   
+  closings = relationship("Closing", back_populates="user")
   employee = relationship("Employee", back_populates="user", uselist=False)
   sales = relationship("Sale", back_populates="user")
   recovery = relationship("Recovery", back_populates="user", uselist=False)
@@ -102,7 +103,9 @@ class Closing(Base):
   amount = Column(DECIMAL(10, 3), nullable=False)
   date = Column(Date, nullable=False)
   gain = Column(DECIMAL(10, 3))
+  idUser = Column(Integer, ForeignKey("User.idUser"))
 
+  user = relationship("User", back_populates="closings")
   sales = relationship("Sale", back_populates="closing")
   
 class Sale(Base):
@@ -205,19 +208,5 @@ class Transaction(Base):
   idSale = Column(Integer, ForeignKey("Sale.idSale", ondelete="CASCADE"))
   
   sale = relationship("Sale", back_populates="transactions")
-
-# class Statistic(Base):
-#   __tablename__ = "Statistic"
-  
-#   idStatistic = Column(Integer, primary_key=True, autoincrement=True)
-#   productOne = Column(Integer, ForeignKey("Product.idProduct"))
-#   quantityOne = Column(Integer, nullable=False)
-#   productTwo = Column(Integer, ForeignKey("Product.idProduct"))
-#   quantityTwo = Column(Integer, nullable=False)
-#   productThree = Column(Integer, ForeignKey("Product.idProduct"))
-#   quantityThree = Column(Integer, nullable=False)
-#   quantityOthers = Column(Integer, nullable=False)
-#   startOfMonth = Column(Date, nullable=False)
-#   endOfMonth = Column(Date, nullable=False)
   
 Base.metadata.create_all(engine)

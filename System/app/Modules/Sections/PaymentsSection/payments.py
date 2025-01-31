@@ -1,6 +1,6 @@
 import flet as ft
 import constants
-from Modules.customControls import CustomAnimatedContainer, CustomAnimatedContainerSwitcher,CustomNavigationOptions
+from Modules.customControls import CustomAnimatedContainer, CustomAnimatedContainerSwitcher,CustomNavigationOptions, CustomReturnButton
 from Modules.Sections.PaymentsSection.components.PaymentContainer import PaymentContainer
 from DataBase.crud.transaction import getTransactions, getTransactionsFiltered
 from DataBase.models import MethodEnum
@@ -155,12 +155,46 @@ class Payments(ft.ResponsiveRow):
     )
   
   def showFurtherInfo(self, content):
-    self.oldContent = self.infoContainer.content.content
+    oldContent = self.infoContainer.content.content
+    
+    newContent = ft.Stack(
+      expand=True,
+      controls=[
+        content,
+        ft.Container(
+          top=0,
+          left=0,
+          content=CustomReturnButton(
+            function=lambda e: self.infoContainer.setNewContent(newContent=oldContent)
+          )
+        )
+      ]
+    )
     self.infoContainer.setNewContent(
-      newContent=content
+      newContent=newContent
     )
   
   def showLessInfo(self):
     self.infoContainer.setNewContent(
       newContent=self.oldContent
     )
+    
+  def showSale(self, newContent):
+    previousContent = self.infoContainer.content.content
+    print(previousContent)
+    
+    newContent = ft.Stack(
+      expand=True,
+      controls=[
+        newContent,
+        ft.Container(
+          left=0,
+          top=0,
+          content=CustomReturnButton(
+            function=lambda e: self.infoContainer.setNewContent(previousContent)
+          )
+        )
+      ]
+    )
+    
+    self.infoContainer.setNewContent(newContent)

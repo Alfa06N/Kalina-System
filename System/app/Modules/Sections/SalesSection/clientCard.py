@@ -278,6 +278,7 @@ class ClientSelection(ft.Container):
         
         newContent.on_click = None
         newContent.shadow = None
+        newContent.border = None
         
         removeClientButton = CustomEditButton(
           function=lambda e: self.removeClient()

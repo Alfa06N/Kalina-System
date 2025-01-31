@@ -2,16 +2,18 @@ from exceptions import DataAlreadyExists, DataNotFoundError
 import re
 import flet as ft
 import constants
-from Modules.customControls import CustomAnimatedContainer, CustomOperationContainer, CustomUserIcon, CustomCardInfo, CustomDeleteButton, CustomReturnButton
+from Modules.customControls import CustomAnimatedContainer, CustomOperationContainer, CustomUserIcon, CustomCardInfo, CustomDeleteButton, CustomReturnButton, CustomFilledButton, CustomOutlinedButton
 from config import getDB
 from DataBase.crud.transaction import getTransactionById
+from Modules.Sections.SalesSection.components import SaleRecord
 
 class PaymentInfo(ft.Container):
-  def __init__(self, page, idTransaction):
+  def __init__(self, page, idTransaction, mainContainer):
     super().__init__()
     self.page = page
     self.idTransaction = idTransaction
     self.expand = True
+    self.mainContainer = mainContainer
     
     self.alignment = ft.alignment.center
     
@@ -27,7 +29,7 @@ class PaymentInfo(ft.Container):
       self.titleMethod = ft.Text(
         value=transaction.method.value,
         size=28,
-        weight=ft.FontWeight.W_700,
+        weight=ft.FontWeight.W_600,
         color=constants.BLACK,
       )
       
@@ -36,6 +38,26 @@ class PaymentInfo(ft.Container):
         size=24,
         weight=ft.FontWeight.W_700,
         color=constants.GREEN_TEXT if transaction.transactionType == "Payment" else constants.RED_TEXT,
+      )
+      
+      self.exchangeText = ft.Text(
+        value=f"{round(transaction.exchangeRate, 3)}Bs",
+        color=constants.ORANGE_TEXT,
+        weight=ft.FontWeight.W_600,
+        size=20,
+      )
+      
+      self.referenceText = ft.Text(
+        value=f"{transaction.reference}" if transaction.reference else "Sin referencia",
+        color=constants.BLACK if transaction.reference else constants.BLACK_GRAY,
+        size=20,
+      )
+      
+      client = transaction.sale.client
+      self.clientText = ft.Text(
+        value=f"{client.name} {client.surname} {client.secondSurname}",
+        color=constants.BLACK,
+        size=20,
       )
       
       self.header = ft.Row(
@@ -53,37 +75,96 @@ class PaymentInfo(ft.Container):
               self.subtitleAmount,
             ]  
           ),
+          ft.VerticalDivider(width=1, color=constants.BLACK_GRAY),
         ]
       )
       
       self.typeText = ft.Text(
-        value=f"Tipo de transacción: Vuelto" if transaction.transactionType == "Change" else f"Tipo de transacción: Pago entrante",
+        value=f"Vuelto" if transaction.transactionType == "Change" else f"Pago entrante",
         color=constants.BLACK,
         size=20,
       )
       
       self.body = ft.Column(
-        
+        controls=[
+          ft.Row(
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            controls=[
+              ft.Text(
+                value=f"Tipo de transacción:",
+                color=constants.BLACK,
+                weight=ft.FontWeight.W_600,
+                size=20,
+              ),
+              self.typeText,
+            ]
+          ),
+          ft.Row(
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            controls=[
+              ft.Text(
+                value=f"Cliente:",
+                color=constants.BLACK,
+                weight=ft.FontWeight.W_600,
+                size=20,
+              ),
+              self.clientText,
+            ]
+          ),
+          ft.Row(
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            controls=[
+              ft.Text(
+                value=f"Tasa de cambio:",
+                color=constants.BLACK,
+                weight=ft.FontWeight.W_600,
+                size=20,
+              ),
+              self.exchangeText,
+            ]
+          ),
+          ft.Row(
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            controls=[
+              ft.Text(
+                value=f"Referencia:",
+                color=constants.BLACK,
+                weight=ft.FontWeight.W_600,
+                size=20,
+              ),
+              self.referenceText,
+            ]
+          ),
+        ]
+      )
+      
+      self.showSaleButton = CustomOutlinedButton(
+        text="Mostrar venta",
+        clickFunction=self.showSale
       )
       
       self.content = ft.Column(
         expand=True,
         alignment=ft.MainAxisAlignment.CENTER,
+        spacing=30,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         controls=[
           self.header,
           ft.Divider(color=constants.WHITE_GRAY),
-          self.typeText
-          # ft.Row(
-          #   alignment=ft.MainAxisAlignment.CENTER,
-          #   controls=[
-          #     ft.Icon(
-          #       name=ft.Icons.QUESTION_MARK,
-          #       color=constants.BLACK,
-          #       size=24,
-          #     ),
-          #     self.typeText,
-          #   ]
-          # )
+          self.body,
+          self.showSaleButton
         ]
       )
+  
+  def showSale(self, e):
+    with getDB() as db:
+      newContent = SaleRecord(
+        page=self.page,
+        idSale=getTransactionById(db, self.idTransaction).sale.idSale,
+      )
+      
+      self.mainContainer.showSale(newContent)

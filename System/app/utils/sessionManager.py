@@ -15,3 +15,8 @@ def getCurrentUser():
 def clearCurrentUser():
   global currentUser
   currentUser = None
+  
+  
+def isAdmin():
+  with getDB() as db:
+    return getUserByUsername(db, getCurrentUser()).role == "Administrador"

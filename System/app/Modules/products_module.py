@@ -418,6 +418,7 @@ class UpdateStockForm(ft.Stack):
       self.stockField = CustomNumberField(
         label="Agregar al inventario",
         expand=True,
+        allowNegatives=True,
       )
       
       self.minStockField = CustomNumberField(

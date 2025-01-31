@@ -44,9 +44,9 @@ dropdownTwo = [
 methodIcons = {
   "All": ft.Icons.WALLET_ROUNDED,
   "Pago Móvil": ft.Icons.PHONE_ANDROID_ROUNDED,
-  "Punto de Venta": ft.Icons.POINT_OF_SALE_ROUNDED,
+  "Punto de Venta": ft.Icons.CREDIT_CARD_ROUNDED,
   "Cripto Activo": ft.Icons.CURRENCY_BITCOIN_ROUNDED,
-  "Efectivo": ft.Icons.MONEY_ROUNDED,
-  "Biopago": ft.Icons.BIOTECH_ROUNDED,
-  "Transferencia": ft.Icons.SEND_ROUNDED,
+  "Efectivo": ft.Icons.POINT_OF_SALE_ROUNDED,
+  "Biopago": ft.Icons.FINGERPRINT,
+  "Transferencia": ft.Icons.COMPARE_ARROWS_ROUNDED,
 }
