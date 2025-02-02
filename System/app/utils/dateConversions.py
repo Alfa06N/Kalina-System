@@ -2,21 +2,26 @@ from datetime import datetime, time, timezone
 from tzlocal import get_localzone
 import pytz
 import calendar
+from zoneinfo import ZoneInfo
+from dateutil import parser
 
 def convertToLocalTz(utcDate: datetime) -> datetime:
-  localTz = get_localzone()
-  date = utcDate
-  if date.tzinfo == None:
-    date = utcDate.replace(tzinfo=pytz.utc)
+  if isinstance(utcDate, str):
+    utcDate = datetime.strptime(utcDate, "%d/%m/%Y")
   
-  return date.astimezone(localTz)
+  if utcDate.tzinfo == None:
+    date = utcDate.replace(tzinfo=ZoneInfo("UTC"))
+  
+  localTz = ZoneInfo("America/Caracas")
+  
+  return utcDate.astimezone(localTz)
 
 def convertToUTC(localDate: datetime) -> datetime:
   if localDate.tzinfo is None:
-    localTz = get_localzone()
-    localDate = localTz.localize(localDate)
+    localTz = ZoneInfo("America/Caracas")
+    localDate = localDate.replace(tzinfo=localTz)
 
-  return localDate.astimezone(pytz.utc)
+  return localDate.astimezone(ZoneInfo("UTC"))
   
 def getUTC():
   return datetime.now(timezone.utc)

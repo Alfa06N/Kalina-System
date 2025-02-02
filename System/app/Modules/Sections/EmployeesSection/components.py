@@ -24,6 +24,10 @@ class EmployeeContainer(ft.Container):
     self.bgcolor = constants.WHITE
     self.border_radius = ft.border_radius.all(30)
     self.on_click = self.showEmployeeInfo
+    self.animate = ft.animation.Animation(
+      duration=300,
+      curve=ft.AnimationCurve.EASE,
+    )
     
     self.employeeTitle = CustomAnimatedContainer(
       actualContent=ft.Text(

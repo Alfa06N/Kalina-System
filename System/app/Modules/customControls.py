@@ -310,7 +310,7 @@ class CustomFilledButton(ft.FilledButton):
     )
 
 class CustomFloatingActionButton(ft.FloatingActionButton):
-  def __init__(self, icon=ft.Icons.ADD, height:int=70, width:int=70, bgcolor=constants.BROWN, color=constants.WHITE, on_click=None):
+  def __init__(self, icon=ft.Icons.ADD, content=None, height:int=70, width:int=70, bgcolor=constants.BROWN, color=constants.WHITE, on_click=None):
     super().__init__()
     self.height = height
     self.width = width
@@ -322,7 +322,7 @@ class CustomFloatingActionButton(ft.FloatingActionButton):
       name=icon, 
       size=24, 
       color=self.color
-    )
+    ) if content == None else content
 
 class CustomOutlinedButton(ft.OutlinedButton):
   def __init__(self, text, color=constants.BLACK, size=20, icon=None, clickFunction=None):
@@ -357,14 +357,14 @@ class CustomOutlinedButton(ft.OutlinedButton):
     )
     
 class CustomReturnButton(ft.OutlinedButton):
-  def __init__(self, function, size=32, color=constants.BLACK):
+  def __init__(self, function, icon=ft.Icons.ARROW_BACK, size=32, color=constants.BLACK):
     super().__init__()
     self.on_click = function
     self.color = color
     self.size = size
     
     self.content = ft.Icon(
-      name=ft.Icons.ARROW_BACK,
+      name=icon,
       color=self.color,
       size=self.size,
     )

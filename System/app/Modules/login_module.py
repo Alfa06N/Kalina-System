@@ -142,7 +142,6 @@ class LoginPresentation(CustomSimpleContainer):
       controls=[
         self.title,
         self.logo,
-        self.register,
         self.description,
       ],
       alignment=ft.MainAxisAlignment.CENTER,

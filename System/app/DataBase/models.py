@@ -11,12 +11,12 @@ class RoleEnum(PyEnum):
   COLLABORATOR = "Colaborador"
   
 class MethodEnum(PyEnum):
-  CASH = "Efectivo"
-  BANK_TRANSFER = "Transferencia"
-  BIO_PAYMENT = "Biopago"
-  MOBILE_PAYMENT = "Pago Móvil"
-  POINT_OF_SALE = "Punto de Venta"
-  CRYPTO_ACTIVE = "Cripto Activo"
+  EFECTIVO = "Efectivo"
+  TRANSFERENCIA = "Transferencia"
+  BIOPAGO = "Biopago"
+  PAGO_MOVIL = "Pago Móvil"
+  PUNTO_DE_VENTA = "Punto de Venta"
+  CRIPTO_ACTIVO = "Cripto Activo"
 
 class Employee(Base):
   __tablename__ = "Employee"
@@ -28,7 +28,6 @@ class Employee(Base):
   birthdate = Column(Date, nullable=False)
   
   user = relationship("User", back_populates="employee", uselist=False, cascade="all, delete-orphan")
-  phones = relationship("Phone", back_populates="employee", cascade="all, delete-orphan")
 
 class User(Base):
   __tablename__ = "User"
@@ -45,17 +44,6 @@ class User(Base):
   recovery = relationship("Recovery", back_populates="user", uselist=False)
   products = relationship("UserProduct", back_populates="user")
   
-class Phone(Base):
-  __tablename__ = "Phone"
-  
-  idPhone = Column(Integer, primary_key=True, autoincrement=True, index=True)
-  area = Column(String(4), nullable=False)
-  number = Column(String(7), nullable=False)
-  kind = Column(Enum("Casa", "Móvil", "Empresa"), nullable=True)
-  ciEmployee = Column(Integer, ForeignKey('Employee.ciEmployee', ondelete="CASCADE"))
-  
-  employee = relationship("Employee", back_populates="phones")
-  
 class Client(Base):
   __tablename__ = "Client"
   
@@ -68,8 +56,7 @@ class Client(Base):
 
 class Category(Base):
   __tablename__ = "Category"
-  
-  # name must to be unique
+
   idCategory = Column(Integer, primary_key=True, autoincrement=True)
   name = Column(String(50), nullable=False)
   description = Column(Text)
@@ -101,7 +88,7 @@ class Closing(Base):
   
   idClosing = Column(Integer, primary_key=True, autoincrement=True)
   amount = Column(DECIMAL(10, 3), nullable=False)
-  date = Column(Date, nullable=False)
+  date = Column(DateTime, nullable=False, default=getUTC())
   gain = Column(DECIMAL(10, 3))
   idUser = Column(Integer, ForeignKey("User.idUser"))
 
@@ -203,7 +190,7 @@ class Transaction(Base):
   amountVES = Column(DECIMAL(10, 3), nullable=True, default=None)
   exchangeRate = Column(DECIMAL(10, 4), nullable=False)
   method = Column(Enum(MethodEnum), nullable=False)
-  transactionType = Column(Enum("Payment", "Change"))
+  transactionType = Column(Enum("Pago", "Cambio"))
   reference = Column(String(255), nullable=True)
   idSale = Column(Integer, ForeignKey("Sale.idSale", ondelete="CASCADE"))
   

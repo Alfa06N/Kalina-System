@@ -94,7 +94,7 @@ class ChangeCard(ft.Container):
           paymentCard=self,
           formContainer=self.formContainer,
           selectedPayments=self.selectedChanges,
-          transactionType="Change"
+          transactionType="Cambio"
         )
         
         self.formContainer.changeContent(newContent)

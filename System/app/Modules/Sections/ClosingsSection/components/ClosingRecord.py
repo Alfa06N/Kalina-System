@@ -1,23 +1,27 @@
 import flet as ft
 import constants
-from Modules.customControls import CustomUserIcon, CustomOperationContainer, CustomTextField, CustomAnimatedContainer, CustomNavigationOptions, CustomFilledButton, CustomDropdown, CustomDeleteButton, CustomAlertDialog, CustomReturnButton
+from Modules.customControls import CustomUserIcon, CustomOperationContainer, CustomTextField, CustomAnimatedContainer, CustomNavigationOptions, CustomFilledButton, CustomDropdown, CustomDeleteButton, CustomAlertDialog, CustomReturnButton, CustomOutlinedButton
 from config import getDB
 from Modules.Sections.ClosingsSection.components.TransactionRecord import TransactionRecord
 from DataBase.crud.sale import getSaleById
 from DataBase.crud.transaction import getTransactionById
+from utils.dateConversions import getLocal
+from datetime import datetime
 
 class ClosingRecord(ft.Container):
-  def __init__(self, page, sales:[], amount, totals, idClosing:int=None,):
+  def __init__(self, page, sales:[], amount, totals, gain, idClosing:int=None, partial=True, createFunction=None):
     super().__init__()
     self.page = page
+    self.gain = gain
     self.idClosing = idClosing
     self.amount = amount
     self.sales = sales
     self.totals = totals
     self.border_radius = 20
-    self.padding = ft.padding.symmetric(horizontal=10, vertical=20)
+    self.partial = partial
     self.expand = True
-    self.border = ft.border.all(2, constants.BLACK_GRAY)
+    self.width = 800
+    self.createFunction = createFunction
     
     with getDB() as db:
       self.saleObjects = [getSaleById(db, sale) for sale in self.sales]
@@ -37,7 +41,7 @@ class ClosingRecord(ft.Container):
     
     self.paymentContainers = [TransactionRecord(
       page=self.page, 
-      transactionType="Payment",
+      transactionType="Pago",
       method=method,
       transactions=self.transactions[method],
       payments=totals["payments"].get(method, {"total": 0})["total"],
@@ -51,31 +55,100 @@ class ClosingRecord(ft.Container):
     ) for method in list(constants.methodIcons.keys()) if method != "All"]
     
     self.totalHeader = ft.Text(
-      value=f"Total entrante: {round(self.amount, 2)}$",
+      value=f"{round(self.amount, 2)}$",
       color=constants.GREEN_TEXT,
-      size=24,
+      size=28,
       weight=ft.FontWeight.W_700,
+    )
+    
+    self.gainText = ft.Text(
+      value=f"{round(self.gain, 2)}$",
+      color=constants.ORANGE_TEXT,
+      size=20,
+      weight=ft.FontWeight.W_600,
+    )
+    
+    self.dateText = ft.Text(
+      value=f"{getLocal().strftime("%d/%m/%Y")}",
+      color=constants.BLACK,
+      size=20,
+    )
+    
+    self.createClosingButton = ft.Container(
+      content=CustomOutlinedButton(
+        text="Crear cierre",
+        clickFunction=self.createFunction,
+      ),
+      margin=ft.margin.symmetric(vertical=10)
     )
     
     self.content = CustomAnimatedContainer(
       actualContent=ft.Column(
         expand=True,
-        width=600,
+        width=800,
         alignment=ft.MainAxisAlignment.CENTER,
-        spacing=0,
+        spacing=10,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-        scroll=ft.ScrollMode.AUTO,
         controls=[
-          ft.Text(
-            value="Cierre de caja",
-            color=constants.BLACK,
-            size=28,
-            weight=ft.FontWeight.W_700,
-            text_align=ft.TextAlign.CENTER,
+          ft.Row(
+            alignment=ft.MainAxisAlignment.CENTER,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            controls=[
+              ft.Text(
+                value="Cierre de caja:" if not self.partial else "Cierre de caja parcial:",
+                color=constants.BLACK,
+                size=28,
+                weight=ft.FontWeight.W_700,
+                text_align=ft.TextAlign.CENTER,
+              ),
+              self.totalHeader,
+            ]  
           ),
-          self.totalHeader,
-          ft.Divider(color=constants.BLACK_INK)
-        ] + self.paymentContainers
+          ft.Row(
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            controls=[
+              ft.Row(
+                alignment=ft.MainAxisAlignment.CENTER,
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                controls=[
+                  ft.Text(
+                    value="Ganancia aproximada:",
+                    color=constants.BLACK,
+                    size=20,
+                    weight=ft.FontWeight.W_600,
+                    text_align=ft.TextAlign.CENTER,
+                  ),
+                  self.gainText,
+                ]  
+              ),
+              ft.Row(
+                alignment=ft.MainAxisAlignment.CENTER,
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                controls=[
+                  ft.Text(
+                    value="Fecha:",
+                    color=constants.BLACK,
+                    size=20,
+                    weight=ft.FontWeight.W_600,
+                    text_align=ft.TextAlign.CENTER,
+                  ),
+                  self.dateText,
+                ]  
+              ),
+            ]
+          ),
+          ft.Divider(color=constants.BLACK_INK),
+          ft.Column(
+            expand=True,
+            width=800,
+            alignment=ft.MainAxisAlignment.CENTER,
+            spacing=0,
+            scroll=ft.ScrollMode.AUTO,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            controls=self.paymentContainers + [self.createClosingButton] if self.partial else self.paymentContainers
+          )
+        ]
       )
     )
   

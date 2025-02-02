@@ -37,7 +37,7 @@ class PaymentInfo(ft.Container):
         value=f"{round(transaction.amountUSD, 2)}$" if transaction.amountUSD else f"{round(transaction.amountVES, 2)}Bs",
         size=24,
         weight=ft.FontWeight.W_700,
-        color=constants.GREEN_TEXT if transaction.transactionType == "Payment" else constants.RED_TEXT,
+        color=constants.GREEN_TEXT if transaction.transactionType == "Pago" else constants.RED_TEXT,
       )
       
       self.exchangeText = ft.Text(
@@ -80,7 +80,7 @@ class PaymentInfo(ft.Container):
       )
       
       self.typeText = ft.Text(
-        value=f"Vuelto" if transaction.transactionType == "Change" else f"Pago entrante",
+        value=f"Vuelto" if transaction.transactionType == "Cambio" else f"Pago entrante",
         color=constants.BLACK,
         size=20,
       )

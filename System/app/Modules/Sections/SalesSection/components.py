@@ -251,7 +251,9 @@ class SaleForm(CustomAnimatedContainerSwitcher):
 
       selectedChanges = self.changeCard.selectedChanges
       price = self.priceCard.price
-        
+      
+      print(selectedPayments)
+      print(selectedChanges)
       idSale, payments, changes, products, combos = saleMakerManager.makeSale(
         price=price,
         ciClient=ciClient,
@@ -314,8 +316,8 @@ class SaleRecord(ft.Container):
     with getDB() as db:
       sale = getSaleById(db, self.idSale)
       
-      payments = [transaction for transaction in sale.transactions if transaction.transactionType == "Payment"]
-      changes = [transaction for transaction in sale.transactions if transaction.transactionType == "Change"]
+      payments = [transaction for transaction in sale.transactions if transaction.transactionType == "Pago"]
+      changes = [transaction for transaction in sale.transactions if transaction.transactionType == "Cambio"]
       products = [register.product for register in sale.products]
       combos = [register.combo for register in sale.combos]
       client = sale.client

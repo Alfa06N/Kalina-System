@@ -8,6 +8,7 @@ from config import getDB
 from DataBase.crud.user import getUsers, getUserByUsername, updateUser
 from DataBase.crud.product import getProductByName, getProducts
 from DataBase.crud.category import getCategories, removeCategory
+from DataBase.crud.sale import removeSale
 from DataBase.crud.closing import getSalesWithoutClosing
 from utils.imageManager import ImageManager
 import time
@@ -34,23 +35,8 @@ def main(page: ft.Page):
   page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
   page.padding = 0 
   init_db() 
-  
-  # with getDB() as db:
-  #   sales, generalPrice, totals = getSalesWithoutClosing(db)
-  #   print(generalPrice)
-  #   print(list(totals.keys()))
-  #   print("Payments:", totals["payments"])
-  #   print("Changes:", totals["changes"])
-    
-  #   page.add(ClosingRecord(
-  #     page=page,
-  #     sales=sales,
-  #     amount=generalPrice,
-  #     totals=totals,
-  #   ))
-    
 
-  setUser("Alfa06NColaborador")
+  setUser("Alfa06N")
   showPrincipal(page)
   # initApp(page)
 

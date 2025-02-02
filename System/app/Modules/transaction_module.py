@@ -11,7 +11,7 @@ from utils.exchangeManager import exchangeRateManager
 
 # Without save the transaction
 class TransactionForm(CustomOperationContainer):
-  def __init__(self, page, previousContainer, formContainer, transactionType:str="Payment", calculateChange=None):
+  def __init__(self, page, previousContainer, formContainer, transactionType:str="Pago", calculateChange=None):
     self.page = page
     self.previousContainer = previousContainer
     self.transactionType = transactionType
@@ -31,7 +31,7 @@ class TransactionForm(CustomOperationContainer):
       suffix_text="$",
       submitFunction=None,
       expand=True,
-      on_changeFunction=self.onChangeFunctionUSD if self.transactionType == "Change" else None,
+      on_changeFunction=self.onChangeFunctionUSD if self.transactionType == "Cambio" else None,
     )
     
     self.amountVESField = CustomTextField(
@@ -40,7 +40,7 @@ class TransactionForm(CustomOperationContainer):
       suffix_text="Bs",
       submitFunction=None,
       expand=True,
-      on_changeFunction=self.onChangeFunctionVES if self.transactionType == "Change" else None,
+      on_changeFunction=self.onChangeFunctionVES if self.transactionType == "Cambio" else None,
     )
     
     self.amountFieldContainer = ft.Container(
@@ -66,7 +66,7 @@ class TransactionForm(CustomOperationContainer):
       icon=ft.Icons.FILE_UPLOAD_ROUNDED,
       icon_color=constants.BLACK,
       icon_size=32,
-      on_click=self.setChange if self.transactionType == "Change" else self.setAmount,
+      on_click=self.setChange if self.transactionType == "Cambio" else self.setAmount,
       tooltip="Establecer monto",
     )
     
@@ -93,14 +93,6 @@ class TransactionForm(CustomOperationContainer):
         ft.Row(
           expand=True,
           vertical_alignment=ft.CrossAxisAlignment.CENTER,
-          # controls=[
-          #   self.amountFieldContainer,
-          #   self.changeFieldButton,
-          #   self.setChangeButton,
-          # ] if self.transactionType == "Change" else [
-          #   self.amountFieldContainer,
-          #   self.changeFieldButton,
-          # ]
           controls=[
             self.amountFieldContainer,
             self.changeFieldButton,

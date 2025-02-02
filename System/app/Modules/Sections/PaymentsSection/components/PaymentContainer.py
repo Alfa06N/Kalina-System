@@ -38,7 +38,7 @@ class PaymentContainer(ft.Container):
     self.transactionAmount = ft.Text(
       value=self.amount,
       size=24,
-      color=constants.GREEN_TEXT if self.transactionType == "Payment" else constants.RED_TEXT,
+      color=constants.GREEN_TEXT if self.transactionType == "Pago" else constants.RED_TEXT,
       weight=ft.FontWeight.W_500,
       overflow=ft.TextOverflow.ELLIPSIS,
       text_align=ft.TextAlign.START,

@@ -32,7 +32,7 @@ class SaleContainer(ft.Container):
       sale = getSaleById(db, self.idSale)
       
       self.titleText = ft.Text(
-        value=f"{round(sale.totalPrice, 2)} $",
+        value=f"{round(sale.totalPrice, 2)}$",
         size=24,
         color=constants.GREEN_TEXT,
         weight=ft.FontWeight.W_700,

@@ -183,7 +183,7 @@ class PaymentCard(ft.Container):
   
 
 class TransactionManager(ft.Container):
-  def __init__(self, page, paymentCard, formContainer, selectedPayments=[], transactionType="Payment"):
+  def __init__(self, page, paymentCard, formContainer, selectedPayments=[], transactionType="Pago"):
     super().__init__()
     self.page = page
     self.paymentCard = paymentCard
@@ -195,7 +195,7 @@ class TransactionManager(ft.Container):
     self.expand = True
     
     self.titleText = ft.Text(
-      value="Pagos de la venta" if self.transactionType == "Payment" else "Vueltos de la venta",
+      value="Pagos de la venta" if self.transactionType == "Pago" else "Vueltos de la venta",
       size=32,
       color=constants.BLACK,
       weight=ft.FontWeight.W_700,
@@ -203,7 +203,7 @@ class TransactionManager(ft.Container):
     )
     
     self.salePrice = ft.Text(
-      value=f"Precio de la venta: {round(self.formContainer.priceCard.price, 2)}$ / {round(self.formContainer.priceCard.price*exchangeRateManager.getRate(), 2)}Bs" if self.transactionType == "Payment" else f"Cambio pendiente: {round(self.formContainer.calculateTotalChange(), 2)}$ / {round(self.formContainer.calculateTotalChange()*exchangeRateManager.getRate(), 2)}Bs",
+      value=f"Precio de la venta: {round(self.formContainer.priceCard.price, 2)}$ / {round(self.formContainer.priceCard.price*exchangeRateManager.getRate(), 2)}Bs" if self.transactionType == "Pago" else f"Cambio pendiente: {round(self.formContainer.calculateTotalChange(), 2)}$ / {round(self.formContainer.calculateTotalChange()*exchangeRateManager.getRate(), 2)}Bs",
       color=constants.BLACK,
       size=20,
       text_align=ft.TextAlign.CENTER,
@@ -225,7 +225,7 @@ class TransactionManager(ft.Container):
           color=constants.BLACK,
         ),
         ft.Text(
-          value="No se ha registrado ningún pago" if self.transactionType == "Payment" else "No se ha registrado ningún vuelto",
+          value="No se ha registrado ningún pago" if self.transactionType == "Pago" else "No se ha registrado ningún vuelto",
           size=20,
           color=constants.BLACK,
           text_align=ft.TextAlign.CENTER,
@@ -260,7 +260,7 @@ class TransactionManager(ft.Container):
           alignment=ft.MainAxisAlignment.CENTER,
           controls=[
             ft.Text(
-              value="Agregar pago" if self.transactionType == "Payment" else "Agregar vuelto",
+              value="Agregar pago" if self.transactionType == "Pago" else "Agregar vuelto",
               size=20,
               color=constants.BLACK,
             ),
@@ -294,7 +294,7 @@ class TransactionManager(ft.Container):
     try:
       form = TransactionForm(
         page=self.page,
-        calculateChange=self.paymentCard.calculateChange if self.transactionType == "Change" else None,
+        calculateChange=self.paymentCard.calculateChange if self.transactionType == "Cambio" else None,
         previousContainer=self,
         formContainer=self.formContainer,
         transactionType=self.transactionType,
@@ -449,7 +449,7 @@ class TransactionRecord(ft.Container):
       value=f"{self.amount}{self.currency}",
       size=28,
       weight=ft.FontWeight.W_700,
-      color=constants.GREEN_TEXT if self.transactionType == "Payment" else constants.RED_TEXT,
+      color=constants.GREEN_TEXT if self.transactionType == "Pago" else constants.RED_TEXT,
       overflow=ft.TextOverflow.ELLIPSIS,
     )
     

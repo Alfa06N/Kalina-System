@@ -219,6 +219,9 @@ class Inventory(ft.Stack):
         color=constants.BLACK_INK,
       ))
     if self.newContent:
+      if self.controlSelected:
+        self.controlSelected.deselect()
+        self.controlSelected = None
       self.infoContainer.setNewContent(self.newContent)
       
   def editItemForm(self, newContent):

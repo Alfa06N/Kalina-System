@@ -50,3 +50,8 @@ methodIcons = {
   "Biopago": ft.Icons.FINGERPRINT,
   "Transferencia": ft.Icons.COMPARE_ARROWS_ROUNDED,
 }
+
+transactionType = {
+  "Payment": "Pago",
+  "Change": "Cambio"
+}

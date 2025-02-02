@@ -66,6 +66,8 @@ class Payments(ft.ResponsiveRow):
     containers = []
     with getDB() as db:
       transactions = getTransactions(db)
+      for transaction in transactions:
+        print(transaction.idTransaction, transaction.transactionType)
       if transactions:
         for transaction in transactions:
           container = PaymentContainer(
