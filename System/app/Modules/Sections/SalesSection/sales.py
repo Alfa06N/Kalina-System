@@ -133,6 +133,7 @@ class Sales(ft.Column):
     try:
       exchangeRateManager.clearSubscribers()
       self.itemsList, self.saleForm, self.registerContent = self.createRegisterForm()
+      saleMakerManager.setItemSelector(self.itemsList.itemsSelector)
     except:
       raise
   
@@ -145,7 +146,7 @@ class Sales(ft.Column):
       
       def finishAction():
         self.showViewSelected()
-        self.resetRegisterForm()
+        # self.resetRegisterForm()
       
       newContent = ft.Container(
         expand=True,
@@ -169,7 +170,7 @@ class Sales(ft.Column):
                 ),
                 CustomFilledButton(
                   text="Finalizar",
-                  clickFunction=lambda e: finishAction(),
+                  clickFunction=lambda e: self.showViewSelected(),
                 )
               ]
             ),

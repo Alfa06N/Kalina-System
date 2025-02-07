@@ -51,7 +51,7 @@ class TransactionForm(CustomOperationContainer):
     self.methodField = CustomDropdown(
       label="Método",
       expand=True,
-      options=[ft.dropdown.Option(method.value) for method in MethodEnum] if self.transactionType == "Pago" else [ft.dropdown.Option("Pago móvil"), ft.dropdown.Option("Efectivo")],
+      options=[ft.dropdown.Option(method.value) for method in MethodEnum] if self.transactionType == "Pago" else [ft.dropdown.Option("Pago Móvil"), ft.dropdown.Option("Efectivo")],
     )
     
     self.changeFieldButton = ft.IconButton(

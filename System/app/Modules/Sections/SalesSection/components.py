@@ -156,18 +156,18 @@ class SaleForm(CustomAnimatedContainerSwitcher):
         raise InvalidData("El monto de los pagos no cubre el precio de la venta.")
       elif self.paymentCard.price > self.priceCard.price and not self.changeCard.selectedChanges:
         raise InvalidData("El monto de los pagos es superior al de la venta. Registre los cambios entregados al cliente.")
-      elif self.paymentCard.price - self.changeCard.price != self.priceCard.price:
+      elif round(self.paymentCard.price - self.changeCard.price, 2) != round(self.priceCard.price, 2):
         if not self.paymentCard.price == self.priceCard.price + self.changeCard.price:
-          raise InvalidData(f"El monto de los pagos y los cambios no coinciden con el precio de la venta.\nPagos: {self.paymentCard.price} - Cambios: {self.changeCard.price} - Precio: {self.priceCard.price}, {self.paymentCard.price - self.changeCard.price} != {self.priceCard.price}")
+          raise InvalidData(f"El monto de los pagos y los cambios no coinciden con el precio de la venta.")
       return True
     except:
       raise
     
   def calculateTotalChange(self):
     try:
-      totalPrice = self.priceCard.price
-      totalPayments = self.paymentCard.price
-      totalChanges = self.changeCard.price
+      totalPrice = round(self.priceCard.price, 2)
+      totalPayments = round(self.paymentCard.price, 2)
+      totalChanges = round(self.changeCard.price, 2)
       
       if totalPayments < totalPrice:
         return 0

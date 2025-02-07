@@ -133,6 +133,8 @@ class ChangeCard(ft.Container):
   def calculateChange(self):
     try:
       total = self.calculateTotal()
+      print(f"Total: {self.calculateTotal()}")
+      print(f"Now: {round(self.formContainer.calculateTotalChange(), 2) - total}")
       return round(self.formContainer.calculateTotalChange(), 2) - total
     except:
       raise
