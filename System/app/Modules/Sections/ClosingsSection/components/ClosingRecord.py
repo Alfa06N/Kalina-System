@@ -201,7 +201,7 @@ class ClosingRecord(ft.Container):
           print("Selected path:", e.path)
           result = createPDF(
             info={
-              "title": "Cierre de caja parcial:" if self.partial else "Cierre de caja",
+              "title": "Cierre de caja parcial" if self.partial else "Cierre de caja",
               "employee": f"{user.employee.name} {user.employee.surname} {user.employee.secondSurname}", 
               "closing_amount": f"{round(self.amount, 2)}",
               "estimated_gain": f"{round(self.gain, 2)}",

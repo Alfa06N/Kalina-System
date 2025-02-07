@@ -407,7 +407,7 @@ class SaleRecord(ft.Container):
             size=20,
           ),
           ft.Text(
-            value=f"V-{client.ciClient}",
+            value=f"V-{client.ciClient}" if client else "Desconocido",
             color=constants.BLACK,
             size=20,
           ),

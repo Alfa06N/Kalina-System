@@ -89,6 +89,7 @@ class PriceCard(ft.Container):
       alignment=ft.MainAxisAlignment.CENTER,
       vertical_alignment=ft.CrossAxisAlignment.CENTER,
       spacing=50,
+      expand=True,
       controls=[
         self.priceContent,
         self.exchangeContent,

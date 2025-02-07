@@ -307,6 +307,9 @@ class ProductForm(CustomOperationContainer):
   def calculateFinalPrice(self):
     try:
       if not self.costField.value == "" and not self.ivaField.value == "" and not self.gainField.value == "":
+        if float(self.gainField.value) > 30:
+          self.gainField.value = 30
+          self.gainField.update()
         price = calculatePrice(
           cost=float(self.costField.value),
           iva=float(self.ivaField.value),
@@ -480,12 +483,19 @@ class UpdateStockForm(ft.Stack):
         time.sleep(1.5)
         self.operationContent.restartContainer()
       elif getCurrentUser() == None:
-        self.operationContent.actionFailed("No se encontró el usuario.")
+        self.operationContent.actionFailed("No se encontró el usuario")
         time.sleep(1.5)
         self.operationContent.restartContainer()
       else:
         with getDB() as db:
           product = getProductById(db, self.idProduct)
+          result = product.stock + int(self.stockField.field.value)
+          print(result)
+          if result < 0:
+            self.operationContent.actionFailed(f"Imposible decrementar hasta {result}")
+            time.sleep(1.5)
+            self.operationContent.restartContainer()
+            return
           updatedProduct, register = updateProductStock(
             db=db, 
             product=product, 

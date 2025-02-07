@@ -737,7 +737,7 @@ class CustomExchangeDialog(CustomAlertDialog):
   def submitFunction(self):
     try:
       if evaluateForm(numbers=[self.amountField]):
-        exchangeRateManager.setRate(float(self.amountField.value))
+        exchangeRateManager.setRate(round(float(self.amountField.value), 3))
         self.page.close(self)
         if self.exchangeControl:
           pass

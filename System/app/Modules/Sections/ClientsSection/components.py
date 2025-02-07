@@ -188,11 +188,6 @@ class ClientInfo(ft.Container):
       expand=True,
       controls=[
         self.columnContent,
-        ft.Container(
-          right=10,
-          top=10,
-          content=self.deleteButton
-        )
       ]
     )
     

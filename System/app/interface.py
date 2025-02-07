@@ -83,13 +83,6 @@ def showPrincipal(page: ft.Page):
     )
   )
   
-  # if not exchangeRateManager.getRate():
-  #   dialog = CustomExchangeDialog(
-  #     page=page,
-  #   )
-    
-  #   page.open(dialog)
-  
 def logout(page: ft.Page):
   page.controls.clear()
   initApp(page)

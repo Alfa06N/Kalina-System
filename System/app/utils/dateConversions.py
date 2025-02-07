@@ -6,8 +6,6 @@ from zoneinfo import ZoneInfo
 from dateutil import parser
 
 def convertToLocalTz(utcDate: datetime) -> datetime:
-  print("Before:", utcDate)
-
   # Convertir string a datetime si es necesario
   if isinstance(utcDate, str):
     try:
@@ -25,8 +23,6 @@ def convertToLocalTz(utcDate: datetime) -> datetime:
   # Convertir a zona horaria local
   localTz = ZoneInfo("America/Caracas")
   localDate = utcDate.astimezone(localTz)
-
-  print("Now:", localDate)
     
   return localDate
 
