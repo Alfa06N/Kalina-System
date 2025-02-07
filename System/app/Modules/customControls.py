@@ -2612,3 +2612,8 @@ class CustomLowStockDialog(ft.AlertDialog):
     except:
       raise
       
+class CustomFilePicker(ft.FilePicker):
+  def __init__(self, page, on_result):
+    super().__init__()
+    self.on_result = on_result
+    self.dialog_title = "Seleccionar ruta"

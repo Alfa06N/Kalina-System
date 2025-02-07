@@ -371,7 +371,7 @@ class SaleRecord(ft.Container):
             size=20,
           ),
           ft.Text(
-            value=convertToLocalTz(sale.date).strftime("%d/%m/%Y"),
+            value=sale.date.strftime("%d/%m/%Y"),
             color=constants.BLACK,
             size=20,
           ),

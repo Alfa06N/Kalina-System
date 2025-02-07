@@ -58,7 +58,7 @@ class SaleContainer(ft.Container):
       )
       
       self.dateText = ft.Text(
-        value=f"{convertToLocalTz(sale.date).strftime("%d/%m/%Y")}",
+        value=f"{sale.date.strftime("%d/%m/%Y")}",
         color=constants.BLACK,
         size=20,
         weight=ft.FontWeight.W_600,

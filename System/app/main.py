@@ -2,13 +2,13 @@ import flet as ft
 from interface import initApp, showPrincipal
 import constants
 from initialization import init_db
-from Modules.customControls import CustomAppBar, CustomUserIcon, CustomSidebar, CustomCardInfo, CustomDatePicker, CustomFilledButton, CustomAnimatedContainer, CustomAutoComplete, CustomNumberField, CustomTooltip, CustomTextField, CustomDropdown, CustomItemsSelector, CustomItemCard, CustomImageContainer
+from Modules.customControls import CustomAppBar, CustomUserIcon, CustomSidebar, CustomCardInfo, CustomDatePicker, CustomFilledButton, CustomAnimatedContainer, CustomAutoComplete, CustomNumberField, CustomTooltip, CustomTextField, CustomDropdown, CustomItemsSelector, CustomItemCard, CustomImageContainer, CustomFilePicker
 from utils.sessionManager import getCurrentUser, setUser
 from config import getDB
 from DataBase.crud.user import getUsers, getUserByUsername, updateUser
 from DataBase.crud.product import getProductByName, getProducts
 from DataBase.crud.category import getCategories, removeCategory
-from DataBase.crud.sale import removeSale
+from DataBase.crud.closing import removeClosing
 from DataBase.crud.closing import getSalesWithoutClosing
 from utils.imageManager import ImageManager
 import time
@@ -36,9 +36,9 @@ def main(page: ft.Page):
   page.padding = 0 
   init_db() 
 
-  setUser("Alfa06N")
-  showPrincipal(page)
-  # initApp(page)
+  # setUser("Alfa06N")
+  # showPrincipal(page)
+  initApp(page)
 
  
 if __name__ == "__main__":

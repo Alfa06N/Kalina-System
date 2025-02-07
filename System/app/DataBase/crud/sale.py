@@ -54,19 +54,16 @@ def getSaleByDate(db: Session, localDate: datetime, ascending: bool):
     startOfDay = localDate.replace(hour=0, minute=0, second=0, microsecond=0)
     endOfDay = localDate.replace(hour=23, minute=59, second=59, microsecond=999999)
     
-    utcStart = convertToUTC(startOfDay)
-    utcEnd = convertToUTC(endOfDay)
-    
     def func():
       if ascending:
         return db.query(Sale).filter(
-          Sale.date >= utcStart,
-          Sale.date <= utcEnd,
+          Sale.date >= startOfDay,
+          Sale.date <= endOfDay,
         ).order_by(asc(Sale.date)).all()
       else:
         return db.query(Sale).filter(
-          Sale.date >= utcStart,
-          Sale.date <= utcEnd,
+          Sale.date >= startOfDay,
+          Sale.date <= endOfDay,
         ).order_by(desc(Sale.date)).all()
     
     return handleDatabaseErrors(db, func)

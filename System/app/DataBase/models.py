@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, Date, DECIMAL, ForeignKey, Text,
 from sqlalchemy.orm import relationship, declarative_base
 from config import engine
 from enum import Enum as PyEnum
-from utils.dateConversions import getUTC
+from utils.dateConversions import getUTC, getLocal
 
 Base = declarative_base()
 
@@ -88,7 +88,7 @@ class Closing(Base):
   
   idClosing = Column(Integer, primary_key=True, autoincrement=True)
   amount = Column(DECIMAL(10, 3), nullable=False)
-  date = Column(DateTime, nullable=False, default=getUTC())
+  date = Column(DateTime, nullable=False, default=getLocal())
   gain = Column(DECIMAL(10, 3))
   idUser = Column(Integer, ForeignKey("User.idUser"))
 
@@ -100,7 +100,7 @@ class Sale(Base):
   
   idSale = Column(Integer, primary_key=True, autoincrement=True)
   totalPrice = Column(DECIMAL(10, 2), nullable=False)
-  date = Column(DateTime, nullable=False, default=getUTC())
+  date = Column(DateTime, nullable=False, default=getLocal())
   gain = Column(DECIMAL(10, 2))
   idClosing = Column(Integer, ForeignKey("Closing.idClosing"), default=None)
   idUser = Column(Integer, ForeignKey("User.idUser"))
@@ -132,7 +132,7 @@ class UserProduct(Base):
   idUser = Column(Integer, ForeignKey("User.idUser"))
   idProduct = Column(Integer, ForeignKey("Product.idProduct"))
   productQuantity = Column(Integer, nullable=False)
-  date = Column(DateTime, nullable=False, default=getUTC())
+  date = Column(DateTime, nullable=False, default=getLocal())
   
   user = relationship("User", back_populates="products")
   product = relationship("Product", back_populates="users")

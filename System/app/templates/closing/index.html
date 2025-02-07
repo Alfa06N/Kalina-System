@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ title }}</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      .header {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+      }
+      .closing-amount {
+        color: green;
+        font-size: 22px;
+      }
+      .gain {
+        color: rgb(199, 131, 3);
+        font-size: 18px;
+      }
+      .summary-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      .summary-table th,
+      .summary-table td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+      }
+      .summary-table th {
+        background-color: #f4f4f4;
+      }
+      .method-name {
+        font-weight: bold;
+      }
+      .amount {
+        color: green;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      {{ title }}: <span class="closing-amount">{{ closing_amount }}$</span>
+    </div>
+    <p>Ganancia aproximada: <span class="gain">{{ estimated_gain }}$</span></p>
+    <p>Fecha: {{ date }}</p>
+    <p>Cierre realizado por: {{ employee }}</p>
+
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th>Método de Pago</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for method, amount in payment_methods.items() %}
+        <tr>
+          <td class="method-name">{{ method }}</td>
+          <td class="amount">{{ amount }}$</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </body>
+</html>

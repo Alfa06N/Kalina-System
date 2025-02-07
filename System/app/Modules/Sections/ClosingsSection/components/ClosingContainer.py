@@ -38,7 +38,7 @@ class ClosingContainer(ft.Container):
     )
     
     self.dateText = ft.Text(
-      value=f"{convertToLocalTz(self.date).strftime("%d/%m/%Y")}",
+      value=self.date,
       size=20,
       color=constants.BLACK,
       overflow=ft.TextOverflow.ELLIPSIS,
@@ -76,6 +76,7 @@ class ClosingContainer(ft.Container):
         sales=sales,
         amount=self.amount,
         totals=totals,
+        date=self.date,
         gain=gain,
         idClosing=closing.idClosing,
         partial=False,

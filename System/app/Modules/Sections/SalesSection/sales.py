@@ -113,6 +113,8 @@ class Sales(ft.Column):
         mainContainer=self,
       )
       
+      saleMakerManager.setItemSelector(self.itemsList.itemsSelector)
+      
       self.itemsList.itemsSelector.priceCard = self.saleForm.priceCard
       
       self.registerContent = ft.Row(
@@ -129,6 +131,7 @@ class Sales(ft.Column):
   
   def resetRegisterForm(self):
     try:
+      exchangeRateManager.clearSubscribers()
       self.itemsList, self.saleForm, self.registerContent = self.createRegisterForm()
     except:
       raise

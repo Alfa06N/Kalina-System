@@ -6,15 +6,29 @@ from zoneinfo import ZoneInfo
 from dateutil import parser
 
 def convertToLocalTz(utcDate: datetime) -> datetime:
+  print("Before:", utcDate)
+
+  # Convertir string a datetime si es necesario
   if isinstance(utcDate, str):
-    utcDate = datetime.strptime(utcDate, "%d/%m/%Y")
-  
-  if utcDate.tzinfo == None:
-    date = utcDate.replace(tzinfo=ZoneInfo("UTC"))
-  
+    try:
+      utcDate = datetime.strptime(utcDate, "%Y-%m-%d %H:%M:%S")  # Intenta formato estándar
+    except ValueError:
+      try:
+        utcDate = datetime.strptime(utcDate, "%d/%m/%Y")  # Intenta otro formato
+      except ValueError:
+        raise ValueError("Formato de fecha no soportado")
+    
+    # Asignar zona horaria UTC si no tiene una
+  if utcDate.tzinfo is None:
+    utcDate = utcDate.replace(tzinfo=ZoneInfo("UTC"))
+    
+  # Convertir a zona horaria local
   localTz = ZoneInfo("America/Caracas")
-  
-  return utcDate.astimezone(localTz)
+  localDate = utcDate.astimezone(localTz)
+
+  print("Now:", localDate)
+    
+  return localDate
 
 def convertToUTC(localDate: datetime) -> datetime:
   if localDate.tzinfo is None:

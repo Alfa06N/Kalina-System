@@ -16,10 +16,12 @@ class Closings(ft.Stack):
     self.expand = True
     self.controlSelected = None
     
-    self.closingsContainer = ft.Container(
+    self.closingsContainer = CustomAnimatedContainerSwitcher(
       col={"sm": 12, "md": 6, "xl": 4},
       margin=ft.margin.symmetric(horizontal=20, vertical=20),
       expand=True,
+      padding=0,
+      height=800,
       alignment=ft.alignment.top_left,
       border_radius=ft.border_radius.all(30),
       bgcolor=constants.WHITE,
@@ -102,6 +104,7 @@ class Closings(ft.Stack):
             print(closing.idClosing)
     
             self.closeInfoContainer()
+            self.resetClosingContainers()
         except DataAlreadyExists as e:
           dialog = CustomAlertDialog(
             title=e,
@@ -141,6 +144,15 @@ class Closings(ft.Stack):
     except:
       raise
     
+  def resetClosingContainers(self):
+    newContent = ft.Column(
+      alignment=ft.MainAxisAlignment.START,
+      expand=True,
+      controls=self.getClosings()
+    )
+    
+    self.closingsContainer.setNewContent(newContent)
+    
   def getClosings(self):
     containers = []
     
@@ -148,12 +160,12 @@ class Closings(ft.Stack):
       closings = getClosings(db)
       if closings and len(closings) > 0:
         for closing in closings:
-          print(closing.date)
+          print(closing.idClosing)
           container = ClosingContainer(
             page=self.page,
             idClosing=closing.idClosing,
             amount=round(closing.amount, 2),
-            date=convertToLocalTz(closing.date).strftime("%d/%m/%Y"),
+            date=closing.date.strftime("%d/%m/%Y"),
             mainContainer=self,
           )
           containers.append(container)
@@ -171,6 +183,7 @@ class Closings(ft.Stack):
         amount=generalPrice,
         totals=totals,
         gain=gain,
+        date=None,
         partial=True,
         createFunction=lambda e: self.createClosing(sales=sales, generalPrice=generalPrice, totals=totals, gain=gain),
       )

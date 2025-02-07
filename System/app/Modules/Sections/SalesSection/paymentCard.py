@@ -48,7 +48,6 @@ class PaymentCard(ft.Container):
           size=20,
           color=constants.BLACK,
           text_align=ft.TextAlign.CENTER,
-          # weight=ft.FontWeight.W_600,
           overflow=ft.TextOverflow.ELLIPSIS,
         )
       ]
@@ -87,6 +86,7 @@ class PaymentCard(ft.Container):
   def clickFunction(self):
     try:
       self.itemsSelector = saleMakerManager.itemsSelector
+      print(self.itemsSelector)
       if self.itemsSelector.validateAllItemFields():
         exchangeRate = exchangeRateManager.getRate()
         if exchangeRate:

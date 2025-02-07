@@ -60,13 +60,10 @@ def closingExistsToday(db: Session) -> bool:
     
     startOfDay = datetime.combine(local_today, time.min)  # 00:00:00
     endOfDay = datetime.combine(local_today, time.max)  # 23:59:59.999999
-    
-    utcStart = convertToUTC(startOfDay)
-    utcEnd = convertToUTC(endOfDay)
 
     exists = db.query(Closing).filter(
-        Closing.date >= utcStart,
-        Closing.date <= utcEnd
+        Closing.date >= startOfDay,
+        Closing.date <= endOfDay
     ).first() is not None
 
     return exists
@@ -74,18 +71,9 @@ def closingExistsToday(db: Session) -> bool:
     raise
   
 def getSalesByClosing(db: Session, idClosing):
-  local_today = getLocal()
-  
-  startOfDay = local_today.replace(hour=0, minute=0, second=0, microsecond=0)
-  endOfDay = local_today.replace(hour=23, minute=59, second=59, microsecond=999999)
-  
-  utcStart = convertToUTC(startOfDay)
-  utcEnd = convertToUTC(endOfDay)
   
   def function():
     return db.query(Sale).filter(
-      Sale.date >= utcStart,
-      Sale.date <= utcEnd,
       Sale.idClosing == idClosing,
     )
   
@@ -98,6 +86,24 @@ def getSalesByClosing(db: Session, idClosing):
   totals = getTotalByMethod(db, [sale.idSale for sale in sales])
   return [sale.idSale for sale in sales], generalPrice, totals, gain
 
+def removeClosing(db: Session, idClosing):
+  try:
+    closing = getSaleById(db, idClosing)
+    sales, generalPrice, totals, gain = getSalesByClosing(db, idClosing)
+    
+    for sale in sales:
+      sale = getSaleById(db, sale)
+      sale.idClosing = None
+    
+    def func():
+      db.delete(closing)
+      db.commit()
+      
+    handleDatabaseErrors(db, func)
+    return closing
+  except:
+    raise
+
 
 def getSalesWithoutClosing(db: Session):
   local_today = getLocal()
@@ -105,14 +111,10 @@ def getSalesWithoutClosing(db: Session):
   startOfDay = local_today.replace(hour=0, minute=0, second=0, microsecond=0)
   endOfDay = local_today.replace(hour=23, minute=59, second=59, microsecond=999999)
   
-  utcStart = convertToUTC(startOfDay)
-  utcEnd = convertToUTC(endOfDay)
-  
   def function():
     return db.query(Sale).filter(
-      Sale.date >= utcStart,
-      Sale.date <= utcEnd,
-      # Sale.idClosing == None,
+      Sale.date >= startOfDay,
+      Sale.date <= endOfDay,
     )
   
   sales = handleDatabaseErrors(db, function)
