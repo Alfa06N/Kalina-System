@@ -155,6 +155,10 @@ class Users(ft.Stack):
       form.adminUsernameField.on_submit = lambda e: customSubmitForm()
       form.adminPasswordField.on_submit = lambda e: customSubmitForm()
       
+      if self.controlSelected:
+        self.controlSelected.deselect()
+        self.controlSelected = None
+      
       self.infoContainer.setNewContent(form)
   
   def showContentInfo(self, content, container):
@@ -173,5 +177,4 @@ class Users(ft.Stack):
         color=constants.WHITE_GRAY,
         )
       )
-    
     self.infoContainer.setNewContent(content)

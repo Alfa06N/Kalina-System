@@ -310,6 +310,9 @@ class ProductForm(CustomOperationContainer):
         if float(self.gainField.value) > 30:
           self.gainField.value = 30
           self.gainField.update()
+        elif float(self.gainField.value) < 0:
+          self.gainField.value = 0
+          self.gainField.update()
         price = calculatePrice(
           cost=float(self.costField.value),
           iva=float(self.ivaField.value),

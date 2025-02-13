@@ -102,6 +102,9 @@ class Clients(ft.Stack):
         )
       )
     
+    if self.controlSelected:
+      self.controlSelected.deselect()
+      self.controlSelected = None
     self.infoContainer.setNewContent(
       newContent=ClientForm(
         page=self.page,

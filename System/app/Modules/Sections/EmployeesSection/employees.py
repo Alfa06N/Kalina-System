@@ -79,6 +79,10 @@ class Employees(ft.Stack):
         spread_radius=1,
         color=constants.BLACK_GRAY,
       ))
+      
+    if self.controlSelected:
+      self.controlSelected.deselect()
+      self.controlSelected = None
     self.infoContainer.setNewContent(newContent=newContent)
   
   def resetInfoContainer(self):
