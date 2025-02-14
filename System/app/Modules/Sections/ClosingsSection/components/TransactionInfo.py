@@ -101,6 +101,8 @@ class TransactionInfo(ft.Container):
         ft.Container(
           top=0,
           left=0,
+          border_radius=5,
+          bgcolor=constants.WHITE,
           content=CustomReturnButton(
             function=lambda e: self.mainContainer.content.setNewContent(self.oldContent)
           ),

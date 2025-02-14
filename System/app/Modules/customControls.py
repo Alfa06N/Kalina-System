@@ -2617,3 +2617,22 @@ class CustomFilePicker(ft.FilePicker):
     super().__init__()
     self.on_result = on_result
     self.dialog_title = "Seleccionar ruta"
+    
+class CustomSnackBar(ft.SnackBar):
+  def __init__(self, page, text):
+    super().__init__(
+      content=ft.Text(
+        value=text,
+        color=constants.WHITE,
+        size=18,
+        weight=ft.FontWeight.W_600,
+        text_align=ft.TextAlign.CENTER,
+      )
+    )
+    self.shape = ft.RoundedRectangleBorder(
+      radius=20,
+    )
+    self.width = 400
+    self.behavior=ft.SnackBarBehavior.FLOATING
+    self.duration = 2000
+    

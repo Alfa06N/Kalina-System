@@ -205,7 +205,10 @@ class ClosingRecord(ft.Container):
               "employee": f"{user.employee.name} {user.employee.surname} {user.employee.secondSurname}", 
               "closing_amount": f"{round(self.amount, 2)}",
               "estimated_gain": f"{round(self.gain, 2)}",
-              "date": closing.date.strftime("%d/%m/%Y") if not self.partial else datetime.now().strftime("%d/%m/%Y"),
+              "date": closing.date.strftime("%d/%m/%Y, %H:%M:%S") if not self.partial else datetime.now().strftime("%d/%m/%Y, %H:%M:%S"),
+              "rif": constants.companyInfo["rif"],
+              "phone": constants.companyInfo["phone"],
+              "email": constants.companyInfo["email"],
               "payment_methods": {
                 method: round(self.totals["payments"].get(method, {"total": 0})["total"] - self.totals["changes"].get(method, {"total": 0})["total"], 2) for method in constants.methodIcons.keys() if method != "All"  
               },
@@ -268,6 +271,8 @@ class ClosingRecord(ft.Container):
         ft.Container(
           top=0,
           left=0,
+          border_radius=5,
+          bgcolor=constants.WHITE,
           content=CustomReturnButton(
             function=lambda e: self.content.setNewContent(self.otherOldContent)
           ),
@@ -287,6 +292,8 @@ class ClosingRecord(ft.Container):
         ft.Container(
           left=0,
           top=0,
+          border_radius=5,
+          bgcolor=constants.WHITE,
           content=CustomReturnButton(
             function=lambda e: self.content.setNewContent(previousContent)
           )

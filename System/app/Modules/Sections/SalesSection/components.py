@@ -587,9 +587,13 @@ class SaleRecord(ft.Container):
               self.operationText,
               self.clientText,
               self.userText,
+              ft.Divider(color=constants.BLACK_GRAY),
               self.productsText,
+              ft.Divider(color=constants.BLACK_GRAY),
               self.combosText,
+              ft.Divider(color=constants.BLACK_GRAY),
               self.paymentsText,
+              ft.Divider(color=constants.BLACK_GRAY),
               self.changesText,
             ]  
           ), 

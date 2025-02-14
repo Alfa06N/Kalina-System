@@ -1,7 +1,7 @@
 import flet as ft
 import constants
-from Modules.customControls import CustomAnimatedContainerSwitcher, CustomNavigationOptions, CustomAnimatedContainer, CustomFloatingActionButton
-from Modules.Sections.InventorySection.products_components import ProductInfo, ProductContainer
+from Modules.customControls import CustomAnimatedContainerSwitcher, CustomNavigationOptions, CustomAnimatedContainer, CustomFloatingActionButton, CustomSnackBar
+from Modules.Sections.InventorySection.products_components import ProductInfo, ProductContainer, FilterByName
 from Modules.Sections.InventorySection.combos_components import ComboInfo, ComboContainer
 from Modules.Sections.InventorySection.categories_components import CategoryInfo, CategoryContainer
 from Modules.categories_modules import CategoryForm
@@ -129,6 +129,14 @@ class Inventory(ft.Stack):
       col={"sm": 12, "md": 12, "lg": 8, "xl": 7}
     )
     
+    self.addItemButton = CustomFloatingActionButton(on_click=self.addItemForm)
+    
+    self.controlSelected = None
+
+    self.selected = self.productButton
+    
+    initialContent = self.getProductsToFill()
+    self.items = initialContent
     self.itemsContainer = CustomAnimatedContainerSwitcher(
       shadow=ft.BoxShadow(
         spread_radius=1,
@@ -139,21 +147,16 @@ class Inventory(ft.Stack):
       content=ft.Column(
         alignment=ft.MainAxisAlignment.CENTER,
         expand=True,
+        height=800,
         scroll=ft.ScrollMode.AUTO,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-        controls=[container for container in self.getProductsToFill()]
+        controls=[self.createFilter()] + [container for container in initialContent]
       ),
       height=None,
       width=None,
       expand=True,
       col={"sm": 12, "md": 9, "lg": 4, "xl": 5},
     )
-    
-    self.addItemButton = CustomFloatingActionButton(on_click=self.addItemForm)
-    
-    self.controlSelected = None
-
-    self.selected = self.productButton
     
     self.controls = [
       ft.Column(
@@ -251,13 +254,65 @@ class Inventory(ft.Stack):
       scroll=ft.ScrollMode.AUTO,
       alignment=ft.MainAxisAlignment.CENTER,
       expand=True,
+      height=800,
       horizontal_alignment=ft.CrossAxisAlignment.CENTER,
     )
-      
+    
+    self.items = items
+    newContent.controls.append(self.createFilter())
     for item in items:
       newContent.controls.append(item)
     
     self.itemsContainer.setNewContent(newContent)
+  
+  def filterData(self, value):
+    try:
+      print("Filtering...")
+      filteredContainers = []
+      value = value.lower().strip()
+      
+      if not value:
+        for container in self.items:
+          container.visible = True
+        self.itemsContainer.update()
+        return
+      
+      for container in self.items:
+        if value in container.name.lower():
+          container.visible = True
+          filteredContainers.append(container)
+        else:
+          container.visible = False
+      
+      if len(filteredContainers) == 0:
+        self.page.snack_bar = CustomSnackBar(page=self.page, text="No se han encontrado coincidencias")
+        self.page.snack_bar.open = True
+        self.page.update()
+      self.itemsContainer.update()
+      return filteredContainers
+    except Exception as err: 
+      raise Exception(f"Error during data filtering: {err}")
+  
+  def createFilter(self):
+    if self.selected == self.productButton:
+      bar_hint_text = "Buscar producto..."
+      view_hint_text = "Escribe el nombre del producto..."
+    elif self.selected == self.categoryButton:
+      bar_hint_text = "Buscar categoría..."
+      view_hint_text = "Escribe el nombre de la categoría..."
+    else:
+      bar_hint_text = "Buscar combo..."
+      view_hint_text = "Escribe el nombre del combo..."
+    
+    self.filter = FilterByName(
+      page=self.page, 
+      controls=[],
+      bar_hint_text=bar_hint_text,
+      view_hint_text=view_hint_text,
+      on_submit=lambda e: self.filterData(e.control.value),
+    )
+    
+    return self.filter
   
   def getCategoriesToFill(self):
     try:
@@ -277,10 +332,11 @@ class Inventory(ft.Stack):
             )
             
             containers.append(container)
-          return containers
-        else:
-          containers.append(self.textForEmptyContainer("No hay categorías que mostrar"))
-          return containers
+        return containers
+        # else:
+        #   containers.append(self.textForEmptyContainer("No hay categorías que mostrar"))
+        #   return containers
+
     except Exception as err:
       raise
     
@@ -302,10 +358,10 @@ class Inventory(ft.Stack):
               imgPath=imageManager.getImagePath(product.imgPath),
             )
             containers.append(container)
-          return containers
-        else:
-          containers.append(self.textForEmptyContainer("No hay productos que mostrar"))
-          return containers
+        return containers
+        # else:
+        #   containers.append(self.textForEmptyContainer("No hay productos que mostrar"))
+        #   return containers
     except Exception as err:
       raise
   
@@ -327,11 +383,11 @@ class Inventory(ft.Stack):
               imgPath=imageManager.getImagePath(combo.imgPath)
             )
             containers.append(container)
-          return containers
-        else:
+        return containers
+        # else:
           
-          containers.append(self.textForEmptyContainer("No hay combos que mostrar"))
-          return containers
+        #   containers.append(self.textForEmptyContainer("No hay combos que mostrar"))
+        #   return containers
     except Exception as err:
       raise
   

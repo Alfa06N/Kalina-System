@@ -490,3 +490,14 @@ class ProductInfo(ft.Stack):
           self.mainContainer.resetCurrentView()
     except Exception as err:
       raise
+    
+class FilterByName(ft.SearchBar):
+  def __init__(self, page, bar_hint_text, view_hint_text, controls:list=[], on_submit=None):
+    super().__init__()
+    self.view_elevation = 4
+    self.bar_hint_text = bar_hint_text
+    self.view_hint_text = view_hint_text
+    self.controls = controls
+    self.page = page
+    
+    self.on_submit = on_submit

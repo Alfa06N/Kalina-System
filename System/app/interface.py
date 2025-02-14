@@ -1,6 +1,8 @@
 import flet as ft
 import constants
 from Modules.customControls import CustomAnimatedContainer
+from utils.dateConversions import getLocal
+from datetime import datetime
   
 def initApp(page: ft.Page):
   from Modules.customControls import CustomPrincipalContainer
@@ -17,7 +19,7 @@ def initApp(page: ft.Page):
       expand=True,
       alignment=ft.MainAxisAlignment.CENTER,
       controls=[
-        ft.Text("© 2024 Kariña System. Todos los derechos reservados.", color="#222222", size=16)
+        ft.Text(f"© {getLocal().strftime("%Y")} Kariña System. Todos los derechos reservados.", color="#222222", size=16, text_align=ft.TextAlign.CENTER, weight=ft.FontWeight.W_600)
       ]
     )
   )
@@ -78,7 +80,28 @@ def showPrincipal(page: ft.Page):
       spacing=0,
       controls=[
         sideBar,
-        mainContainer,
+        ft.Stack(
+          expand=True,
+          controls=[
+            ft.Column(
+              expand=True,
+              horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+              controls=[
+                mainContainer,
+              ]
+            ),
+            ft.Container(
+              bottom=0,
+              left=0,
+              right=0,
+              expand=True,
+              alignment=ft.alignment.center,
+              content=ft.Text(f"© {getLocal().strftime("%Y")} Kariña System. Todos los derechos reservados.", color="#222222", size=16, text_align=ft.TextAlign.CENTER, weight=ft.FontWeight.W_600),
+            )
+          ]
+        ),
+        
+        
       ]
     )
   )

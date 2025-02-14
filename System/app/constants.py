@@ -1,7 +1,7 @@
 import flet as ft 
 BROWN = "#36240C"
 BROWN_OVERLAY = "#664a1d"
-ORANGE = "#E19E45"
+ORANGE = "#D19D4B"
 ORANGE_LIGHT = "#efd098"
 ORANGE_OVERLAY = "#e6b363"
 ORANGE_TEXT = "#bf5d20"
@@ -54,4 +54,10 @@ methodIcons = {
 transactionType = {
   "Payment": "Pago",
   "Change": "Cambio"
+}
+
+companyInfo = {
+  "email": "kaipe.contacto@gmail.com",
+  "phone": "+58 412-8945511",
+  "rif": "J-50457264-0",
 }

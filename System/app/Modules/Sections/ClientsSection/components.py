@@ -236,6 +236,8 @@ class ClientInfo(ft.Container):
                   ft.Container(
                     left=10,
                     top=10,
+                    border_radius=5,
+                    bgcolor=constants.WHITE,
                     content=self.returnButton,
                   )
                 ]
