@@ -12,9 +12,11 @@ from DataBase.crud.closing import removeClosing
 from DataBase.crud.closing import getSalesWithoutClosing
 from utils.imageManager import ImageManager
 import time
+from utils.datetimeGlobal import getTime, syncTime, getCurrentTime
 import asyncio
 from DataBase.crud.transaction import getTransactions
 from Modules.Sections.ClosingsSection.components.ClosingRecord import ClosingRecord
+import time
 
 def main(page: ft.Page):
   page.title = "Kariña System"

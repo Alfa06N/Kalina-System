@@ -22,9 +22,9 @@ class Employee(Base):
   __tablename__ = "Employee"
   
   ciEmployee = Column(Integer, primary_key=True, index=True)
-  name = Column(String(50), nullable=False)
-  surname = Column(String(50), nullable=False)
-  secondSurname = Column(String(50), default="")
+  name = Column(String(25), nullable=False)
+  surname = Column(String(25), nullable=False)
+  secondSurname = Column(String(25), default="")
   birthdate = Column(Date, nullable=False)
   
   user = relationship("User", back_populates="employee", uselist=False, cascade="all, delete-orphan")
@@ -33,8 +33,8 @@ class User(Base):
   __tablename__ = "User"
   
   idUser = Column(Integer, primary_key=True, index=True, autoincrement=True)
-  username = Column(String(50), nullable=False)
-  password = Column(String(255), nullable=False)
+  username = Column(String(25), nullable=False)
+  password = Column(String(25), nullable=False)
   role = Column(Enum("Administrador", "Colaborador"), nullable=False)
   ciEmployee = Column(Integer, ForeignKey("Employee.ciEmployee", ondelete="CASCADE"))
   
@@ -48,9 +48,9 @@ class Client(Base):
   __tablename__ = "Client"
   
   ciClient = Column(Integer, primary_key=True)
-  name = Column(String(50), nullable=False)
-  surname = Column(String(50), nullable=False)
-  secondSurname = Column(String(50))
+  name = Column(String(25), nullable=False)
+  surname = Column(String(25), nullable=False)
+  secondSurname = Column(String(25))
   
   sales = relationship("Sale", back_populates="client")
 
@@ -58,7 +58,7 @@ class Category(Base):
   __tablename__ = "Category"
 
   idCategory = Column(Integer, primary_key=True, autoincrement=True)
-  name = Column(String(50), nullable=False)
+  name = Column(String(25), nullable=False)
   description = Column(Text)
   imgPath = Column(String(50), default=None)
   
@@ -68,7 +68,7 @@ class Product(Base):
   __tablename__ = "Product"
   
   idProduct = Column(Integer, primary_key=True, autoincrement=True)
-  name = Column(String(50), nullable=False)
+  name = Column(String(25), nullable=False)
   stock = Column(Integer, nullable=False)
   minStock = Column(Integer, nullable=False)
   cost = Column(DECIMAL(10, 3), nullable=False)
@@ -153,7 +153,7 @@ class Combo(Base):
   __tablename__ = "Combo"
   
   idCombo = Column(Integer, primary_key=True, autoincrement=True)
-  name = Column(String(50), nullable=False)
+  name = Column(String(25), nullable=False)
   cost = Column(DECIMAL(10, 3), nullable=False, default=0.0)
   price = Column(DECIMAL(10, 3), default=None)
   imgPath = Column(String(50), default=None)
@@ -191,7 +191,7 @@ class Transaction(Base):
   exchangeRate = Column(DECIMAL(10, 4), nullable=False)
   method = Column(Enum(MethodEnum), nullable=False)
   transactionType = Column(Enum("Pago", "Cambio"))
-  reference = Column(String(255), nullable=True)
+  reference = Column(String(50), nullable=True)
   idSale = Column(Integer, ForeignKey("Sale.idSale", ondelete="CASCADE"))
   
   sale = relationship("Sale", back_populates="transactions")
