@@ -1735,6 +1735,7 @@ class CustomItemsDialog(ft.AlertDialog):
                 selected=True if combo.name in self.selectedItems else False,
               )
               content.append(itemCard)
+        self.productsList = content
         return content
     except:
       raise

@@ -91,10 +91,37 @@ class RegisterForm(CustomSimpleContainer):
     # checkbox
     self.checkbox = CustomCheckbox(label="Usuario Administrador", fill_color=constants.BROWN, color=constants.BLACK)
     
+    self.helpText = ft.Row(
+      alignment=ft.MainAxisAlignment.CENTER,
+      controls=[
+        ft.Icon(
+          name=ft.icons.HELP_ROUNDED,
+          color=constants.BLACK,
+        ),
+        ft.Text(
+          value="¿Cuáles son los requisitos de contraseña?",
+          size=20,
+          color=constants.BLACK,
+          tooltip=ft.Tooltip(
+            message="La contraseña debe tener:\n• Una letra mayúscula.\n• Una letra minúscula.\n• Un número.\n• Un símbolo.\n• Un máximo de 25 caracteres.\n• Un mínimo de 8 caracteres.",
+            padding=20,
+            border_radius=10,
+            text_style=ft.TextStyle(
+              color=constants.BLACK,
+              size=20,
+            ),
+            bgcolor=constants.WHITE,
+            border=ft.border.all(2, color=constants.BLACK),
+          )
+        )
+      ]
+    )
+    
     self.formFirst = ft.Column(
       expand=True,
       controls=[
         self.titleRegister,
+        self.helpText,
         self.inputs,
         ft.Row(
           controls=[self.checkbox] if not self.existOneAdmin() else [],

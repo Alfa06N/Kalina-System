@@ -7,6 +7,7 @@ from config import getDB
 from validation import evaluateForm
 from DataBase.crud.category import createCategory, getCategoryByName
 from utils.imageManager import ImageManager
+from exceptions import DataAlreadyExists
 
 class CategoryForm(CustomOperationContainer):
   def __init__(self, page, mainContainer):
@@ -90,7 +91,8 @@ class CategoryForm(CustomOperationContainer):
   
   def submitForm(self, e):
     try:
-      if evaluateForm(others=[self.nameField]):
+      others = [self.descriptionField] if self.descriptionField.value.strip() else []
+      if evaluateForm(name=[self.nameField], others=[]):
         
         with getDB() as db:
           category = createCategory(
@@ -100,6 +102,8 @@ class CategoryForm(CustomOperationContainer):
             imgPath=None,
           )
           
+          if not category:
+            return
           if not self.imageContainer.selectedImagePath == None:
             imageManager = ImageManager()
             destinationPath = imageManager.storageImage(category.idCategory, self.imageContainer.selectedImagePath)
@@ -111,6 +115,17 @@ class CategoryForm(CustomOperationContainer):
         self.actionSuccess("Categoría creada")
         time.sleep(1.5)
         self.mainContainer.resetCurrentView()
+    except DataAlreadyExists as err:
+      dialog = CustomAlertDialog(
+        title=err,
+        content=ft.Text(
+          value="No puedes tener dos categorías con el mismo nombre",
+          color=constants.BLACK,
+          size=20,
+        ),
+        modal=False,
+      )
+      self.page.open(dialog)
     except Exception as err:
       print(err)
       raise

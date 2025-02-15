@@ -151,7 +151,7 @@ class ComboForm(CustomOperationContainer):
     
   def submitForm(self, e):
     try:
-      if evaluateForm(others=[self.nameField], numbers=[self.priceField]) and self.productsSelector.validateAllItemFields():
+      if evaluateForm(name=[self.nameField], price=[self.priceField]) and self.productsSelector.validateAllItemFields():
         with getDB() as db:
           imageManager = ImageManager()
           name = self.nameField.value.strip()

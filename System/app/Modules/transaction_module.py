@@ -129,7 +129,7 @@ class TransactionForm(CustomOperationContainer):
     
   def submitFunction(self):
     try:
-      if evaluateForm(numbers=[self.amountFieldContainer.content], others=[self.methodField]):
+      if evaluateForm(price=[self.amountFieldContainer.content], others=[self.methodField]):
         paymentInfo = {
           "currency": "$" if self.amountFieldContainer.content == self.amountUSDField else "Bs",
           "method": self.methodField.value,

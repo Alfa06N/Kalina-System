@@ -328,7 +328,8 @@ class ProductForm(CustomOperationContainer):
   
   def submitForm(self, e):
     try:
-      if evaluateForm(numbers=[self.costField, self.gainField], others=[self.nameField, self.categoryField]):
+      others = [self.categoryField] if not self.descriptionField.value.strip() else [self.categoryField, self.descriptionField]
+      if evaluateForm(name=[self.nameField], others=others, price=[self.costField, self.gainField],):
         if not int(self.minimStockField.field.value) > 0:
           self.actionFailed(message="El stock mínimo no puede ser 0")
           time.sleep(1.5)
@@ -579,13 +580,16 @@ class UpdateInfoForm(ft.Stack):
     
     self.operationContent = CustomOperationContainer(
       operationContent=ft.Column(
-        height=400,
+        height=450,
         width=400,
+        scroll=ft.ScrollMode.AUTO,
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         spacing=20,
         controls=[
           ft.Column(
+            expand=True,
+            alignment=ft.MainAxisAlignment.CENTER,
             controls=[
               ft.Row(
                 controls=[
@@ -609,6 +613,8 @@ class UpdateInfoForm(ft.Stack):
           ),
           ft.Divider(color=constants.WHITE_GRAY),
           ft.Column(
+            expand=True,
+            alignment=ft.MainAxisAlignment.CENTER,
             controls=[
               ft.Row(
                 controls=[

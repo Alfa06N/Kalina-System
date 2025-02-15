@@ -48,7 +48,7 @@ def validateNumber(field):
 def validateEmptyField(field):
   validateField(field, lambda value: len(value.strip()) > 0)
 
-def evaluateForm(username=[], name=[], password=[], ci=[], numbers=[], others=[]):
+def evaluateForm(username=[], name=[], price=[], password=[], ci=[], numbers=[], others=[]):
   isValid = True
   for field in username:
     if len(field.value.strip()) == 0:
@@ -59,6 +59,14 @@ def evaluateForm(username=[], name=[], password=[], ci=[], numbers=[], others=[]
       field.error_text = "El nombre de usuario no puede empezar con dígitos"
       field.update()
       isValid = False
+    elif len(field.value.strip()) > 25:
+      field.error_text = "Límite de caracteres excedido"
+      field.update()
+      isValid = False
+      
+  for field in price:
+    if not validatePriceField(field):
+      isValid = False
       
   for field in name:
     onlychars = string.ascii_letters
@@ -68,6 +76,10 @@ def evaluateForm(username=[], name=[], password=[], ci=[], numbers=[], others=[]
       isValid = False
     elif any(char not in onlychars for char in field.value):
       field.error_text = "El campo solo puede contener letras"
+      field.update()
+      isValid = False
+    elif len(field.value.strip()) > 25:
+      field.error_text = "Límite de caracteres excedido"
       field.update()
       isValid = False
   
@@ -93,6 +105,10 @@ def evaluateForm(username=[], name=[], password=[], ci=[], numbers=[], others=[]
       field.error_text = "La contraseña debe tener al menos un símbolo"
       field.update()
       isValid = False
+    elif len(field.value.strip()) > 25:
+      field.error_text = "Límite de caracteres excedido"
+      field.update()
+      isValid = False
 
   for field in ci:
     if len(field.value.strip()) < 7 or len(field.value.strip()) > 9:
@@ -103,6 +119,10 @@ def evaluateForm(username=[], name=[], password=[], ci=[], numbers=[], others=[]
   for field in others:
     if field.value == None or len(field.value.strip()) == 0:
       field.error_text = "Este campo no puede estar vacío"
+      field.update()
+      isValid = False
+    elif len(field.value.strip()) > 50:
+      field.error_text = "Límite de caracteres excedido"
       field.update()
       isValid = False
   
@@ -120,6 +140,31 @@ def evaluateForm(username=[], name=[], password=[], ci=[], numbers=[], others=[]
   print(isValid)
   return isValid
 
+def validatePriceField(field):
+  try:
+    isValid = True
+    if len(field.value.strip()) == 0:
+      showErrorMessage(field, f"Este campo no puede estar vacío")
+      isValid = False
+    else:
+      value = float(field.value)
+      if value < 0:
+        showErrorMessage(field, f"El campo no acepta valores negativos")
+        isValid = False
+      elif value == 0:
+        showErrorMessage(field, f"El campo no puede estar en 0")
+        isValid = False
+        
+      elif not (0 <= value < 10**7 and len(str(value).split(".")[-1]) <= 3):
+        showErrorMessage(field, f"El campo debe tener hasta 7 dígitos enteros y 3 decimales")
+        isValid = False
+      return isValid
+  except ValueError:
+    showErrorMessage(field, "Debe ingresar un valor numérico válido")
+    isValid = False
+  except Exception as err:
+    print(f"Error validando costos: {err}")
+
 def queryUserData(db, username, password):
   from DataBase.crud.user import getUserByUsername
   
@@ -134,3 +179,7 @@ def queryUserData(db, username, password):
     print(f"Error: {e}")
   except exceptions.UserNotFoundError:   
     raise
+  
+def showErrorMessage(field, message):
+  field.error_text = message
+  field.update()
