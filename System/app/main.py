@@ -37,11 +37,6 @@ def main(page: ft.Page):
   page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
   page.padding = 0 
   init_db() 
-  
-  with getDB() as db:
-    sales, products, combos, generalPrice, totals, gain = getSalesWithoutClosing(db)
-    print(f"Combos: {combos}")
-    print(f"Products: {products}")
 
   setUser("Alfa06N")
   showPrincipal(page)
