@@ -25,11 +25,14 @@
       }
       .header {
         text-align: center;
-        font-size: 24px;
+        font-size: 28px;
         margin-top: 20px;
         margin-bottom: 20px;
         font-weight: bold;
         color: #6baab9;
+      }
+      .header span {
+        font-size: 28px;
       }
       .closing-amount {
         color: green;
@@ -54,7 +57,8 @@
         background-color: #6baab9;
         color: #f9f7f7;
       }
-      .method-name {
+      .method-name,
+      .product-name {
         font-weight: bold;
       }
       .amount {
@@ -62,10 +66,11 @@
       }
       .info {
         padding: 0;
-        margin-top: 10px;
+        margin-top: 20px;
       }
       .info p {
         font-size: 12px;
+        text-align: center;
         margin: 5px;
       }
     </style>
@@ -85,6 +90,7 @@
     <p class="date-employee">Cierre realizado por: {{ employee }}</p>
     <p>Ganancia aproximada: <span class="gain">{{ estimated_gain }}$</span></p>
 
+    <h2 class="subtitle">Resumen de ingresos</h2>
     <table class="summary-table">
       <thead>
         <tr>
@@ -97,6 +103,24 @@
         <tr>
           <td class="method-name">{{ method }}</td>
           <td class="amount">{{ amount }}$</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h2 class="subtitle">Desglose de productos vendidos</h2>
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Cantidad Vendida</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product, quantity in soldInventory.items() %}
+        <tr>
+          <td class="product-name">{{ product }}</td>
+          <td>{{ quantity }}</td>
         </tr>
         {% endfor %}
       </tbody>

@@ -83,6 +83,23 @@ class ClosingRecord(ft.Container):
         container.margin = ft.margin.symmetric(vertical=3)
         container.on_click = None
         self.productsContainers.append(container)
+      
+      if len(self.productsContainers) == 0:
+        self.productsContainers.append(ft.Row(
+          expand=True,
+          height=40,
+          alignment=ft.MainAxisAlignment.CENTER,
+          vertical_alignment=ft.CrossAxisAlignment.CENTER,
+          controls=[
+            ft.Text(
+              value="No se han vendido productos",
+              size=20,
+              color=constants.RED_TEXT,
+              weight=ft.FontWeight.W_600,
+              text_align=ft.TextAlign.CENTER,
+            )
+          ]
+        ))
     
     self.totalHeader = ft.Text(
       value=f"{round(self.amount, 2)}$",
@@ -260,6 +277,7 @@ class ClosingRecord(ft.Container):
               "estimated_gain": f"{round(self.gain, 2)}",
               "date": closing.date.strftime("%d/%m/%Y, %H:%M:%S") if not self.partial else datetime.now().strftime("%d/%m/%Y, %H:%M:%S"),
               "rif": constants.companyInfo["rif"],
+              "soldInventory": self.productsName,
               "phone": constants.companyInfo["phone"],
               "email": constants.companyInfo["email"],
               "payment_methods": {
