@@ -11,7 +11,7 @@ from datetime import datetime
 from DataBase.crud.closing import getClosings, getClosingById, getSalesByClosing
 
 class ClosingContainer(ft.Container):
-  def __init__(self, page, idClosing,amount, date,mainContainer):
+  def __init__(self, page, idClosing, amount, date, mainContainer):
     super().__init__()
     self.page = page
     self.amount = amount
@@ -70,7 +70,7 @@ class ClosingContainer(ft.Container):
     if not self.mainContainer.controlSelected == self:
       with getDB() as db:
         closing = getClosingById(db, self.idClosing)
-        sales, generalPrice, totals, gain = getSalesByClosing(db, closing.idClosing)
+        sales, products, combos, generalPrice, totals, gain = getSalesByClosing(db, closing.idClosing)
       content = ClosingRecord(
         page=self.page,
         sales=sales,
@@ -78,6 +78,8 @@ class ClosingContainer(ft.Container):
         totals=totals,
         date=self.date,
         gain=gain,
+        combosName=combos,
+        productsName=products,
         idClosing=closing.idClosing,
         partial=False,
       )

@@ -83,8 +83,10 @@ def getSalesByClosing(db: Session, idClosing):
   
   gain = sum(sale.gain for sale in sales)
   
+  products, combos = getProductsBySales(db, sales)
+  
   totals = getTotalByMethod(db, [sale.idSale for sale in sales])
-  return [sale.idSale for sale in sales], generalPrice, totals, gain
+  return [sale.idSale for sale in sales], products, combos, generalPrice, totals, gain
 
 def removeClosing(db: Session, idClosing):
   try:
@@ -104,6 +106,11 @@ def removeClosing(db: Session, idClosing):
   except:
     raise
 
+def getProductsWithoutClosing(db: Session):
+  local_today = getLocal()
+  
+  startOfDay = local_today.replace(hour=0, minute=0, second=0, microsecond=0)
+  endOfDay = local_today.replace(hour=23, minute=59, second=59, microsecond=999999)
 
 def getSalesWithoutClosing(db: Session):
   local_today = getLocal()
@@ -123,8 +130,49 @@ def getSalesWithoutClosing(db: Session):
   
   gain = sum(sale.gain for sale in sales)
   
+  products, combos = getProductsBySales(db, sales)
+  
   totals = getTotalByMethod(db, [sale.idSale for sale in sales])
-  return [sale.idSale for sale in sales], generalPrice, totals, gain
+  return [sale.idSale for sale in sales], products, combos, generalPrice, totals, gain
+
+def getProductsBySales(db, sales):
+  try:
+    products = {}
+    combos = {}
+    
+    for sale in sales:
+      for register in sale.products:
+        name = register.product.name
+        quantity = register.productQuantity
+        
+        if name in products:
+          products[name] += quantity
+        else:
+          products[name] = quantity
+          
+      for register in sale.combos:
+        name = register.combo.name
+        comboQuantity = register.comboQuantity
+            
+        if name in combos:
+          combos[name] += comboQuantity
+        else:
+          combos[name] = comboQuantity
+          
+        combo = register.combo
+        
+        for register in combo.products:
+          name = register.product.name
+          quantity = register.productQuantity
+          
+          if name in products:
+            products[name] += quantity * comboQuantity
+          else:
+            products[name] = quantity * comboQuantity
+    
+    return products, combos
+  except:
+    raise
 
 def getTotalByMethod(db: Session, sales):
   totals = (

@@ -1989,6 +1989,7 @@ class CustomItemsSelector(ft.Container):
     
     with getDB() as db:
       for itemField in self.itemsList.controls:
+        print(itemField.item, itemField.quantityField.fieldValue)
         item = itemField.item
         quantity = itemField.quantityField.fieldValue
         
@@ -2223,7 +2224,7 @@ class CustomItemQuantityInput(ft.Container):
       self.quantityField = CustomNumberField(
         label="",
         expand=True,
-        on_change=self.customOnChange if self.sell else None,
+        on_change=self.customOnChange,
       )
       
       self.priceText = ft.Text(
@@ -2376,7 +2377,7 @@ class CustomItemQuantityInput(ft.Container):
           self.quantityField.field.value = stock
           self.quantityField.fieldValue = stock
           fieldValue = self.quantityField.fieldValue
-          self.quantityField.field.update()
+          self.quantityField.update()
         
         if self.sell:
           self.priceText.value = f"{round(calculatePrice(cost=self.item.cost, iva=self.item.iva, gain=self.item.gain), 2) * fieldValue}$" if self.type == "Product" else f"{round(self.item.price, 2) * fieldValue}$"

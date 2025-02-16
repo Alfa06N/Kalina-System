@@ -12,9 +12,13 @@ from datetime import datetime
 from templates.closing.create import createPDF
 from utils.sessionManager import getCurrentUser
 from DataBase.crud.user import getUserByUsername
+from DataBase.crud.combo import getComboByName
+from DataBase.crud.product import getProductByName
+from Modules.Sections.InventorySection.products_components import ProductContainer
+from utils.imageManager import ImageManager
 
 class ClosingRecord(ft.Container):
-  def __init__(self, page, date, sales:[], amount, totals, gain, idClosing:int=None, partial=True, createFunction=None):
+  def __init__(self, page, date, sales:[], productsName:{}, combosName:{}, amount, totals, gain, idClosing:int=None, partial=True, createFunction=None):
     super().__init__()
     self.page = page
     self.gain = gain
@@ -22,6 +26,8 @@ class ClosingRecord(ft.Container):
     self.idClosing = idClosing
     self.amount = amount
     self.sales = sales
+    self.productsName = productsName
+    self.combosName = combosName
     self.totals = totals
     self.border_radius = 20
     self.partial = partial
@@ -59,6 +65,24 @@ class ClosingRecord(ft.Container):
         },
       mainContainer=self,
     ) for method in list(constants.methodIcons.keys()) if method != "All"]
+    
+    with getDB() as db:
+      self.productsContainers = []
+      imageManager = ImageManager()
+      for key, value in self.productsName.items():
+        product = getProductByName(db, key)
+        container = ProductContainer(
+          idProduct=product.idProduct,
+          name=product.name,
+          description=f"{value} unidades",
+          infoContainer=None,
+          mainContainer=None,
+          page=self.page, 
+          imgPath=imageManager.getImagePath(product.imgPath),
+        )
+        container.margin = ft.margin.symmetric(vertical=3)
+        container.on_click = None
+        self.productsContainers.append(container)
     
     self.totalHeader = ft.Text(
       value=f"{round(self.amount, 2)}$",
@@ -102,6 +126,35 @@ class ClosingRecord(ft.Container):
       icon_color=constants.BLACK,
     )
     
+    self.incomeTitle = ft.Text(
+      value="Resumen de ingresos",
+      size=24, 
+      color=constants.BLACK,
+      weight=ft.FontWeight.W_600,
+      text_align=ft.TextAlign.CENTER,
+      height=50
+    )
+    
+    self.inventoryTitle = ft.Text(
+      value="Desglose de inventario",
+      size=24, 
+      color=constants.BLACK,
+      weight=ft.FontWeight.W_600,
+      text_align=ft.TextAlign.CENTER,
+      height=50,
+    )
+    
+    closingContent = [
+      self.incomeTitle,
+      *self.paymentContainers,
+      ft.Divider(color=constants.WHITE_GRAY),
+      self.inventoryTitle,
+      *self.productsContainers,
+    ]
+    
+    if self.partial:
+      closingContent.append(self.createClosingButton)
+      
     self.columnContent = ft.Column(
         expand=True,
         width=800,
@@ -165,7 +218,7 @@ class ClosingRecord(ft.Container):
             spacing=0,
             scroll=ft.ScrollMode.AUTO,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-            controls=self.paymentContainers + [self.createClosingButton] if self.partial else self.paymentContainers
+            controls=closingContent
           )
         ]
       )

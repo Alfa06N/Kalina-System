@@ -310,6 +310,9 @@ class ProductForm(CustomOperationContainer):
         if float(self.gainField.value) > 30:
           self.gainField.value = 30
           self.gainField.update()
+        if float(self.costField.value) > 100:
+          self.costField.value = 100
+          self.costField.update()
         elif float(self.gainField.value) < 0:
           self.gainField.value = 0
           self.gainField.update()
@@ -365,8 +368,6 @@ class ProductForm(CustomOperationContainer):
           idCategory=category.idCategory,
           imgPath=None
         )
-        
-        print(product.stock, product.minStock)
         
         if not self.imageContainer.selectedImagePath == None:
           imageManager = ImageManager()

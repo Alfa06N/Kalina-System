@@ -176,10 +176,12 @@ class Closings(ft.Stack):
   
   def showPartialClosing(self):
     with getDB() as db:
-      sales, generalPrice, totals, gain = getSalesWithoutClosing(db)
+      sales, products, combos, generalPrice, totals, gain = getSalesWithoutClosing(db)
       newContent = ClosingRecord(
         page=self.page,
         sales=sales,
+        productsName=products,
+        combosName=combos,
         amount=generalPrice,
         totals=totals,
         gain=gain,
