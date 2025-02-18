@@ -468,13 +468,14 @@ class CustomTextField(ft.TextField):
       raise
 
 class CustomDropdown(ft.Dropdown):
-  def __init__(self, label, expand=False, options:list=[], mode="light", value=None):
+  def __init__(self, label, expand=False, options:list=[], mode="light", value=None, on_change=None):
     super().__init__()
     self.label = label
     self.options = options
     self.border_width = 2
     self.expand = expand
     self.value = value
+    self.changeDocument = on_change
     
     self.text_size = 18
     
@@ -493,7 +494,11 @@ class CustomDropdown(ft.Dropdown):
         color=constants.BLACK
       )
     
-    self.on_change = lambda e: validateEmptyField(self)
+    self.on_change = self.onChangeFunction
+    
+  def onChangeFunction(self, e):
+    validateEmptyField(self)
+    self.changeDocument(e.control.value)
     
 class CustomUserIcon(ft.Container):
   def __init__(self, initial, fontSize: int = 24, width: int = 60, height: int = 60, gradient: bool = True):
@@ -907,6 +912,7 @@ class CustomSidebar(ft.Container):
         self.payments,
         self.closings,
       ] if user.role == "Administrador" else [
+        self.clients,
         self.sales,
         self.inventory,
         self.payments,

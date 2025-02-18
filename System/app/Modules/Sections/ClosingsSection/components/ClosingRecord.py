@@ -16,6 +16,7 @@ from DataBase.crud.combo import getComboByName
 from DataBase.crud.product import getProductByName
 from Modules.Sections.InventorySection.products_components import ProductContainer
 from utils.imageManager import ImageManager
+import locale
 
 class ClosingRecord(ft.Container):
   def __init__(self, page, date, sales:[], productsName:{}, combosName:{}, amount, totals, gain, idClosing:int=None, partial=True, createFunction=None):
@@ -153,7 +154,7 @@ class ClosingRecord(ft.Container):
     )
     
     self.inventoryTitle = ft.Text(
-      value="Desglose de inventario",
+      value="Desglose de productos vendidos",
       size=24, 
       color=constants.BLACK,
       weight=ft.FontWeight.W_600,
@@ -171,6 +172,14 @@ class ClosingRecord(ft.Container):
     
     if self.partial:
       closingContent.append(self.createClosingButton)
+    else:
+      with getDB() as db:
+        closing = getClosingById(db, self.idClosing)
+        closingContent.append(ft.Text(
+          value=f"Realizado por: {closing.user.employee.name} {closing.user.employee.surname}",
+          color=constants.BLACK,
+          size=20,
+        ))
       
     self.columnContent = ft.Column(
         expand=True,
@@ -267,17 +276,22 @@ class ClosingRecord(ft.Container):
       with getDB() as db:
         closing = getClosingById(db, self.idClosing)
         user = getUserByUsername(db, getCurrentUser())
+        date = closing.date.strftime("%A %d de %B del %Y, %H:%M:%S %p") if not self.partial else datetime.now().strftime("%A %d de %B del %Y, %H:%M:%S %p")
+        # date = date.replace("AM", "am").replace("PM", "pm")
         if e.path:
           print("Selected path:", e.path)
+          top5 = sorted(self.productsName.items(), key=lambda x: x[1], reverse=True)
+          top5 = dict(top5[:5])
           result = createPDF(
             info={
               "title": "Cierre de caja parcial" if self.partial else "Cierre de caja",
-              "employee": f"{user.employee.name} {user.employee.surname} {user.employee.secondSurname}", 
+              "employee": f"{user.employee.name} {user.employee.surname} {user.employee.secondSurname}" if self.partial else f"{closing.user.employee.name} {closing.user.employee.surname} {closing.user.employee.secondSurname}", 
               "closing_amount": f"{round(self.amount, 2)}",
               "estimated_gain": f"{round(self.gain, 2)}",
-              "date": closing.date.strftime("%d/%m/%Y, %H:%M:%S") if not self.partial else datetime.now().strftime("%d/%m/%Y, %H:%M:%S"),
+              "date": date,
               "rif": constants.companyInfo["rif"],
               "soldInventory": self.productsName,
+              "top5": top5,
               "phone": constants.companyInfo["phone"],
               "email": constants.companyInfo["email"],
               "payment_methods": {

@@ -5,11 +5,13 @@ ORANGE = "#D19D4B"
 ORANGE_LIGHT = "#efd098"
 ORANGE_OVERLAY = "#e6b363"
 ORANGE_TEXT = "#bf5d20"
+SANDY_BROWN = "#dd9a4c"
 BLACK = "#222222"
 BLACK_GRAY = "#444444"
 BLACK_INK = "#888888"
 BLUE = "#0077ce"
 BLUE_CAKE = "#6BAAB9"
+POWDER_BLUE = "#8E9EB5"
 WHITE = "#DCDCDC"
 WHITE_BACKGROUND = "#CBCBCB"
 # WHITE = "#f7f7f7"
@@ -60,4 +62,11 @@ companyInfo = {
   "email": "kaipe.contacto@gmail.com",
   "phone": "+58 412-8945511",
   "rif": "J-50457264-0",
+}
+
+documentTypes = {
+  "Jurídico": "J-",
+  "Extranjero": "E-",
+  "Venezolano": "V-",
+  "Gubernamental": "G-",
 }

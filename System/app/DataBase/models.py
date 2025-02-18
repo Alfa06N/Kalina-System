@@ -47,10 +47,11 @@ class User(Base):
 class Client(Base):
   __tablename__ = "Client"
   
-  ciClient = Column(Integer, primary_key=True)
+  ciClient = Column(String(25), primary_key=True)
   name = Column(String(25), nullable=False)
   surname = Column(String(25), nullable=False)
   secondSurname = Column(String(25))
+  documentType = Column(Enum("Jurídico", "Venezolano", "Extranjero", "Gubernamental"), nullable=False)
   
   sales = relationship("Sale", back_populates="client")
 
@@ -104,7 +105,7 @@ class Sale(Base):
   gain = Column(DECIMAL(10, 3))
   idClosing = Column(Integer, ForeignKey("Closing.idClosing"), default=None)
   idUser = Column(Integer, ForeignKey("User.idUser"))
-  ciClient = Column(Integer, ForeignKey("Client.ciClient"))
+  ciClient = Column(String(25), ForeignKey("Client.ciClient"))
   
   closing = relationship("Closing", back_populates="sales")
   user = relationship("User", back_populates="sales")

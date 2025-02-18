@@ -106,7 +106,7 @@ class ProductContainer(ft.Container):
           value=self.name,
           color=constants.BLACK,
           size=20,
-          weight=ft.FontWeight.W_700,
+          weight=ft.FontWeight.W_600,
           overflow=ft.TextOverflow.ELLIPSIS,
         )
       )
@@ -123,8 +123,8 @@ class ProductContainer(ft.Container):
       self.imageContainer.setNewContent(
         newContent=CustomImageContainer(
           src=self.imgPath,
-          width=150,
-          height=150,
+          width=110,
+          height=110,
           border_radius=30,
         )
       )

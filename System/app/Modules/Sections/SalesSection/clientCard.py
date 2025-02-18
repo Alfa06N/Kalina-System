@@ -122,7 +122,7 @@ class ClientCard(ft.Container):
                     text_align=ft.TextAlign.CENTER,
                   ),
                   ft.Text(
-                    value=f"V-{client.ciClient}",
+                    value=f"{client.ciClient}",
                     size=18,
                     color=constants.BLACK,
                     overflow=ft.TextOverflow.ELLIPSIS,
@@ -155,12 +155,20 @@ class ClientSelection(ft.Container):
       text_align=ft.TextAlign.CENTER,
     )
     
+    self.documentTypeField = CustomDropdown(
+      label="Tipo",
+      options=[ft.dropdown.Option(value) for value in list(constants.documentTypes.keys())],
+      value="Venezolano",
+      expand=True,
+      on_change=None
+    )
+    
     self.searchBar = ClientSearchBar(
       page=self.page,
       controls=self.getAllClientsCI(),
+      expand=True,
       on_submit=lambda e: self.showClientContainer(e.control.value),
     )
-    
     self.createClientButton = CustomEditButton(
       function=lambda e: self.showClientForm(),
     )
@@ -221,7 +229,15 @@ class ClientSelection(ft.Container):
             self.createClientButton,
           ]  
         ),
-        self.searchBar,
+        ft.Container(
+          padding=ft.padding.symmetric(vertical=10),
+          content=ft.Row(
+            controls=[
+              self.documentTypeField,
+              self.searchBar,
+            ]
+          )
+        ),
         self.animatedClientContainer,
         self.finishButton
       ]
@@ -270,6 +286,7 @@ class ClientSelection(ft.Container):
         newContent = ClientContainer(
           page=self.page,
           ciClient=ciClient,
+          documentType=client.documentType,
           initial=f"{client.name[0]}{client.surname[0]}",
           fullname=f"{client.name} {client.surname} {client.secondSurname}",
           infoContainer=None,
@@ -307,11 +324,10 @@ class ClientSelection(ft.Container):
       if not str(ciClient).isdigit():
         raise InvalidData("Ingrese un número válido.")
       
-      newContent = self.getClientContainer(ciClient)
+      newContent = self.getClientContainer(f"{constants.documentTypes[self.documentTypeField.value]}{ciClient}")
       
-      self.searchBar.close_view(text=f"{ciClient}")
       self.animatedClientContainer.content.setNewContent(newContent=newContent)
-      self.selectedClient = ciClient
+      self.selectedClient = f"{constants.documentTypes[self.documentTypeField.value]}{ciClient}"
     except InvalidData as err:
       self.page.open(CustomAlertDialog(
         modal=False,
@@ -345,7 +361,7 @@ class ClientSelection(ft.Container):
         try:
           result = form.submitForm()
           if result:
-            self.selectedClient = int(form.ciField.value)
+            self.selectedClient = f"{constants.documentTypes[form.documentTypeField.value]}{int(form.ciField.value)}"
             threading.Timer(1, self.finishFunction).start()
         except:
           raise

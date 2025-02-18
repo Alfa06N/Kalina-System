@@ -1,6 +1,6 @@
 import flet as ft
 import constants
-from Modules.customControls import CustomAnimatedContainerSwitcher, CustomNavigationOptions, CustomAnimatedContainer, CustomFloatingActionButton, CustomGridView, CustomUserIcon, CustomAutoComplete, CustomAlertDialog
+from Modules.customControls import CustomAnimatedContainerSwitcher, CustomNavigationOptions, CustomAnimatedContainer, CustomFloatingActionButton, CustomGridView, CustomUserIcon, CustomAutoComplete, CustomAlertDialog, CustomDropdown
 from Modules.clients_module import ClientForm
 from Modules.Sections.ClientsSection.components import ClientContainer, ClientListTile, ClientSearchBar, ClientInfo
 from config import getDB
@@ -28,7 +28,16 @@ class Clients(ft.Stack):
     self.clientSearchBar = ClientSearchBar(
       controls=self.getClientsCI(),
       page=self.page,
+      expand=True,
       on_submit=lambda e: self.showClientInfo(e.control.value)
+    )
+    
+    self.documentTypeField = CustomDropdown(
+      label="Tipo",
+      options=[ft.dropdown.Option(value) for value in list(constants.documentTypes.keys())],
+      value="Venezolano",
+      expand=True,
+      on_change=None
     )
     
     self.clientsContainer = CustomAnimatedContainerSwitcher(
@@ -44,7 +53,15 @@ class Clients(ft.Stack):
         expand=True,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         controls=[
-          self.clientSearchBar,
+          ft.Container(
+            padding=ft.padding.symmetric(horizontal=10, vertical=10),
+            content=ft.Row(
+              controls=[
+                self.documentTypeField,
+                self.clientSearchBar,
+              ]
+            ), 
+          ),
           ft.Column(
             alignment=ft.MainAxisAlignment.START,
             expand=True,
@@ -133,13 +150,14 @@ class Clients(ft.Stack):
       if not str(ciClient).isdigit():
         raise InvalidData("Ingrese un número válido.")
       with getDB() as db:
-        client = getClientById(db, ciClient)
+        client = getClientById(db, f"{constants.documentTypes[self.documentTypeField.value]}{ciClient}")
         
         if not client:
           raise DataNotFoundError("No se encontró el cliente con la CI proporcionada.")
         newContent = ClientInfo(
           page=self.page,
           ciClient=client.ciClient,
+          documentType=client.documentType,
           initial=f"{client.name[0]}{client.surname[0]}",
           fullname=f"{client.name} {client.surname} {client.secondSurname}",
           clientContainer=None,
@@ -160,6 +178,15 @@ class Clients(ft.Stack):
         self.infoContainer.setNewContent(newContent)
         self.clientSearchBar.close_view(text=f"{ciClient}")
         self.clientSearchBar.update()
+        
+        columnContainers = self.clientsContainer.content.content.controls[1].controls
+        for control in columnContainers:
+          if hasattr(control, "ciClient") and control.ciClient == client.ciClient:
+            containerSelected = control
+            if self.controlSelected:
+              self.controlSelected.deselect()
+            self.controlSelected = containerSelected
+            self.controlSelected.select()
     except InvalidData as err:
       self.page.open(CustomAlertDialog(
         modal=False,
@@ -191,6 +218,7 @@ class Clients(ft.Stack):
               ciClient=client.ciClient,
               initial=initial,
               fullname=fullname,
+              documentType=client.documentType,
               infoContainer=self.infoContainer,
               mainContainer=self,
             )   
@@ -208,7 +236,15 @@ class Clients(ft.Stack):
         expand=True,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         controls=[
-          self.clientSearchBar,
+          ft.Container(
+            padding=ft.padding.symmetric(horizontal=10, vertical=10),
+            content=ft.Row(
+              controls=[
+                self.documentTypeField,
+                self.clientSearchBar,
+              ]
+            ), 
+          ),
           ft.Column(
             alignment=ft.MainAxisAlignment.CENTER,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,

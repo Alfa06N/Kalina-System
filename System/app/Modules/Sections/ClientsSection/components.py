@@ -8,11 +8,12 @@ from exceptions import DataAlreadyExists, DataNotFoundError
 import re
 
 class ClientContainer(ft.Container):
-  def __init__(self, page, ciClient, initial, fullname, infoContainer, mainContainer):
+  def __init__(self, page, ciClient, documentType, initial, fullname, infoContainer, mainContainer):
     super().__init__()
     self.initial = initial
     self.ciClient = ciClient
     self.fullname = fullname
+    self.documentType = documentType
     self.infoContainer = infoContainer
     self.mainContainer = mainContainer
     self.page = page
@@ -37,7 +38,7 @@ class ClientContainer(ft.Container):
     )
     
     self.clientCI = ft.Text(
-      value=f"V-{self.ciClient}",
+      value=f"{self.ciClient}",
       size=20,
       color=constants.BLACK,
       overflow=ft.TextOverflow.ELLIPSIS,
@@ -70,6 +71,7 @@ class ClientContainer(ft.Container):
           page=self.page,
           ciClient=self.ciClient,
           initial=self.initial,
+          documentType=self.documentType,
           fullname=self.fullname,
           mainContainer=self.mainContainer,
           clientContainer=self,
@@ -91,12 +93,13 @@ class ClientContainer(ft.Container):
     self.update()
 
 class ClientInfo(ft.Container):
-  def __init__(self, page, ciClient, initial, fullname, clientContainer, mainContainer):
+  def __init__(self, page, ciClient, documentType, initial, fullname, clientContainer, mainContainer):
     super().__init__()
     self.page = page
     self.initial = initial
     self.ciClient = ciClient
     self.fullname = fullname
+    self.documentType = documentType
     self.clientContainer = clientContainer
     self.mainContainer = mainContainer
     
@@ -111,7 +114,7 @@ class ClientInfo(ft.Container):
     )
     
     self.clientCI = ft.Text(
-      value=f"V-{self.ciClient}",
+      value=f"{self.ciClient}",
       color=constants.BLACK,
       size=24,
     )
@@ -263,9 +266,10 @@ class ClientInfo(ft.Container):
     self.animatedContainer.setNewContent(content)
     
 class ClientSearchBar(ft.SearchBar):
-  def __init__(self, page, controls:list=[], on_submit=None):
+  def __init__(self, page, controls:list=[], on_submit=None, expand=False):
     super().__init__()
     self.view_elevation = 4
+    self.expand=expand
     self.bar_hint_text = "Buscar clientes..."
     self.view_hint_text = "Escribe o selecciona la CI deseada..."
     self.controls = controls

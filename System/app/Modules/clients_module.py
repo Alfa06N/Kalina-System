@@ -25,6 +25,14 @@ class ClientForm(CustomOperationContainer):
       ]
     )
     
+    self.documentTypeField = CustomDropdown(
+      label="Tipo de documento",
+      expand=True,
+      options=[ft.dropdown.Option(value) for value in list(constants.documentTypes.keys())],
+      value="Venezolano",
+      on_change=self.changeDocument
+    )
+    
     self.ciField = CustomTextField(
       label="Documento",
       field="ci",
@@ -68,6 +76,7 @@ class ClientForm(CustomOperationContainer):
           expand=True,
           vertical_alignment=ft.CrossAxisAlignment.CENTER,
           controls=[
+            self.documentTypeField,
             self.ciField,
             self.nameField,
           ]
@@ -88,6 +97,14 @@ class ClientForm(CustomOperationContainer):
       ]
     )
     super().__init__(operationContent=self.form)
+    
+  def changeDocument(self, value):
+    try:
+      newPrefix = constants.documentTypes[value]
+      self.ciField.prefix_text = newPrefix
+      self.ciField.update()
+    except:
+      raise
   
   def submitForm(self):
     try:
@@ -97,7 +114,8 @@ class ClientForm(CustomOperationContainer):
         with getDB() as db:
           newClient = createClient(
             db=db,
-            ciClient=int(self.ciField.value),
+            documentType=self.documentTypeField.value,
+            ciClient=self.ciField.prefix_text+self.ciField.value,
             name=self.nameField.value.strip(),
             surname=self.surnameField.value.strip(),
             secondSurname=self.secondSurnameField.value.strip(),

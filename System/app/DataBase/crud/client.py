@@ -4,7 +4,7 @@ from DataBase.models import Client
 from DataBase.errorHandling import handleDatabaseErrors
 from exceptions import DataAlreadyExists
 
-def createClient(db: Session, ciClient: int, name: str, surname: str, secondSurname: str):
+def createClient(db: Session, ciClient: str, documentType: str, name: str, surname: str, secondSurname: str):
   try:
     if getClientById(db, ciClient):
       raise DataAlreadyExists("Ya existe este documento.")
@@ -13,6 +13,7 @@ def createClient(db: Session, ciClient: int, name: str, surname: str, secondSurn
       ciClient=ciClient,
       name=name,
       surname=surname,
+      documentType=documentType,
       secondSurname=secondSurname,
     )
     db.add(client)

@@ -29,7 +29,7 @@
         margin-top: 20px;
         margin-bottom: 20px;
         font-weight: bold;
-        color: #6baab9;
+        color: #a66525;
       }
       .header span {
         font-size: 28px;
@@ -42,6 +42,22 @@
         color: green;
         font-size: 18px;
       }
+      .top-products-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      .top-products-table th,
+      .top-products-table td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+        width: 50%;
+      }
+      .top-products-table th {
+        background-color: #a66525;
+        color: #f9f7f7;
+      }
       .summary-table {
         width: 100%;
         border-collapse: collapse;
@@ -51,10 +67,11 @@
       .summary-table td {
         border: 1px solid #ddd;
         padding: 10px;
+        width: 50%;
         text-align: left;
       }
       .summary-table th {
-        background-color: #6baab9;
+        background-color: #355a86;
         color: #f9f7f7;
       }
       .method-name,
@@ -118,6 +135,24 @@
       </thead>
       <tbody>
         {% for product, quantity in soldInventory.items() %}
+        <tr>
+          <td class="product-name">{{ product }}</td>
+          <td>{{ quantity }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h2 class="subtitle">Top 5 productos más vendidos</h2>
+    <table class="top-products-table">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Cantidad Vendida</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product, quantity in top5.items() %}
         <tr>
           <td class="product-name">{{ product }}</td>
           <td>{{ quantity }}</td>
