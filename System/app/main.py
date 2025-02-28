@@ -33,8 +33,6 @@ def main(page: ft.Page):
     )
   )
   
-  locale.setlocale(locale.LC_TIME, "spanish")
-  
   page.theme_mode = ft.ThemeMode.LIGHT
   page.bgcolor = constants.WHITE
   page.vertical_alignment = ft.MainAxisAlignment.CENTER
@@ -42,9 +40,7 @@ def main(page: ft.Page):
   page.padding = 0 
   init_db() 
 
-  setUser("Alfa06N")
-  showPrincipal(page)
-  # initApp(page)
+  initApp(page)
 
  
 if __name__ == "__main__":

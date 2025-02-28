@@ -321,7 +321,7 @@ class SaleRecord(ft.Container):
       products = [register.product for register in sale.products]
       combos = [register.combo for register in sale.combos]
       client = sale.client
-      user = sale.user
+      employee = sale.user.employee
       exchangeRate = sale.transactions[0].exchangeRate
       
       self.titleText = ft.Text(
@@ -419,13 +419,13 @@ class SaleRecord(ft.Container):
         vertical_alignment=ft.CrossAxisAlignment.CENTER,
         controls=[
           ft.Text(
-            value="Usuario a cargo:",
+            value="Empleado a cargo:",
             color=constants.BLACK,
             weight=ft.FontWeight.W_600,
             size=20,
           ),
           ft.Text(
-            value=user.username if user else "Desconocido",
+            value=f"{employee.name} {employee.surname}" if employee else "Desconocido",
             color=constants.BLACK,
             size=20,
           ),

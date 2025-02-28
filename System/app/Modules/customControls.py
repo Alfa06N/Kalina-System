@@ -497,8 +497,9 @@ class CustomDropdown(ft.Dropdown):
     self.on_change = self.onChangeFunction
     
   def onChangeFunction(self, e):
+    if self.changeDocument:
+      self.changeDocument(e.control.value)
     validateEmptyField(self)
-    self.changeDocument(e.control.value)
     
 class CustomUserIcon(ft.Container):
   def __init__(self, initial, fontSize: int = 24, width: int = 60, height: int = 60, gradient: bool = True):
@@ -1534,7 +1535,7 @@ class CustomContainerButtonGradient(ft.Container):
     self.update()
     
 class CustomItemsDialog(ft.AlertDialog):
-  def __init__(self, page, sale, width:int=800, height:int=500, title:str="Buscar Productos y Combos", finalFunction=None, products:bool=True, combos:bool=False):
+  def __init__(self, page, sale, width:int=800, height:int=500, title:str="Buscar Productos", finalFunction=None, products:bool=True, combos:bool=False):
     super().__init__()
     self.page = page
     
@@ -1544,14 +1545,6 @@ class CustomItemsDialog(ft.AlertDialog):
     self.modal = True
     self.selectedItems = []
     self.finalFunction = finalFunction
-    
-    self.title = ft.Text(
-      value=title,
-      size=32,
-      weight=ft.FontWeight.W_700,
-      color=constants.BLACK,
-      text_align=ft.TextAlign.CENTER,
-    )
     
     self.productButton = CustomNavigationOptions(
       icon=ft.Icons.COFFEE_ROUNDED,
@@ -1577,6 +1570,40 @@ class CustomItemsDialog(ft.AlertDialog):
       contentAlignment=ft.MainAxisAlignment.CENTER,
     )
 
+    from Modules.Sections.InventorySection.products_components import FilterByName
+    from DataBase.crud.category import getCategories
+    
+    self.searchBar = ft.Container(
+      expand=True,
+      alignment=ft.alignment.center,
+      content=FilterByName(
+        page=self.page,
+        bar_hint_text="Filtrar por nombre...",
+        view_hint_text="Filtrar por nombre...",
+        controls=[],
+        on_submit=lambda e: self.updateView(),
+      )
+    )
+    
+    with getDB() as db:
+      self.categoryDropdown = CustomDropdown(
+        label="Categoría",
+        expand=True, 
+        options=[
+          ft.dropdown.Option("Todas las categorías"),
+          *[ft.dropdown.Option(category.name) for category in getCategories(db)]  
+        ],
+        value="Todas las categorías",
+      )
+      self.categoryDropdown.changeDocument = self.selectCategory
+    
+    self.restartButton = ft.IconButton(
+      icon=ft.Icons.RESTART_ALT,
+      icon_color=constants.BLACK,
+      icon_size=24,
+      tooltip="Reiniciar filtros"
+    )
+    
     self.navigationButtons = ft.Container(
       margin=ft.margin.symmetric(horizontal=20, vertical=10),
       bgcolor=ft.Colors.TRANSPARENT, 
@@ -1585,10 +1612,13 @@ class CustomItemsDialog(ft.AlertDialog):
       alignment=ft.alignment.center,
       content=ft.Row(
         alignment=ft.MainAxisAlignment.CENTER,
+        width=400,
         expand=True,
         spacing=20,
       )
     )
+    
+    self.title = self.navigationButtons
     
     self.productsView = CustomGridView(
       expand=True,
@@ -1643,7 +1673,15 @@ class CustomItemsDialog(ft.AlertDialog):
       width=1000,
       expand=True,
       controls=[
-        self.navigationButtons,
+        ft.Row(
+          alignment=ft.MainAxisAlignment.CENTER,
+          vertical_alignment=ft.CrossAxisAlignment.CENTER,
+          controls=[
+            self.searchBar,
+            self.categoryDropdown,
+            self.restartButton,
+          ]
+        ),
         ft.Divider(color=constants.WHITE_GRAY),
         self.actualView,
         ft.Divider(color=constants.WHITE_GRAY),
@@ -1662,6 +1700,11 @@ class CustomItemsDialog(ft.AlertDialog):
 
     self.page.open(self)
     self.updateItemSelection()
+    
+  def selectCategory(self, value):
+    categories = [option.key for option in self.categoryDropdown.options]
+    print(value, categories.index(value))
+    self.updateView()
     
   def updateItemSelection(self):
     for container in self.productsView.controls:
@@ -1687,10 +1730,44 @@ class CustomItemsDialog(ft.AlertDialog):
     try:
       # Actualiza los items que se van a seleccionar
       self.actualView = self.productsView if self.selectedView == self.productButton else self.combosView
+      
+      filterValue = self.searchBar.content.value
+      # Now i have to pass the category to this filter
+      self.filterData(self.actualView.controls, filterValue, self.categoryDropdown.value)
       self.content.controls[2] = self.actualView
       self.content.update()
     except:
       raise
+  
+  def filterData(self, items, value, category):
+    try:
+      from DataBase.crud.product import getProductByName
+      indexCategory = [option.key for option in self.categoryDropdown.options].index(category)
+      filteredContainers = []
+      value = value.lower().strip()
+      
+      def filterContainer(container):
+        isVisible = True
+        if not value and not category:
+          return isVisible
+        else:
+          if value and not value in container.name.lower():
+            isVisible = False
+            return isVisible
+          if category and not indexCategory == 0 and self.actualView == self.productsView:
+            with getDB() as db:
+              product = getProductByName(db, container.name)
+              if not product.category.name == category:
+                isVisible = False
+                return isVisible
+        
+        return isVisible
+      
+      for container in items:
+        container.visible = filterContainer(container)
+      return filteredContainers
+    except Exception as err:
+      print("Something happened filtering the data:", err)
     
   def switchView(self, e):
     try:
@@ -1699,6 +1776,7 @@ class CustomItemsDialog(ft.AlertDialog):
         self.selectedView.deselectOption()
         self.selectedView = e.control
         self.selectedView.selectOption()
+        self.searchBar.content.value = ""
         self.updateView()
     except:
       raise
@@ -1725,6 +1803,7 @@ class CustomItemsDialog(ft.AlertDialog):
               itemCard = CustomItemCard(
                 page=self.page,
                 item=product,
+                name=product.name,
                 on_click=self.selectItem,
                 selected=True if product.name in self.selectedItems else False,
               )
@@ -1737,6 +1816,7 @@ class CustomItemsDialog(ft.AlertDialog):
               itemCard = CustomItemCard(
                 page=self.page,
                 item=combo,
+                name=combo.name,
                 on_click=self.selectItem,
                 selected=True if combo.name in self.selectedItems else False,
               )
@@ -1758,14 +1838,16 @@ class CustomItemsDialog(ft.AlertDialog):
       raise
     
 class CustomItemCard(ft.Container):
-  def __init__(self, page, item, width=200, height=200, on_click=None, selected=False):
+  def __init__(self, page, name, item, width=170, height=170, on_click=None, selected=False):
     super().__init__()
     self.height = height
     self.width = width
     self.page = page 
+    self.name = name
     self.item = item
     self.on_click = on_click
     self.selected = selected
+    self.alignment = ft.alignment.center
 
     self.border_radius = ft.border_radius.all(30)
     self.shadow = ft.BoxShadow(
@@ -1798,7 +1880,7 @@ class CustomItemCard(ft.Container):
       
       self.textName = ft.Text(
         value=f"{item.name}",
-        size=26,
+        size=22,
         color=constants.WHITE,
         weight=ft.FontWeight.W_700,
         overflow=ft.TextOverflow.ELLIPSIS,
@@ -2153,12 +2235,12 @@ class CustomItemsSelector(ft.Container):
       raise
     
 class CustomGridView(ft.GridView):
-  def __init__(self, expand, controls, width=600, runs_count=5, max_extent=200, child_aspect_ratio=1.0, spacing=10, run_spacing=10):
+  def __init__(self, expand, controls, width=600, runs_count=5, max_extent=170, child_aspect_ratio=1.0, spacing=10, run_spacing=10):
     super().__init__()
     self.expand = True
     self.semantic_child_count = 3
     self.max_extent = max_extent
-    self.child_aspect_ratio = child_aspect_ratio = 1.0
+    self.child_aspect_ratio =  1.0
     self.spacing = spacing
     self.run_spacing = run_spacing
     self.padding = ft.padding.all(10)

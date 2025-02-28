@@ -274,6 +274,7 @@ class ClientSearchBar(ft.SearchBar):
     self.view_hint_text = "Escribe o selecciona la CI deseada..."
     self.controls = controls
     self.page = page
+    # self.on_tap = lambda e: self.open_view()
     
     self.on_submit = on_submit
 
