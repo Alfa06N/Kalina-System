@@ -11,6 +11,7 @@ from DataBase.crud.product import getProductByName, getProducts
 from DataBase.crud.category import getCategories, removeCategory
 from DataBase.crud.closing import removeClosing
 from DataBase.crud.closing import getSalesWithoutClosing
+from DataBase.crud.user_product import getAllRegisters
 from utils.imageManager import ImageManager
 from utils.datetimeGlobal import getTime, syncTime, getCurrentTime
 import asyncio
@@ -40,7 +41,15 @@ def main(page: ft.Page):
   page.padding = 0 
   init_db() 
 
-  initApp(page)
+  setUser("Alfa06N")
+  showPrincipal(page)
+  # initApp(page)
+  
+  with getDB() as db:
+    registers = getAllRegisters(db)
+    print("Registers:", len(registers))
+    for register in registers:
+      print(register.productQuantity)
 
  
 if __name__ == "__main__":

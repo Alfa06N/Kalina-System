@@ -1,8 +1,9 @@
 import flet as ft 
 import constants
-from Modules.customControls import CustomUserIcon, CustomOperationContainer, CustomTextField, CustomAnimatedContainer, CustomNavigationOptions, CustomFilledButton, CustomDropdown, CustomDeleteButton, CustomAlertDialog, CustomImageContainer, CustomEditButton
+from Modules.customControls import CustomUserIcon, CustomOperationContainer, CustomTextField, CustomAnimatedContainer, CustomNavigationOptions, CustomFilledButton, CustomDropdown, CustomDeleteButton, CustomAlertDialog, CustomImageContainer, CustomEditButton, CustomReturnButton
 from config import getDB
 from DataBase.crud.product import getProducts, getProductById, updateProduct, updateProductStock, removeProduct, calculatePrice
+from DataBase.crud.user_product import getRegisterByProductId
 from Modules.products_module import UpdateStockForm, UpdateInfoForm, UpdatePriceForm
 from utils.imageManager import ImageManager
 from utils.sessionManager import isAdmin
@@ -130,6 +131,84 @@ class ProductContainer(ft.Container):
       )
     except Exception as err:
       print(err)
+      
+class StockRecordContainer(ft.Container):
+  def __init__(self, productQuantity, username, productName, date):
+    super().__init__()
+    self.productName = productName
+    self.username = username
+    self.productQuantity = productQuantity
+    self.date = date
+    self.isAdding = productQuantity > 0
+    
+    self.bgcolor = constants.WHITE
+    self.border_radius = ft.border_radius.all(30)
+    self.shadow = ft.BoxShadow(
+      spread_radius=1,
+      blur_radius=1,
+      color=constants.WHITE_GRAY
+    )
+    self.padding = ft.padding.symmetric(horizontal=15, vertical=5)
+    
+    iconStyles = {
+      "name": ft.Icons.ARROW_UPWARD_ROUNDED if self.isAdding else ft.Icons.ARROW_DOWNWARD_ROUNDED,
+      "color": constants.GREEN_TEXT if self.isAdding else constants.RED_TEXT, 
+    }
+    
+    quantityQuotes = {
+      "operation": "Stock incrementado por" if self.isAdding else "Stock decrementado por",
+      "quantity": abs(productQuantity),
+    }
+    
+    self.icon = ft.Icon(
+      name=iconStyles["name"],
+      color=iconStyles["color"],
+      size=32,
+    )
+
+    self.quantityAddedText = ft.Text(
+      value=f"{quantityQuotes["operation"]} {quantityQuotes["quantity"]}",
+      color=constants.BLACK,
+      size=20,
+      weight=ft.FontWeight.W_600,
+    )
+    
+    self.userText = ft.Text(
+      value=f"{self.username}",
+      color=constants.BLACK,
+      size=18,
+    )
+    
+    self.dateText = ft.Text(
+      value=f"{self.date}",
+      color=constants.BLACK,
+      size=18,
+    )
+    
+    self.content = ft.Row(
+      expand=True,
+      vertical_alignment=ft.CrossAxisAlignment.CENTER,
+      controls=[
+        self.icon,
+        ft.Column(
+          expand=True,
+          alignment=ft.MainAxisAlignment.CENTER,
+          spacing=0,
+          controls=[
+            self.quantityAddedText,
+            ft.Row(
+              expand=True,
+              alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+              controls=[
+                self.userText,
+                self.dateText,
+              ]
+            )
+          ]
+        )
+      ]
+    )
+    
 
 class ProductInfo(ft.Stack):
   def __init__(self, page, idProduct, imgPath, productContainer, infoContainer, mainContainer):
@@ -252,6 +331,11 @@ class ProductInfo(ft.Stack):
     self.editButton = CustomEditButton(
       function=self.showEditInfo
     )
+    
+    self.historyButton = CustomReturnButton(
+      function=self.showProductHistory,
+      icon=ft.Icons.HISTORY_ROUNDED
+    )
       
     self.info = ft.Stack(
       expand=True,
@@ -326,6 +410,11 @@ class ProductInfo(ft.Stack):
           content=self.editButton if isAdmin() else None,
           right=80,
           top=10,
+        ),
+        ft.Container(
+          content=self.historyButton if isAdmin() else None,
+          right=150,
+          top=10,
         )
       ]
     )
@@ -335,6 +424,56 @@ class ProductInfo(ft.Stack):
     )
     
     self.controls = [self.animatedSwitcher]
+    
+  def showProductHistory(self, e):
+    try:
+      with getDB() as db:
+        product = getProductById(db, self.idProduct)
+        registers = getRegisterByProductId(db, self.idProduct)
+        
+        newContent = ft.Column(
+          alignment=ft.MainAxisAlignment.START,
+          horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+          controls=[
+            ft.Text(
+              value=product.name,
+              size=28,
+              color=constants.BLACK,
+              weight=ft.FontWeight.W_600,
+              text_align=ft.TextAlign.CENTER,
+            ),
+          ]
+        )
+        
+        if len(registers) > 0:
+          for register in registers:
+            newContent.controls.append(StockRecordContainer(
+              productQuantity=register.productQuantity,
+              username=register.user.username,
+              productName=product.name,
+              date=register.date
+            ))
+        else:
+          newContent.controls.append(ft.Text(
+            value="El historial está vacío",
+          ))
+      
+      newContent = ft.Stack(
+        expand=True,
+        controls=[
+          newContent,
+          ft.Container(
+            content=CustomReturnButton(
+              function=lambda e: self.returnToInfo(),
+            ),
+            left=10,
+            top=0,
+          ),
+        ]
+      )
+      self.animatedSwitcher.setNewContent(newContent)
+    except Exception as err:
+      print(err)
   
   def updateInfoControls(self, info:bool=False, stock:bool=False, prices:bool=False):
     try:

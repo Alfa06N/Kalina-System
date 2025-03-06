@@ -46,7 +46,7 @@ def getRegisterByUserId(db: Session, idUser: int):
 def getRegisterByProductId(db: Session, idProduct: int):
   try:
     def func():
-      return db.query(UserProduct).filter(UserProduct.idProduct == idProduct).all()
+      return db.query(UserProduct).filter(UserProduct.idProduct == idProduct).order_by(desc(UserProduct.idUserProduct)).limit(50).all()
     
     return handleDatabaseErrors(db, func)
   except Exception:

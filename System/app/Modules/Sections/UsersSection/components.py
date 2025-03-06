@@ -275,7 +275,7 @@ class UserInfo(ft.Stack):
       if e.control == self.editButton:
         self.selectedContainer.content.setNewContent(EditContainer(self.username, self))
       else:
-        self.selectedContainer.content.setNewContent(self.activityContainer)
+        self.selectedContainer.content.setNewContent(ActivityContainer(self.username, self))
       
   def submitPassword(self, password):
     with getDB() as db:
@@ -307,6 +307,24 @@ class UserInfo(ft.Stack):
         text_align=ft.TextAlign.CENTER,
     ))
     self.userContainer.updateUsername(newUsername)
+    
+class ActivityContainer(ft.Container):
+  def __init__(self, username, infoContainer):
+    super().__init__()
+    self.username = username
+    self.infoContainer = infoContainer
+    
+    self.content = ft.Column(
+      alignment=ft.MainAxisAlignment.CENTER,
+      horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+      controls=[
+        ft.Text(
+          value="There's nothing here",
+          color=constants.BLACK,
+          size=20,
+        )
+      ]
+    )
       
 class EditContainer(CustomOperationContainer):
   def __init__(self, username, infoContainer):

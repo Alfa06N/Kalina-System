@@ -138,11 +138,12 @@ class EmployeesForm(CustomOperationContainer):
       nameFields = [self.nameField, self.surnameField] if len(self.secondSurnameField.value.strip()) == 0 else [self.nameField, self.surnameField, self.secondSurnameField]
       if evaluateForm(ci=[self.ciField], name=nameFields):
         if not self.birthdateText.value == "Fecha de nacimiento":
+          employeeName = self.nameField.value.strip() + " " + self.surnameField.value.strip() + " " + self.secondSurnameField.value.strip()
           self.confirmDialog = CustomAlertDialog(
             modal=True,
             title=f"Crear empleado",
             content=ft.Text(
-              value=f"Se creará el empleado \"{self.nameField.value} {self.surnameField.value} {self.secondSurnameField.value}\" portador de la cédula \"V-{self.ciField.value}\"",
+              value=f"Se creará el empleado \"{employeeName}\" portador de la cédula \"V-{self.ciField.value}\"",
               size=18,
               color=constants.BLACK,
             ),
