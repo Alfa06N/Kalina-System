@@ -438,7 +438,7 @@ class ProductInfo(ft.Stack):
           horizontal_alignment=ft.CrossAxisAlignment.CENTER,
           controls=[
             ft.Text(
-              value=product.name,
+              value=f"Historial de inventario de \n{product.name}",
               size=28,
               color=constants.BLACK,
               weight=ft.FontWeight.W_600,
@@ -448,13 +448,18 @@ class ProductInfo(ft.Stack):
         )
         
         if len(registers) > 0:
+          containersList = ft.Column(
+            expand=True,
+            scroll=ft.ScrollMode.AUTO,
+          )
           for register in registers:
-            newContent.controls.append(StockRecordContainer(
+            containersList.controls.append(StockRecordContainer(
               productQuantity=register.productQuantity,
               username=register.user.username,
               productName=product.name,
               date=register.date
             ))
+          newContent.controls.append(containersList)
         else:
           newContent.controls.append(ft.Container(
             expand=True,

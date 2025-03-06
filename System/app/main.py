@@ -41,15 +41,11 @@ def main(page: ft.Page):
   page.padding = 0 
   init_db() 
 
-  setUser("Alfa06N")
-  showPrincipal(page)
-  # initApp(page)
+  # setUser("Alfa06N")
+  # showPrincipal(page)
+  initApp(page)
   
-  with getDB() as db:
-    registers = getAllRegisters(db)
-    print("Registers:", len(registers))
-    for register in registers:
-      print(register.productQuantity)
+
 
  
 if __name__ == "__main__":
