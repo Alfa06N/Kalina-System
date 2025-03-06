@@ -39,6 +39,15 @@ def getSales(db: Session, page:int=1, quantity:int=50):
     return handleDatabaseErrors(db, func)
   except Exception:
     raise
+
+def getSalesByUser(db: Session, idUser: int):
+  try:
+    def func():
+      return db.query(Sale).filter(Sale.idUser == idUser).order_by(desc(Sale.idSale)).limit(50).all()
+    
+    return handleDatabaseErrors(db, func)
+  except:
+    raise
   
 def getSaleById(db: Session, idSale: int):
   try:

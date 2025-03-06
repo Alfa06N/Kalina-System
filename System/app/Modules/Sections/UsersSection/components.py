@@ -1,8 +1,10 @@
 import flet as ft
 import constants
-from Modules.customControls import CustomUserIcon, CustomOperationContainer, CustomTextField, CustomAnimatedContainer, CustomNavigationOptions, CustomFilledButton, CustomDropdown, CustomDeleteButton, CustomAlertDialog
+from Modules.customControls import CustomUserIcon, CustomOperationContainer, CustomTextField, CustomAnimatedContainer, CustomNavigationOptions, CustomFilledButton, CustomDropdown, CustomDeleteButton, CustomAlertDialog, CustomReturnButton
 from config import getDB
 from DataBase.crud.user import getUserByUsername, getUsers, updateUser, removeUser
+from Modules.Sections.SalesSection.history_components import SaleContainer, SaleRecord
+from DataBase.crud.sale import getSalesByUser
 from DataBase.crud.recovery import getRecoveryByUserId, updateRecovery
 import time
 from validation import evaluateForm
@@ -224,13 +226,17 @@ class UserInfo(ft.Stack):
       ]
     )
     
+    self.mainContent = CustomAnimatedContainer(
+      actualContent=self.columnContent
+    )
+    
     self.deleteButton = CustomDeleteButton(
       page=self.page,
       function=self.deleteUser
     )
     
     self.controls = [
-      self.columnContent,
+      self.mainContent,
       ft.Container(
         content=self.deleteButton,
         right=10,
@@ -296,6 +302,31 @@ class UserInfo(ft.Stack):
         time.sleep(1.5)
         self.editContainer.restartContainer()
         return False
+    
+  def showAdditionalContent(self, newContent):
+    try:
+      newContent = ft.Stack(
+        expand=True,
+        controls=[
+          newContent,
+          ft.Container(
+            content=CustomReturnButton(
+              function=lambda e: self.returnToMainContent()
+            ),
+            left=10,
+            top=10,
+          )
+        ]
+      )
+      self.mainContent.setNewContent(newContent)
+    except Exception:
+      raise
+  
+  def returnToMainContent(self):
+    try:
+      self.mainContent.setNewContent(self.columnContent)
+    except Exception:
+      raise
       
   def updateUsername(self, newUsername):
     self.username = newUsername
@@ -314,17 +345,43 @@ class ActivityContainer(ft.Container):
     self.username = username
     self.infoContainer = infoContainer
     
-    self.content = ft.Column(
-      alignment=ft.MainAxisAlignment.CENTER,
-      horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-      controls=[
-        ft.Text(
-          value="There's nothing here",
-          color=constants.BLACK,
-          size=20,
-        )
-      ]
-    )
+    with getDB() as db:
+      user = getUserByUsername(db, self.username)
+      sales = getSalesByUser(db, user.idUser)
+      
+      self.salesList = ft.Column(
+        alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        expand=True,
+        scroll=ft.ScrollMode.AUTO,
+      )
+
+      if len(sales) == 0:
+        self.salesList.controls.append(ft.Container(
+          expand=True,
+          alignment=ft.alignment.center,
+          content=ft.Text(
+            value="Este usuario no ha realizado ventas",
+            color=constants.BLACK,
+            size=24,
+            weight=ft.FontWeight.W_600,
+          )
+        ))
+      else: 
+        for sale in sales:
+          container = SaleContainer(
+            page=self.page, 
+            idSale=sale.idSale,
+            infoContainer=None,
+            mainContainer=None,
+          )
+          container.on_click = lambda e: self.infoContainer.showAdditionalContent(SaleRecord(
+            page=self.page,
+            idSale=sale.idSale
+          ))
+          self.salesList.controls.append(container)
+    
+    self.content = self.salesList
       
 class EditContainer(CustomOperationContainer):
   def __init__(self, username, infoContainer):
