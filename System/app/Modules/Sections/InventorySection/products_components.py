@@ -432,6 +432,8 @@ class ProductInfo(ft.Stack):
         registers = getRegisterByProductId(db, self.idProduct)
         
         newContent = ft.Column(
+          expand=True,
+          width=700,
           alignment=ft.MainAxisAlignment.START,
           horizontal_alignment=ft.CrossAxisAlignment.CENTER,
           controls=[
@@ -454,8 +456,15 @@ class ProductInfo(ft.Stack):
               date=register.date
             ))
         else:
-          newContent.controls.append(ft.Text(
-            value="El historial está vacío",
+          newContent.controls.append(ft.Container(
+            expand=True,
+            alignment=ft.alignment.center,
+            content=ft.Text(
+              value="El historial está vacío",
+              size=24,
+              color=constants.BLACK,
+              weight=ft.FontWeight.W_600,
+            )
           ))
       
       newContent = ft.Stack(
