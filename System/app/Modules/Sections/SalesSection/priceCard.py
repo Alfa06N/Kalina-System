@@ -27,7 +27,7 @@ class PriceCard(ft.Container):
     
     self.priceText = ft.Text(
       value=f"{self.price}$",
-      size=24,
+      size=22,
       weight=ft.FontWeight.W_700,
       color=constants.GREEN_TEXT,
       text_align=ft.TextAlign.CENTER,
@@ -36,7 +36,7 @@ class PriceCard(ft.Container):
     
     self.exchangeText = ft.Text(
       value=f"{self.exchange}Bs",
-      size=24,
+      size=22,
       weight=ft.FontWeight.W_700,
       color=constants.ORANGE_TEXT,
       text_align=ft.TextAlign.CENTER,

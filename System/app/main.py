@@ -11,7 +11,7 @@ from DataBase.crud.product import getProductByName, getProducts
 from DataBase.crud.category import getCategories, removeCategory
 from DataBase.crud.closing import removeClosing
 from DataBase.crud.closing import getSalesWithoutClosing
-from DataBase.crud.user_product import getAllRegisters
+# from DataBase.crud.user_product import getAllRegisters
 from utils.imageManager import ImageManager
 from utils.datetimeGlobal import getTime, syncTime, getCurrentTime
 import asyncio
@@ -21,6 +21,7 @@ import time
 from utils.pathUtils import getImagePath
 from datetime import datetime
 
+locale.setlocale(locale.LC_TIME, 'es_ES')
 def main(page: ft.Page):
   page.title = "Kariña System"
   page.theme = ft.Theme(

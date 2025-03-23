@@ -104,7 +104,7 @@ class UserContainer(ft.Container):
         overflow=ft.TextOverflow.ELLIPSIS,
     ))
 
-class UserInfo(ft.Stack):
+class UserInfo(ft.Container):
   def __init__(self, page, initial, username, fullname, role, userContainer, principalContainer):
     super().__init__()
     self.initial = initial
@@ -114,6 +114,8 @@ class UserInfo(ft.Stack):
     self.page = page
     self.userContainer = userContainer
     self.principalContainer = principalContainer
+    
+    self.expand = True
     
     self.userIcon = CustomUserIcon(
       initial=self.initial, 
@@ -170,6 +172,7 @@ class UserInfo(ft.Stack):
       contentAlignment=ft.MainAxisAlignment.CENTER,
       focusedColor=constants.BLACK,
     )
+    
     self.navigation = ft.Container(
       margin=ft.margin.symmetric(horizontal=20, vertical=10),
       bgcolor=ft.colors.TRANSPARENT,
@@ -226,23 +229,28 @@ class UserInfo(ft.Stack):
       ]
     )
     
-    self.mainContent = CustomAnimatedContainer(
-      actualContent=self.columnContent
-    )
-    
     self.deleteButton = CustomDeleteButton(
       page=self.page,
       function=self.deleteUser
     )
     
-    self.controls = [
-      self.mainContent,
-      ft.Container(
-        content=self.deleteButton,
-        right=10,
-        top=10,
-      )
-    ]
+    self.originalContent = ft.Stack(
+      expand=True,
+      controls=[
+        self.columnContent,
+        ft.Container(
+          content=self.deleteButton,
+          right=10,
+          top=10,
+        )
+      ]
+    )
+    
+    self.mainContent = CustomAnimatedContainer(
+      actualContent=self.originalContent,
+    )
+    
+    self.content = self.mainContent
     
   def deleteUser(self):
     try:
@@ -324,7 +332,7 @@ class UserInfo(ft.Stack):
   
   def returnToMainContent(self):
     try:
-      self.mainContent.setNewContent(self.columnContent)
+      self.mainContent.setNewContent(self.originalContent)
     except Exception:
       raise
       

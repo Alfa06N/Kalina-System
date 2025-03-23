@@ -133,10 +133,10 @@ class ProductContainer(ft.Container):
       print(err)
       
 class StockRecordContainer(ft.Container):
-  def __init__(self, productQuantity, username, productName, date):
+  def __init__(self, productQuantity, employee, productName, date):
     super().__init__()
     self.productName = productName
-    self.username = username
+    self.employee = employee
     self.productQuantity = productQuantity
     self.date = date
     self.isAdding = productQuantity > 0
@@ -174,7 +174,7 @@ class StockRecordContainer(ft.Container):
     )
     
     self.userText = ft.Text(
-      value=f"{self.username}",
+      value=f"{self.employee}",
       color=constants.BLACK,
       size=18,
     )
@@ -455,7 +455,7 @@ class ProductInfo(ft.Stack):
           for register in registers:
             containersList.controls.append(StockRecordContainer(
               productQuantity=register.productQuantity,
-              username=register.user.username,
+              employee=f"{register.user.employee.name} {register.user.employee.surname}",
               productName=product.name,
               date=register.date
             ))
@@ -501,7 +501,7 @@ class ProductInfo(ft.Stack):
           self.nameText.setNewContent(
             newContent=ft.Text(
               value=product.name,
-              size=32,
+              size=28,
               color=constants.BLACK,
               weight=ft.FontWeight.W_600,
               text_align=ft.TextAlign.CENTER,

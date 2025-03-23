@@ -6,7 +6,6 @@ from utils.imageManager import ImageManager
 from utils.pathUtils import getImagePath
 from datetime import datetime
 import os
-import re
 from config import getDB
 import threading
 from exceptions import InvalidData
@@ -565,25 +564,25 @@ class CustomAppBar(ft.AppBar):
         padding=ft.padding.all(12),
         bgcolor=constants.WHITE,
         items=[
-          ft.PopupMenuItem(
-            content=ft.Row(
-              alignment=ft.MainAxisAlignment.START,
-              vertical_alignment=ft.CrossAxisAlignment.CENTER,
-              controls=[
-                ft.Icon(
-                  name=ft.Icons.SETTINGS_ROUNDED,
-                  size=32,
-                  color=constants.BLACK,
-                ),
-                ft.Text(
-                  value="Configuración",
-                  size=20,
-                  weight=ft.FontWeight.W_400,
-                  color=constants.BLACK,
-                )
-              ]
-            ),
-          ),
+          # ft.PopupMenuItem(
+          #   content=ft.Row(
+          #     alignment=ft.MainAxisAlignment.START,
+          #     vertical_alignment=ft.CrossAxisAlignment.CENTER,
+          #     controls=[
+          #       ft.Icon(
+          #         name=ft.Icons.SETTINGS_ROUNDED,
+          #         size=32,
+          #         color=constants.BLACK,
+          #       ),
+          #       ft.Text(
+          #         value="Configuración",
+          #         size=20,
+          #         weight=ft.FontWeight.W_400,
+          #         color=constants.BLACK,
+          #       )
+          #     ]
+          #   ),
+          # ),
           ft.PopupMenuItem(
             content=ft.Row(
               alignment=ft.MainAxisAlignment.START,
@@ -689,6 +688,7 @@ class CustomAppBar(ft.AppBar):
     
     initApp(self.page)
     
+# Creamos un componente personalizado
 class CustomAlertDialog(ft.AlertDialog):
   def __init__(self, title, content=None, modal:bool=True, actions: list = []):
     super().__init__()
@@ -1679,7 +1679,6 @@ class CustomItemsDialog(ft.AlertDialog):
           controls=[
             self.searchBar,
             self.categoryDropdown,
-            self.restartButton,
           ]
         ),
         ft.Divider(color=constants.WHITE_GRAY),

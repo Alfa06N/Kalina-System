@@ -144,10 +144,6 @@ class Sales(ft.Column):
         idSale=idSale,
       )
       
-      def finishAction():
-        self.showViewSelected()
-        # self.resetRegisterForm()
-      
       newContent = ft.Container(
         expand=True,
         alignment=ft.alignment.center,
@@ -174,7 +170,13 @@ class Sales(ft.Column):
                 )
               ]
             ),
-            saleRecord,
+            ft.Container(
+              expand=True,
+              alignment=ft.alignment.center,
+              content=saleRecord,
+              border=ft.border.all(2, constants.BLACK_GRAY),
+              border_radius=30,
+            ),
           ]
         )
       )

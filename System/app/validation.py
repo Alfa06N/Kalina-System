@@ -69,7 +69,7 @@ def evaluateForm(username=[], name=[], price=[], password=[], ci=[], numbers=[],
       isValid = False
       
   for field in name:
-    onlychars = string.ascii_letters + " áéíóúÁÉÍÓÚ"
+    onlychars = string.ascii_letters + " áéíóúÁÉÍÓÚñÑ"
     if len(field.value.strip()) == 0:
       field.error_text = "El nombre no puede estar vacío"
       field.update()
