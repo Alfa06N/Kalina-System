@@ -404,14 +404,12 @@ class EditContainer(CustomOperationContainer):
     )
     
     self.validateUser = ft.Container(
-      height=350,
-      width=600,
       alignment=ft.alignment.center,
       content=ft.Column(
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-        spacing=25,
-        # expand=True,
+        spacing=20,
+        expand=True,
         controls=[
           ft.Row(
             alignment=ft.MainAxisAlignment.CENTER,
@@ -463,12 +461,11 @@ class EditContainer(CustomOperationContainer):
         self.passwordField.value = user.password
     
     self.editProperties = ft.Container(
-      height=400,
-      width=600,
       alignment=ft.alignment.center,
+      padding=ft.padding.symmetric(vertical=10),
       content=ft.Column(
         expand=True,
-        spacing=0,
+        spacing=10,
         alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         controls=[
@@ -487,23 +484,17 @@ class EditContainer(CustomOperationContainer):
             ]
           ),
           ft.Column(
-            width=300,
-            height=100,
+            expand=True,
+            width=400,
             alignment=ft.MainAxisAlignment.CENTER,
             controls=[
               self.usernameField,
               self.passwordField,
             ]
           ),
-          ft.Row(
-            alignment=ft.MainAxisAlignment.CENTER,
-            height=70,
-            controls=[
-              CustomFilledButton(
-                text="Enviar",
-                clickFunction=self.submitForm
-              )
-            ]
+          CustomFilledButton(
+            text="Enviar",
+            clickFunction=self.submitForm
           ) 
         ]
       )
@@ -513,6 +504,7 @@ class EditContainer(CustomOperationContainer):
       label="Pregunta 1",
       options=constants.dropdownOne,
       mode="light",
+      expand=True,
     )
     self.answerOne = CustomTextField(
       label="Respuesta",
@@ -523,6 +515,7 @@ class EditContainer(CustomOperationContainer):
     )
     self.questionTwo = CustomDropdown(
       label="Pregunta 2",
+      expand=True,
       options=constants.dropdownTwo,
       mode="light",
     )
@@ -538,8 +531,7 @@ class EditContainer(CustomOperationContainer):
       clickFunction=self.submitSecretQuestions,
     )
     self.editSecretQuestions = ft.Container(
-      height=400,
-      width=600,
+      padding=ft.padding.symmetric(vertical=10),
       content=ft.Column(
         expand=True,
         alignment=ft.MainAxisAlignment.SPACE_BETWEEN,

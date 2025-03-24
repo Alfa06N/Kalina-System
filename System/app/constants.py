@@ -37,8 +37,8 @@ dropdownOne = [
 
 dropdownTwo = [
   ft.dropdown.Option("¿Cuál es tu deporte favorito?"),
-  ft.dropdown.Option("¿Cuál fue el modelo de tu primer coche?"),
-  ft.dropdown.Option("¿Cuál es el nombre de tu profesor favorito?"),
+  ft.dropdown.Option("Modelo de tu primer coche"),
+  ft.dropdown.Option("Nombre de tu profesor favorito"),
   ft.dropdown.Option("¿Cuál es tu canción favorita?"),
   ft.dropdown.Option("¿En qué ciudad naciste?"),
 ]

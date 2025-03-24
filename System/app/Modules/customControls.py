@@ -478,6 +478,10 @@ class CustomDropdown(ft.Dropdown):
     
     self.text_size = 18
     
+    self.text_style = ft.TextStyle(
+      overflow=ft.TextOverflow.ELLIPSIS,
+    )
+    
     if mode == "gradient":
       self.color = constants.WHITE
       self.border_color=constants.WHITE_GRAY
