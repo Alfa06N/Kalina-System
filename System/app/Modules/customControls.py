@@ -568,25 +568,6 @@ class CustomAppBar(ft.AppBar):
         padding=ft.padding.all(12),
         bgcolor=constants.WHITE,
         items=[
-          # ft.PopupMenuItem(
-          #   content=ft.Row(
-          #     alignment=ft.MainAxisAlignment.START,
-          #     vertical_alignment=ft.CrossAxisAlignment.CENTER,
-          #     controls=[
-          #       ft.Icon(
-          #         name=ft.Icons.SETTINGS_ROUNDED,
-          #         size=32,
-          #         color=constants.BLACK,
-          #       ),
-          #       ft.Text(
-          #         value="Configuración",
-          #         size=20,
-          #         weight=ft.FontWeight.W_400,
-          #         color=constants.BLACK,
-          #       )
-          #     ]
-          #   ),
-          # ),
           ft.PopupMenuItem(
             content=ft.Row(
               alignment=ft.MainAxisAlignment.START,
@@ -1352,6 +1333,16 @@ class CustomImageSelectionContainer(ft.Container):
             self.turnOnButtonVisibility()
           else:
             print(f"Tipo de archivo no permitido: {os.path.splitext(file.path)[1].lower()}")
+            dialog = CustomAlertDialog(
+              title="Tipo de archivo no permitido",
+              content=ft.Text(
+                value="Solo se permiten archivos de tipo .jpg, .jpeg, .png y .jfif",
+                color=constants.BLACK,
+                size=20,
+              ),
+              modal=False,
+            )
+            self.page.open(dialog)
     except Exception as err:
       raise
     
@@ -1383,7 +1374,6 @@ class CustomImageContainer(ft.Container):
         height=self.height,
       )
     else:
-      # self.border = ft.border.all(2, constants.WHITE_GRAY) if border == True else None
       self.content = ft.Icon(
         name=ft.Icons.IMAGE_ROUNDED,
         color=constants.BLACK,
@@ -1727,15 +1717,14 @@ class CustomItemsDialog(ft.AlertDialog):
     
   def confirmFunction(self):
     self.closeDialog()
-    self.finalFunction(self.selectedItems)
+    self.finalFunction()
     
   def updateView(self):
     try:
-      # Actualiza los items que se van a seleccionar
       self.actualView = self.productsView if self.selectedView == self.productButton else self.combosView
       
       filterValue = self.searchBar.content.value
-      # Now i have to pass the category to this filter
+      
       self.filterData(self.actualView.controls, filterValue, self.categoryDropdown.value)
       self.content.controls[2] = self.actualView
       self.content.update()
@@ -2062,7 +2051,9 @@ class CustomItemsSelector(ft.Container):
     )
     
   def showSelectionDialog(self):
-    self.dialog.openDialog(self.selectedItems)
+    self.page.open(self.dialog)
+    self.dialog.selectedItems = self.selectedItems.copy()
+    self.dialog.updateItemSelection()
   
   def addItemToList(self, item):
     self.itemsList.controls.append(item)
@@ -2133,9 +2124,9 @@ class CustomItemsSelector(ft.Container):
       raise
       
     
-  def getItemsSelected(self, selectedItems):
+  def getItemsSelected(self):
     try:
-      self.selectedItems = selectedItems.copy()
+      self.selectedItems = self.dialog.selectedItems.copy()
       
       self.showItemsSelected()
     except:

@@ -210,10 +210,31 @@ class ClientInfo(ft.Container):
           self.mainContainer.resetAll()
     except:
       raise
+    
+  def customizedClickFunction(self, idSale):
+    from Modules.Sections.SalesSection.components import SaleRecord
+    print(idSale)
+    saleRecord = SaleRecord(
+      page=self.page,
+      idSale=idSale,
+    )
+    newContent = ft.Stack(
+      expand=True,
+      controls=[
+        saleRecord,
+        ft.Container(
+          left=10,
+          top=10,
+          border_radius=5,
+          bgcolor=constants.WHITE,
+          content=self.returnButton,
+        )
+      ]
+    )
+    self.switchMainContent(newContent)
   
   def getSaleContainers(self):
     from Modules.Sections.SalesSection.history_components import SaleContainer
-    from Modules.Sections.SalesSection.components import SaleRecord
     try:
       containers = []
       with getDB() as db:
@@ -226,28 +247,8 @@ class ClientInfo(ft.Container):
               infoContainer=None,
               mainContainer=None,
             )
-            
-            def customizedClickFunction():
-              saleRecord = SaleRecord(
-                page=self.page,
-                idSale=sale.idSale,
-              )
-              newContent = ft.Stack(
-                expand=True,
-                controls=[
-                  saleRecord,
-                  ft.Container(
-                    left=10,
-                    top=10,
-                    border_radius=5,
-                    bgcolor=constants.WHITE,
-                    content=self.returnButton,
-                  )
-                ]
-              )
-              self.switchMainContent(newContent)
-            
-            container.on_click = lambda e: customizedClickFunction()
+        
+            container.on_click = lambda e: self.customizedClickFunction(e.control.idSale)
             container.margin = ft.margin.all(4)
             containers.append(container)
         else: 

@@ -385,7 +385,7 @@ class ActivityContainer(ft.Container):
           )
           container.on_click = lambda e: self.infoContainer.showAdditionalContent(SaleRecord(
             page=self.page,
-            idSale=sale.idSale
+            idSale=e.control.idSale,
           ))
           self.salesList.controls.append(container)
     

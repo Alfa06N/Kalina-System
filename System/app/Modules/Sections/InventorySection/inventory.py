@@ -7,9 +7,8 @@ from Modules.Sections.InventorySection.categories_components import CategoryInfo
 from Modules.categories_modules import CategoryForm
 from Modules.products_module import ProductForm
 from Modules.combos_module import ComboForm
-import time
 from DataBase.crud.category import getCategories
-from DataBase.crud.product import getProducts, getProductById
+from DataBase.crud.product import getProducts
 from DataBase.crud.combo import getCombos
 from config import getDB
 from utils.imageManager import ImageManager
@@ -192,11 +191,8 @@ class Inventory(ft.Stack):
       self.resetCurrentView()
   
   def resetInfoContainer(self):
-    if not self.infoContainer.height == 150:
-      self.infoContainer.changeStyle(height=150, width=300, shadow=None)
-    self.showViewSelected()
-      
-  def showViewSelected(self):
+    self.infoContainer.changeStyle(height=150, width=300, shadow=None)
+    
     if self.selected == self.categoryButton:
       self.infoContainer.setNewContent(self.categoryInitialContent)
     elif self.selected == self.productButton:
@@ -384,10 +380,6 @@ class Inventory(ft.Stack):
             )
             containers.append(container)
         return containers
-        # else:
-          
-        #   containers.append(self.textForEmptyContainer("No hay combos que mostrar"))
-        #   return containers
     except Exception as err:
       raise
   
