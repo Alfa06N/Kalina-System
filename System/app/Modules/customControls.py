@@ -1793,10 +1793,9 @@ class CustomItemsDialog(ft.AlertDialog):
           for product in products:
             if not self.sale or product.stock > 0:
               itemCard = CustomItemCard(
-                page=self.page,
-                item=product,
                 name=product.name,
                 on_click=self.selectItem,
+                isProduct=True,
                 selected=True if product.name in self.selectedItems else False,
               )
               content.append(itemCard)
@@ -1806,10 +1805,9 @@ class CustomItemsDialog(ft.AlertDialog):
           for combo in combos:
             if self.verifyComboStock(db, combo):
               itemCard = CustomItemCard(
-                page=self.page,
-                item=combo,
                 name=combo.name,
                 on_click=self.selectItem,
+                isProduct=False,
                 selected=True if combo.name in self.selectedItems else False,
               )
               content.append(itemCard)
@@ -1823,23 +1821,22 @@ class CustomItemsDialog(ft.AlertDialog):
       e.control.selectImage(select=not e.control.selected)
       e.control.update()
       if e.control.selected:
-        self.selectedItems.append(e.control.item.name)
+        self.selectedItems.append(e.control.name)
       else:
-        self.selectedItems.remove(e.control.item.name)
+        self.selectedItems.remove(e.control.name)
     except:
       raise
     
 class CustomItemCard(ft.Container):
-  def __init__(self, page, name, item, width=170, height=170, on_click=None, selected=False):
+  def __init__(self, name, isProduct, width=170, height=170, on_click=None, selected=False):
     super().__init__()
     self.height = height
     self.width = width
-    self.page = page 
     self.name = name
-    self.item = item
     self.on_click = on_click
     self.selected = selected
     self.alignment = ft.alignment.center
+    self.isProduct = isProduct
 
     self.border_radius = ft.border_radius.all(30)
     self.shadow = ft.BoxShadow(
@@ -1850,6 +1847,10 @@ class CustomItemCard(ft.Container):
     self.animate = ft.animation.Animation(250, ft.AnimationCurve.EASE_IN_OUT)
     
     with getDB() as db:
+      from DataBase.crud.product import getProductByName
+      from DataBase.crud.combo import getComboByName
+      item = getProductByName(db, name) if self.isProduct else getComboByName(db, name)
+      
       imageManager = ImageManager()
       self.imageContainer = CustomImageContainer(
         src=imageManager.getImagePath(item.imgPath),
@@ -1871,7 +1872,7 @@ class CustomItemCard(ft.Container):
       )
       
       self.textName = ft.Text(
-        value=f"{item.name}",
+        value=f"{name}",
         size=22,
         color=constants.WHITE,
         weight=ft.FontWeight.W_700,
@@ -1906,7 +1907,6 @@ class CustomItemCard(ft.Container):
           left=10,
           right=10,
           expand=True,
-          # width=self.width,
           content=self.textName,
           padding=ft.padding.symmetric(vertical=10),
           alignment=ft.alignment.center,
@@ -2121,8 +2121,7 @@ class CustomItemsSelector(ft.Container):
       
       self.calculateItemsPrice()
     except Exception as err:
-      raise
-      
+      raise  
     
   def getItemsSelected(self):
     try:

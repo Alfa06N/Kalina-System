@@ -14,7 +14,31 @@ class Closings(ft.Stack):
     super().__init__()
     self.page = page
     self.expand = True
+    
+    self.currentPage = 1
     self.controlSelected = None
+    
+    self.upButton = ft.Container(
+      padding=ft.padding.symmetric(vertical=10),
+      content=ft.IconButton(
+        icon=ft.icons.ARROW_CIRCLE_UP,
+        icon_color=constants.BLACK,
+        icon_size=48,
+        tooltip="Página anterior",
+        on_click=lambda e: self.updatePage(-1),
+      )
+    )
+    
+    self.downButton = ft.Container(
+      padding=ft.padding.symmetric(vertical=10),
+      content=ft.IconButton(
+        icon=ft.icons.ARROW_CIRCLE_DOWN,
+        icon_color=constants.BLACK,
+        icon_size=48,
+        tooltip="Página siguiente",
+        on_click=lambda e: self.updatePage(1)
+      )
+    )
     
     self.closingsContainer = CustomAnimatedContainerSwitcher(
       col={"sm": 12, "md": 6, "xl": 4},
@@ -32,6 +56,8 @@ class Closings(ft.Stack):
       ),
       content=ft.Column(
         alignment=ft.MainAxisAlignment.START,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        scroll=ft.ScrollMode.AUTO,
         expand=True,
         controls=self.getClosings()
       )
@@ -148,6 +174,8 @@ class Closings(ft.Stack):
     newContent = ft.Column(
       alignment=ft.MainAxisAlignment.START,
       expand=True,
+      scroll=ft.ScrollMode.AUTO,
+      horizontal_alignment=ft.CrossAxisAlignment.CENTER,
       controls=self.getClosings()
     )
     
@@ -157,8 +185,10 @@ class Closings(ft.Stack):
     containers = []
     
     with getDB() as db:
-      closings = getClosings(db)
+      closings = getClosings(db, self.currentPage)
       if closings and len(closings) > 0:
+        if self.currentPage > 1:
+          containers.append(self.upButton)
         for closing in closings:
           print(closing.idClosing)
           container = ClosingContainer(
@@ -169,10 +199,16 @@ class Closings(ft.Stack):
             mainContainer=self,
           )
           containers.append(container)
+        if getClosings(db, self.currentPage + 1):
+          containers.append(self.downButton)
       else:
         return containers
 
     return containers
+  
+  def updatePage(self, number:int):
+    self.currentPage += number
+    self.resetClosingContainers()
   
   def showPartialClosing(self):
     with getDB() as db:

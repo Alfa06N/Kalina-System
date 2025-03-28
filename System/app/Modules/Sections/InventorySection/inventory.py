@@ -355,9 +355,6 @@ class Inventory(ft.Stack):
             )
             containers.append(container)
         return containers
-        # else:
-        #   containers.append(self.textForEmptyContainer("No hay productos que mostrar"))
-        #   return containers
     except Exception as err:
       raise
   
@@ -412,7 +409,7 @@ class Inventory(ft.Stack):
   
   def showLowStockProduct(self, idProduct):
     for container in self.itemsContainer.content.content.controls:
-      if container.idProduct == idProduct and not container == self.controlSelected:
+      if container != self.filter and container.idProduct == idProduct and not container == self.controlSelected:
         newContent = ProductInfo(
           imgPath=container.imgPath,
           idProduct=idProduct,

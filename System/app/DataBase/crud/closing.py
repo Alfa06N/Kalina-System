@@ -37,10 +37,12 @@ def createClosing(db: Session, sales, generalPrice, totals, gain):
   except:
     raise
   
-def getClosings(db: Session):
+def getClosings(db: Session, page: int = 1, quantity: int = 50):
   try:
     def func():
-      return db.query(Closing).order_by(desc(Closing.idClosing)).all()
+      offset = (page - 1) * quantity
+      
+      return db.query(Closing).order_by(desc(Closing.idClosing)).offset(offset).limit(quantity).all()
     return handleDatabaseErrors(db, func)
   except: 
     raise
