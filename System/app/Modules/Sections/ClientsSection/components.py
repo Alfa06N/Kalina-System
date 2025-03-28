@@ -2,6 +2,7 @@ import flet as ft
 from Modules.customControls import CustomAnimatedContainer, CustomOperationContainer, CustomUserIcon, CustomCardInfo, CustomDeleteButton, CustomReturnButton
 import constants
 from DataBase.crud.client import getClientById, getClients, removeClient
+from DataBase.crud.sale import getSalesByClient
 from config import getDB
 import threading
 from exceptions import DataAlreadyExists, DataNotFoundError
@@ -139,6 +140,7 @@ class ClientInfo(ft.Container):
       alignment=ft.MainAxisAlignment.CENTER,
       scroll=ft.ScrollMode.ALWAYS,
       horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+      spacing=0,
       controls=self.getSaleContainers()
     )
     
@@ -179,7 +181,11 @@ class ClientInfo(ft.Container):
             self.activityText,
           ]
         ),
-        self.activityList,
+        ft.Container(
+          expand=True,
+          alignment=ft.alignment.center,
+          content=self.activityList,
+        ),
       ]
     )
     
@@ -238,9 +244,9 @@ class ClientInfo(ft.Container):
     try:
       containers = []
       with getDB() as db:
-        client = getClientById(db, ciClient=self.ciClient)
-        if client.sales:
-          for sale in client.sales:
+        sales = getSalesByClient(db, ciClient=self.ciClient)
+        if sales:
+          for sale in sales:
             container = SaleContainer(
               page=self.page,
               idSale=sale.idSale,
@@ -252,12 +258,18 @@ class ClientInfo(ft.Container):
             container.margin = ft.margin.all(4)
             containers.append(container)
         else: 
-          containers.append(ft.Text(
-            value="Este cliente no ha realizado ninguna compra",
-            size=32,
-            color=constants.BLACK,
-            weight=ft.FontWeight.W_700,
-            text_align=ft.TextAlign.CENTER,
+          containers.append(ft.Column(
+            expand=True,
+            alignment=ft.MainAxisAlignment.CENTER,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            controls=[
+              ft.Text(
+                value="No ha realizado compras",
+                size=28,
+                color=constants.BLACK,
+                weight=ft.FontWeight.W_600,
+              )
+            ]
           ))
       return containers
     except:
@@ -275,7 +287,6 @@ class ClientSearchBar(ft.SearchBar):
     self.view_hint_text = "Escribe o selecciona la CI deseada..."
     self.controls = controls
     self.page = page
-    # self.on_tap = lambda e: self.open_view()
     
     self.on_submit = on_submit
 

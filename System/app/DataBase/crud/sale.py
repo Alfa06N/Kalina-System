@@ -39,11 +39,20 @@ def getSales(db: Session, page:int=1, quantity:int=50):
     return handleDatabaseErrors(db, func)
   except Exception:
     raise
-
-def getSalesByUser(db: Session, idUser: int):
+  
+def getSalesByClient(db: Session, ciClient: int, quantity:int=100):
   try:
     def func():
-      return db.query(Sale).filter(Sale.idUser == idUser).order_by(desc(Sale.idSale)).limit(50).all()
+      return db.query(Sale).filter(Sale.ciClient == ciClient).order_by(desc(Sale.idSale)).limit(quantity).all()
+    return handleDatabaseErrors(db, func)
+  except Exception:
+    raise
+
+def getSalesByUser(db: Session, idUser: int, quantity:int=100):
+  try:
+    def func():
+      
+      return db.query(Sale).filter(Sale.idUser == idUser).order_by(desc(Sale.idSale)).limit(quantity).all()
     
     return handleDatabaseErrors(db, func)
   except:

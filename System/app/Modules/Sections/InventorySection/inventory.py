@@ -147,9 +147,17 @@ class Inventory(ft.Stack):
         alignment=ft.MainAxisAlignment.CENTER,
         expand=True,
         height=800,
-        scroll=ft.ScrollMode.AUTO,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-        controls=[self.createFilter()] + [container for container in initialContent]
+        controls=[
+          self.createFilter(),
+          ft.Column(
+            expand=True,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            alignment=ft.MainAxisAlignment.CENTER,
+            scroll=ft.ScrollMode.AUTO,
+            controls=initialContent,
+          )
+        ]
       ),
       height=None,
       width=None,
@@ -247,7 +255,6 @@ class Inventory(ft.Stack):
       items = self.getCombosToFill()
     
     newContent = ft.Column(
-      scroll=ft.ScrollMode.AUTO,
       alignment=ft.MainAxisAlignment.CENTER,
       expand=True,
       height=800,
@@ -255,10 +262,16 @@ class Inventory(ft.Stack):
     )
     
     self.items = items
-    newContent.controls.append(self.createFilter())
-    for item in items:
-      newContent.controls.append(item)
     
+    containersColumn = ft.Column(
+      expand=True,
+      horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+      alignment=ft.MainAxisAlignment.CENTER,
+      scroll=ft.ScrollMode.AUTO,
+      controls=self.items,
+    )
+    
+    newContent.controls = [self.createFilter(), containersColumn]
     self.itemsContainer.setNewContent(newContent)
   
   def filterData(self, value):
@@ -329,9 +342,6 @@ class Inventory(ft.Stack):
             
             containers.append(container)
         return containers
-        # else:
-        #   containers.append(self.textForEmptyContainer("No hay categorías que mostrar"))
-        #   return containers
 
     except Exception as err:
       raise

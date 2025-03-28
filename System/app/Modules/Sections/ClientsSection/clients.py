@@ -66,7 +66,13 @@ class Clients(ft.Stack):
             alignment=ft.MainAxisAlignment.START,
             expand=True,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER, 
-            controls=self.getClientsContainers()
+            controls=[ft.Column(
+              alignment=ft.MainAxisAlignment.CENTER,
+              expand=True,
+              horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+              scroll=ft.ScrollMode.AUTO,
+              controls=self.getClientsContainers()
+            )]
           ),
         ],
       ),
