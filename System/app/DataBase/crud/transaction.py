@@ -6,6 +6,7 @@ from DataBase.crud.sale import getSaleById
 from DataBase.errorHandling import handleDatabaseErrors
 from utils.exchangeManager import exchangeRateManager
 from utils.enumsHelper import getMethodEnum
+from sqlalchemy import asc, desc
 
 def createTransactionWithoutCommit(db: Session, amountUSD:float, amountVES:float, method:str, transactionType:str, reference:str, idSale:int):
   try:
@@ -68,28 +69,29 @@ def createManyWithoutCommit(db: Session, idSale:int, transactions:list=[]):
 def getTransactions(db: Session):
   try:
     def func():
-      return db.query(Transaction).all()
+      return db.query(Transaction).order_by(desc(Transaction.idTransaction)).all()
     return handleDatabaseErrors(db, func)
   except Exception:
     raise
 
-def getTransactionsFiltered(db: Session, method: str, transactionType: str = None):
+def getTransactionsFiltered(db: Session, method: str):
   try:
     if not method:
       def func():
-        return db.query(Transaction).filter(Transaction).all()
+        return db.query(Transaction).filter(Transaction.method == method).order_by(desc(Transaction.idTransaction)).all()
       return handleDatabaseErrors(db, func)
     elif method == "All":
       def func():
-        return db.query(Transaction).all()
+        return db.query(Transaction).order_by(desc(Transaction.idTransaction)).all()
       return handleDatabaseErrors(db, func)
     
     method_enum = MethodEnum(method)
     
     def func():
-      return db.query(Transaction).filter(Transaction.method == method_enum).all()
+      return db.query(Transaction).filter(Transaction.method == method_enum).order_by(desc(Transaction.idTransaction)).all()
     return handleDatabaseErrors(db, func)
-  except: pass
+  except: 
+    pass
   
 def getTransactionById(db: Session, idTransaction: int):
   try:
@@ -102,7 +104,7 @@ def getTransactionById(db: Session, idTransaction: int):
 def getTransactionsByMethod(db: Session, method: str):
   try:
     def func():
-      return db.query(Transaction).filter(Transaction.method == method).all()
+      return db.query(Transaction).filter(Transaction.method == method).order_by(desc(Transaction.idTransaction)).all()
     return handleDatabaseErrors(db, func)
   except Exception:
     raise

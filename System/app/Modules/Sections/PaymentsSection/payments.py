@@ -66,8 +66,6 @@ class Payments(ft.ResponsiveRow):
     containers = []
     with getDB() as db:
       transactions = getTransactions(db)
-      for transaction in transactions:
-        print(transaction.idTransaction, transaction.transactionType)
       if transactions:
         for transaction in transactions:
           container = PaymentContainer(
@@ -96,7 +94,7 @@ class Payments(ft.ResponsiveRow):
     additionalContainer = MethodContainer(
       page=self.page,
       method="All",
-      on_click=lambda e, method="All": self.selectMethod(e.control, method)
+      on_click=lambda e, method="All": self.selectMethod(e.control, "All")
     )
     additionalContainer.margin = ft.margin.only(bottom=30)
     
