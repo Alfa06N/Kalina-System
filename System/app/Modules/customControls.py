@@ -552,7 +552,7 @@ class CustomAppBar(ft.AppBar):
           height=80,
           fit=ft.ImageFit.CONTAIN,
         ),
-        ft.Text(title, color=constants.BLACK, weight=ft.FontWeight.W_700, size=32)
+        ft.Text(title, color=constants.BLACK, weight=ft.FontWeight.W_700, size=32, font_family="Scripter")
       ]
     )
     self.toolbar_height = 70
@@ -876,6 +876,7 @@ class CustomSidebar(ft.Container):
       )
     )
     
+    self.aboutUs = CustomNavigationOptions(icon=ft.Icons.QUESTION_MARK_ROUNDED, text="Nosotros", function=self.selectOne, inkColor="#666666",)
     self.home = CustomNavigationOptions(icon=ft.Icons.HOME_WORK_ROUNDED, text="Inicio", function=self.selectOne, inkColor="#666666",)
     self.sales = CustomNavigationOptions(icon=ft.Icons.SELL_ROUNDED, text="Ventas", function=self.selectOne, inkColor="#666666", default=True)
     self.payments = CustomNavigationOptions(icon=ft.Icons.WALLET_ROUNDED, text="Pagos", function=self.selectOne, inkColor="#666666",)
@@ -890,17 +891,17 @@ class CustomSidebar(ft.Container):
     with getDB() as db: 
       user = getUserByUsername(db, getCurrentUser())
       self.navigationOptions = [
+        self.employees,
         self.users,
         self.clients,
-        self.employees,
-        self.sales,
         self.inventory,
+        self.sales,
         self.payments,
         self.closings,
       ] if user.role == "Administrador" else [
         self.clients,
-        self.sales,
         self.inventory,
+        self.sales,
         self.payments,
         self.closings,
       ]    
@@ -919,6 +920,11 @@ class CustomSidebar(ft.Container):
             alignment=ft.MainAxisAlignment.CENTER,
             scroll=ft.ScrollMode.AUTO,
             controls=[ft.Row([button]) for button in self.navigationOptions],
+          ),
+          ft.Row(
+            alignment=ft.MainAxisAlignment.CENTER,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            controls=[self.aboutUs]
           ),
         ]
       )
@@ -952,6 +958,7 @@ class CustomSidebar(ft.Container):
     elif pageName == "Closings":
       self.updateMainContent(Closings(self.page))
       self.switchButton(self.closings)
+    
       
   def switchButton(self, newSelected):
     self.selected.deselectOption()
@@ -993,6 +1000,10 @@ class CustomSidebar(ft.Container):
         from Modules.Sections.ClosingsSection.closings import Closings
         self.updateMainContent(Closings(self.page))
         switchTo(button)
+      elif e.control == self.aboutUs:
+        from Modules.Sections.AboutUs.about import AboutUs
+        self.updateMainContent(AboutUs(self.page))
+        switchTo(button)
     
   def openContainer(self):
     if self.width == 70:
@@ -1001,6 +1012,7 @@ class CustomSidebar(ft.Container):
       self.width = 70  
     for option in self.navigationOptions:
         option.animateOpacityText()
+        self.aboutUs.animateOpacityText()
     self.update()
     
   def updateMainContent(self, newContent):
@@ -1353,7 +1365,7 @@ class CustomImageSelectionContainer(ft.Container):
       self.turnOffButtonVisibility()
       
 class CustomImageContainer(ft.Container):
-  def __init__(self, src=None, border_radius=10, fit=ft.ImageFit.COVER, width:int=200, height:int=200, border=True, bgcolor=constants.WHITE, shadow=True):
+  def __init__(self, src:str=None, border_radius=10, fit=ft.ImageFit.COVER, width:int=200, height:int=200, border=True, bgcolor=constants.WHITE, shadow=True):
     super().__init__()
     self.height = height
     self.width = width

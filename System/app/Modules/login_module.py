@@ -127,7 +127,7 @@ class LoginPresentation(CustomSimpleContainer):
     
     self.logo = ft.Image(src=getImagePath("ks logo(only cup)edited.png"), fit="contain", width=240, height=240)
     
-    self.description = ft.Text(value="Kaip'e Alimentos", color=constants.WHITE, size=20, weight=ft.FontWeight.BOLD)
+    self.description = ft.Text(value="Kaip'e Alimentos", color=constants.WHITE, size=20, weight=ft.FontWeight.BOLD, font_family="Scripter")
     
     self.button = CustomFilledButton(text="Registrarse", overlay=constants.ORANGE_OVERLAY, bgcolor=constants.ORANGE, color=constants.BLACK, clickFunction=lambda e: showRegister(self.page))
     self.register = ft.Row(
@@ -137,7 +137,7 @@ class LoginPresentation(CustomSimpleContainer):
       alignment=ft.MainAxisAlignment.CENTER
     )
       
-    self.title = ft.Text(value="Kariña System", size=42, color=constants.WHITE, weight=ft.FontWeight.BOLD)
+    self.title = ft.Text(value="Kariña System", size=54, color=constants.WHITE, weight=ft.FontWeight.BOLD, font_family="Scripter")
     self.content = ft.Column(
       controls=[
         self.title,

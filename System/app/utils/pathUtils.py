@@ -4,8 +4,11 @@ import os
 def getProjectRoot() -> Path:
   return Path(__file__).resolve().parent.parent
 
-def getImagePath(imageName: str) -> Path:
-  return getProjectRoot() / "images" / imageName
+def getFontPath(fontName: str):
+  return str(getProjectRoot() / "fonts" / "Scripter font" / fontName)
+
+def getImagePath(imageName: str):
+  return str(getProjectRoot() / "images" / imageName)
 
 def getFolderDataPath():
   try:

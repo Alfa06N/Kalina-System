@@ -70,3 +70,9 @@ documentTypes = {
   "Venezolano": "V-",
   "Gubernamental": "G-",
 }
+
+aboutUs = {
+  "essence": "En Kaip’e Alimentos, creemos en la conexión entre la cultura, la tradición y el café. Nuestro propósito es más que solo ofrecer productos; es compartir una historia, una identidad y un legado que une a las personas a través de cada taza.",
+  "mission": "Brindar productos de alta calidad que representen la riqueza cultural de nuestros orígenes. Buscamos fomentar el consumo consciente y responsable, destacando el valor del café como símbolo de tradición y comunidad.",
+  "vision": "Ser una empresa referente en la industria, reconocida por su compromiso con la autenticidad, la innovación y el impacto positivo en la comunidad, manteniendo siempre la esencia de nuestras raíces."
+}

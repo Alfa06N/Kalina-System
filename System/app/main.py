@@ -18,12 +18,15 @@ import asyncio
 from DataBase.crud.transaction import getTransactions
 from Modules.Sections.ClosingsSection.components.ClosingRecord import ClosingRecord
 import time
-from utils.pathUtils import getImagePath
+from utils.pathUtils import getImagePath, getFontPath
 from datetime import datetime
 
 locale.setlocale(locale.LC_TIME, 'es_ES')
 def main(page: ft.Page):
   page.title = "Kariña System"
+  page.fonts = {
+    "Scripter": getFontPath("Scripter-Regular.ttf")
+  }
   page.theme = ft.Theme(
     scrollbar_theme=ft.ScrollbarTheme(
       track_color={
@@ -42,9 +45,9 @@ def main(page: ft.Page):
   page.padding = 0 
   init_db() 
 
-  setUser("Alfa06N")
-  showPrincipal(page)
-  # initApp(page)
+  # setUser("Alfa06N")
+  # showPrincipal(page)
+  initApp(page)
 
  
 if __name__ == "__main__":
