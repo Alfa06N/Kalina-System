@@ -1713,14 +1713,14 @@ class CustomItemsDialog(ft.AlertDialog):
     
   def updateItemSelection(self):
     for container in self.productsView.controls:
-      if container.selected and container.item.name not in self.selectedItems:
+      if container.selected and container.name not in self.selectedItems:
         container.selectImage(select=False)
-      elif not container.selected and container.item.name in self.selectedItems:
+      elif not container.selected and container.name in self.selectedItems:
         container.selectImage(select=True)
     for container in self.combosView.controls:
-      if container.selected and container.item.name not in self.selectedItems:
+      if container.selected and container.name not in self.selectedItems:
         container.selectImage(select=False)
-      elif not container.selected and container.item.name in self.selectedItems:
+      elif not container.selected and container.name in self.selectedItems:
         container.selectImage(select=True)
     self.update()
   
