@@ -876,7 +876,7 @@ class CustomSidebar(ft.Container):
       )
     )
     
-    self.aboutUs = CustomNavigationOptions(icon=ft.Icons.QUESTION_MARK_ROUNDED, text="Nosotros", function=self.selectOne, inkColor="#666666",)
+    self.aboutUs = CustomNavigationOptions(icon=ft.Icons.INFO_ROUNDED, text="Nosotros", function=self.selectOne, inkColor="#666666",)
     self.home = CustomNavigationOptions(icon=ft.Icons.HOME_WORK_ROUNDED, text="Inicio", function=self.selectOne, inkColor="#666666",)
     self.sales = CustomNavigationOptions(icon=ft.Icons.SELL_ROUNDED, text="Ventas", function=self.selectOne, inkColor="#666666", default=True)
     self.payments = CustomNavigationOptions(icon=ft.Icons.WALLET_ROUNDED, text="Pagos", function=self.selectOne, inkColor="#666666",)

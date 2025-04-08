@@ -418,7 +418,7 @@ class Inventory(ft.Stack):
     self.infoContainer.setNewContent(content)
   
   def showLowStockProduct(self, idProduct):
-    for container in self.itemsContainer.content.content.controls:
+    for container in self.itemsContainer.content.content.controls[1].controls:
       if container != self.filter and container.idProduct == idProduct and not container == self.controlSelected:
         newContent = ProductInfo(
           imgPath=container.imgPath,
