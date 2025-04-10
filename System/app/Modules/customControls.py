@@ -2592,7 +2592,7 @@ class CustomListTile(ft.ListTile):
 class CustomLowStockDialog(ft.AlertDialog):
   def __init__(self, page, products:list=[]):
     super().__init__()
-    self.products = inventoryManager.checkLowStock()
+    self.products, self.recentlyAdded = inventoryManager.checkLowStock()
     self.page = page
     self.modal = True
     self.title = ft.Text(

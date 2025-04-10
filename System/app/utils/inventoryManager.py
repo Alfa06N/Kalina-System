@@ -17,14 +17,14 @@ class InventoryManager:
 
         if not products:
           self.clearList()
-          return self.lowStockProducts
+          return self.lowStockProducts, len(recentlyAdded) > 0
 
         for product in products:
           if not product.idProduct in self.lowStockProducts:
             recentlyAdded.append(product.idProduct)
             self.lowStockProducts.append(product.idProduct)
           
-        return self.lowStockProducts
+        return self.lowStockProducts, len(recentlyAdded) > 0
     except:
       raise
       

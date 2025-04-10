@@ -1,10 +1,11 @@
 import flet as ft
 import constants
-from Modules.customControls import CustomAlertDialog, CustomAnimatedContainer, CustomAnimatedContainerSwitcher, CustomOperationContainer, CustomTextField, CustomDropdown, CustomImageContainer, CustomFloatingActionButton, CustomFilledButton, CustomTooltip, CustomNavigationOptions
+from Modules.customControls import CustomAlertDialog, CustomAnimatedContainer, CustomAnimatedContainerSwitcher, CustomOperationContainer, CustomTextField, CustomDropdown, CustomImageContainer, CustomFloatingActionButton, CustomFilledButton, CustomTooltip, CustomNavigationOptions, CustomLowStockDialog, CustomTextButton
 from Modules.Sections.SalesSection.components import SaleItemsList, SaleForm, SaleRecord
 from utils.saleManager import saleMakerManager
 from utils.exchangeManager import exchangeRateManager
 from Modules.Sections.SalesSection.sale_history import SaleHistory
+from utils.inventoryManager import inventoryManager
 import threading
 
 class Sales(ft.Column):
@@ -136,6 +137,16 @@ class Sales(ft.Column):
       saleMakerManager.setItemSelector(self.itemsList.itemsSelector)
     except:
       raise
+    
+  def openStockDialog(self):
+    try:
+      self.dialog = CustomLowStockDialog(
+        page=self.page
+      )
+      
+      self.page.open(self.dialog)
+    except:
+      raise
   
   def saleSuccessContent(self, idSale):
     try:
@@ -143,6 +154,24 @@ class Sales(ft.Column):
         page=self.page,
         idSale=idSale,
       )
+      
+      products, recentlyAdded = inventoryManager.checkLowStock()
+      isLowStock = len(products) > 0
+      stockText = ft.Text(
+        value="",
+        size=24,
+        color=constants.BLACK,
+        text_align=ft.TextAlign.CENTER,
+        weight=ft.FontWeight.W_500,
+      )
+      
+      if recentlyAdded:
+        stockText.value = f"Hay nuevos productos a punto de agotarse"
+        stockText.color = constants.RED_TEXT
+      elif len(products) > 0:
+        stockText.value = f"Hay {len(products)} producto{"s" if len(products) > 1 else ""} con bajo inventario"
+      else:
+        stockText.value = f"El inventario está actualizado y bien abastecido"
       
       newContent = ft.Container(
         expand=True,
@@ -153,28 +182,54 @@ class Sales(ft.Column):
           vertical_alignment=ft.CrossAxisAlignment.CENTER,
           controls=[
             ft.Column(
-              expand=True,
+              expand=1,
               alignment=ft.MainAxisAlignment.CENTER,
               horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-              spacing=20,
               controls=[
-                ft.Text(
-                  value="¡Venta realizada!",
-                  color=constants.BLACK,
-                  weight=ft.FontWeight.W_700,
-                  size=42,
+                ft.Column(
+                  expand=1,
+                  alignment=ft.MainAxisAlignment.CENTER,
+                  horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                  spacing=20,
+                  controls=[
+                    ft.Text(
+                      value="¡Venta realizada!",
+                      color=constants.BLACK,
+                      weight=ft.FontWeight.W_700,
+                      size=36,
+                    ),
+                    CustomFilledButton(
+                      text="Finalizar",
+                      clickFunction=lambda e: self.showViewSelected(),
+                    )
+                  ]
                 ),
-                CustomFilledButton(
-                  text="Finalizar",
-                  clickFunction=lambda e: self.showViewSelected(),
+                ft.Divider(color=constants.BLACK_GRAY),
+                ft.Column(
+                  expand=1,
+                  alignment=ft.MainAxisAlignment.CENTER,
+                  horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                  spacing=20,
+                  controls=[
+                    stockText,
+                    CustomTextButton(
+                      text="Ver inventario",
+                      on_click=lambda e: self.openStockDialog(),
+                    ) if isLowStock else ft.Text(value=""),
+                  ]
                 )
               ]
             ),
             ft.Container(
-              expand=True,
+              expand=1,
               alignment=ft.alignment.center,
               content=saleRecord,
-              border=ft.border.all(2, constants.BLACK_GRAY),
+              shadow=ft.BoxShadow(
+                spread_radius=1,
+                blur_radius=5,
+                color=constants.WHITE_GRAY,
+              ),
+              bgcolor=constants.WHITE,
               border_radius=30,
             ),
           ]

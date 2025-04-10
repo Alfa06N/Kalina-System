@@ -19,6 +19,7 @@ from DataBase.crud.transaction import getTransactions
 from Modules.Sections.ClosingsSection.components.ClosingRecord import ClosingRecord
 import time
 from utils.pathUtils import getImagePath, getFontPath
+from utils.inventoryManager import inventoryManager
 from datetime import datetime
 
 locale.setlocale(locale.LC_TIME, 'es_ES')
@@ -48,8 +49,7 @@ def main(page: ft.Page):
   setUser("Alfa06N")
   showPrincipal(page)
   # initApp(page)
-
- 
+  
 if __name__ == "__main__":
   
   ft.app(target=main)
