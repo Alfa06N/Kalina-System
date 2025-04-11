@@ -501,17 +501,18 @@ class UpdateStockForm(ft.Stack):
             time.sleep(1.5)
             self.operationContent.restartContainer()
             return
-          updatedProduct, register = updateProductStock(
-            db=db, 
-            product=product, 
-            quantityAdded=int(self.stockField.field.value)
-          )
-          updatedProduct.minStock = int(self.minStockField.field.value)
-          db.commit()
-          db.refresh(updatedProduct)
           
-          print(updatedProduct.stock, "/", updatedProduct.minStock, register.user.username, register.product.name,)
-          if updatedProduct:
+          if int(self.stockField.field.value != 0):
+            product, register = updateProductStock(
+              db=db, 
+              product=product, 
+              quantityAdded=int(self.stockField.field.value)
+            )
+          product.minStock = int(self.minStockField.field.value)
+          db.commit()
+          db.refresh(product)
+          
+          if product:
             self.operationContent.actionSuccess("Cambios guardados")
             time.sleep(1.5)
             self.productInfoControl.updateInfoControls(stock=True)

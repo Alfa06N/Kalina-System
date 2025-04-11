@@ -149,6 +149,7 @@ class StockRecordContainer(ft.Container):
       color=constants.WHITE_GRAY
     )
     self.padding = ft.padding.symmetric(horizontal=15, vertical=5)
+    self.margin = ft.margin.all(4)
     
     iconStyles = {
       "name": ft.Icons.ARROW_UPWARD_ROUNDED if self.isAdding else ft.Icons.ARROW_DOWNWARD_ROUNDED,

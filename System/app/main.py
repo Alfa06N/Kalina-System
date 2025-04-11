@@ -50,6 +50,9 @@ def main(page: ft.Page):
   showPrincipal(page)
   # initApp(page)
   
+  # Error showing sales history after scrolling between pages and trying to select another sale
+  # Fixing possibility of register UserProduct record when updates stock by 0. This can't be recorded in the database.
+  
 if __name__ == "__main__":
   
   ft.app(target=main)
