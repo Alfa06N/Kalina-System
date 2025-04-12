@@ -15,6 +15,7 @@ class SaleHistory(ft.Stack):
     
     self.currentPage = 1
     self.controlSelected = None
+    self.saleSelected = None
     
     self.upButton = ft.Container(
       padding=ft.padding.symmetric(vertical=10),
@@ -120,6 +121,13 @@ class SaleHistory(ft.Stack):
   def updatePage(self, number:int):
     self.currentPage += number
     self.updateSaleContainers()
+    self.controlSelected = None
+    if self.saleSelected:
+      for container in self.salesContainer.content.content.controls:
+        if isinstance(container, SaleContainer) and container.idSale == self.saleSelected:
+          container.select()
+          self.controlSelected = container
+          break
   
   def updateSaleContainers(self):
     try:
@@ -139,6 +147,7 @@ class SaleHistory(ft.Stack):
     if self.controlSelected:
       self.controlSelected.deselect()
     self.controlSelected = container
+    self.saleSelected = container.idSale
     self.controlSelected.select()
     
     if not self.infoContainer.height == 800:

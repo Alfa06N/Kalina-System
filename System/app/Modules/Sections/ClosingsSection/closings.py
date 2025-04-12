@@ -17,6 +17,7 @@ class Closings(ft.Stack):
     
     self.currentPage = 1
     self.controlSelected = None
+    self.closingSelected = None
     
     self.upButton = ft.Container(
       padding=ft.padding.symmetric(vertical=10),
@@ -209,6 +210,13 @@ class Closings(ft.Stack):
   def updatePage(self, number:int):
     self.currentPage += number
     self.resetClosingContainers()
+    self.controlSelected = None
+    if self.closingSelected:
+      for container in self.closingsContainer.content.content.controls:
+        if isinstance(container, ClosingContainer) and container.idClosing == self.closingSelected:
+          container.select()
+          self.controlSelected = container
+          break
   
   def showPartialClosing(self):
     with getDB() as db:
@@ -253,6 +261,7 @@ class Closings(ft.Stack):
       self.controlSelected.deselect()
     self.controlSelected = container
     self.controlSelected.select()
+    self.closingSelected = container.idClosing
     
     if not self.infoContainer.height == 700:
       self.infoContainer.changeStyle(
