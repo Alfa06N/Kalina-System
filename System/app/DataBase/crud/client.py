@@ -26,8 +26,12 @@ def createClient(db: Session, ciClient: str, documentType: str, name: str, surna
 def getClientById(db:Session, ciClient: int):
   return db.query(Client).filter(Client.ciClient == ciClient).first()
 
-def getClients(db: Session):
-  return db.query(Client).order_by(asc(Client.name)).all()
+def getClients(db: Session, page:int=1, quantity: int=50):
+  def func():
+    offset = (page - 1) * quantity
+    return db.query(Client).order_by(asc(Client.name)).offset(offset).limit(quantity).all()
+  
+  return handleDatabaseErrors(db, func)
 
 def getClientsOrderById(db: Session):
   return db.query(Client).order_by(desc(Client.ciClient)).all()

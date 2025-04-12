@@ -2696,13 +2696,11 @@ class CustomLowStockDialog(ft.AlertDialog):
       
       if hasattr(self.page, "sideBar"):
         if not sideBar.selected == sideBar.inventory:
-          print("First if")
           sideBar.switchPage("Inventory")
           sideBar.switchButton(sideBar.inventory)
           inventory = self.page.mainContainer.content.content
           inventory.showLowStockProduct(idProduct)
         else:
-          print("Second if")
           inventory = self.page.mainContainer.content.content
           if inventory.selected == inventory.productButton:
             inventory.showLowStockProduct(idProduct)

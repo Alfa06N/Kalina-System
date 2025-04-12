@@ -13,6 +13,32 @@ class Clients(ft.Stack):
     self.expand = True
     self.page = page
     
+    self.currentPage = 1
+    self.controlSelected = None
+    self.clientSelected = None
+    
+    self.upButton = ft.Container(
+      padding=ft.padding.symmetric(vertical=10),
+      content=ft.IconButton(
+        icon=ft.icons.ARROW_CIRCLE_UP,
+        icon_color=constants.BLACK,
+        icon_size=48,
+        tooltip="Página anterior",
+        on_click=lambda e: self.updatePage(-1),
+      )
+    )
+    
+    self.downButton = ft.Container(
+      padding=ft.padding.symmetric(vertical=10),
+      content=ft.IconButton(
+        icon=ft.icons.ARROW_CIRCLE_DOWN,
+        icon_color=constants.BLACK,
+        icon_size=48,
+        tooltip="Página siguiente",
+        on_click=lambda e: self.updatePage(1)
+      )
+    )
+    
     self.infoContainer = CustomAnimatedContainerSwitcher(
       content=ft.Column(
         alignment=ft.MainAxisAlignment.CENTER,
@@ -40,6 +66,21 @@ class Clients(ft.Stack):
       on_change=None
     )
     
+    self.clientsList = CustomAnimatedContainerSwitcher(
+      content=ft.Column(
+        alignment=ft.MainAxisAlignment.START,
+        expand=True,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER, 
+        scroll=ft.ScrollMode.AUTO,
+        controls=self.getClientsContainers()
+      ),
+      alignment=ft.alignment.top_center,
+      expand=True,
+      width=None,
+      padding=0,
+      margin=0,
+    )
+    
     self.clientsContainer = CustomAnimatedContainerSwitcher(
       padding=0,
       alignment=ft.alignment.center,
@@ -62,18 +103,7 @@ class Clients(ft.Stack):
               ]
             ), 
           ),
-          ft.Column(
-            alignment=ft.MainAxisAlignment.START,
-            expand=True,
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER, 
-            controls=[ft.Column(
-              alignment=ft.MainAxisAlignment.CENTER,
-              expand=True,
-              horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-              scroll=ft.ScrollMode.AUTO,
-              controls=self.getClientsContainers()
-            )]
-          ),
+          self.clientsList,
         ],
       ),
       height=None,
@@ -114,6 +144,33 @@ class Clients(ft.Stack):
       weight=ft.FontWeight.W_700,
       text_align=ft.TextAlign.CENTER,
     )
+    
+  def updateClientsContainers(self):
+    try:
+      newContent = ft.Column(
+        alignment=ft.MainAxisAlignment.START,
+        expand=True,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        scroll=ft.ScrollMode.AUTO,
+        controls=self.getClientsContainers()
+      )
+      self.clientsList.setNewContent(newContent)
+      
+    except:
+      raise
+    
+  def updatePage(self, number: int):
+    self.currentPage += number
+    self.updateClientsContainers()
+    self.controlSelected = None
+    
+    if self.clientSelected:
+      for container in self.clientsList.content.content.controls:
+        if hasattr(container, "ciClient") and container.ciClient == self.clientSelected:
+          container.select()
+          self.clientSelected = container.ciClient
+          self.controlSelected = container
+          break
   
   def addClientForm(self, e):
     if not self.infoContainer.height >= 500:
@@ -169,6 +226,12 @@ class Clients(ft.Stack):
           clientContainer=None,
           mainContainer=self,
         )
+
+        for control in self.clientsList.content.content.controls:
+          if hasattr(control, "ciClient") and control.ciClient == self.clientSelected:
+            control.deselect()
+            break
+        self.clientSelected = client.ciClient
         
         if self.infoContainer.height <=150:
           self.infoContainer.changeStyle(
@@ -185,7 +248,7 @@ class Clients(ft.Stack):
         self.clientSearchBar.close_view(text=f"{ciClient}")
         self.clientSearchBar.update()
         
-        columnContainers = self.clientsContainer.content.content.controls[1].controls
+        columnContainers = self.clientsList.content.content.controls
         for control in columnContainers:
           if hasattr(control, "ciClient") and control.ciClient == client.ciClient:
             containerSelected = control
@@ -212,8 +275,10 @@ class Clients(ft.Stack):
     try:
       containers = []
       with getDB() as db:
-        clients = getClients(db)
+        clients = getClients(db, self.currentPage)
         if clients:
+          if self.currentPage > 1:
+            containers.append(self.upButton)
           for client in clients:
             initial = client.name[0] + client.surname[0]
             
@@ -229,6 +294,8 @@ class Clients(ft.Stack):
               mainContainer=self,
             )   
             containers.append(container)  
+          if getClients(db, self.currentPage + 1):
+            containers.append(self.downButton)
       return containers
     except:
       raise
@@ -236,6 +303,20 @@ class Clients(ft.Stack):
   def resetClientsContainer(self):
     try:
       self.clientSearchBar.controls = self.getClientsCI()
+      
+      self.clientsList = CustomAnimatedContainerSwitcher(
+        content=ft.Column(
+          alignment=ft.MainAxisAlignment.START,
+          expand=True,
+          horizontal_alignment=ft.CrossAxisAlignment.CENTER, 
+          scroll=ft.ScrollMode.AUTO,
+          controls=self.getClientsContainers()
+        ),
+        expand=True,
+        width=None,
+        padding=0,
+        margin=0,
+      )
       
       newContent = ft.Column(
         alignment=ft.MainAxisAlignment.START,
@@ -251,13 +332,7 @@ class Clients(ft.Stack):
               ]
             ), 
           ),
-          ft.Column(
-            alignment=ft.MainAxisAlignment.CENTER,
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-            scroll=ft.ScrollMode.AUTO,
-            expand=True,
-            controls=self.getClientsContainers()
-          )
+          self.clientsList,
         ],
       )
       self.clientsContainer.setNewContent(newContent)
@@ -286,6 +361,7 @@ class Clients(ft.Stack):
     if self.controlSelected:
       self.controlSelected.deselect()
     self.controlSelected = container
+    self.clientSelected = container.ciClient
     self.controlSelected.select()
     
     if not self.infoContainer.height == 800:
@@ -304,7 +380,6 @@ class Clients(ft.Stack):
   def resetAll(self):
     try:
       self.resetInfoContainer()
-      # Here goes more logic for clientsContainer
       self.resetClientsContainer()
     except:
       raise
