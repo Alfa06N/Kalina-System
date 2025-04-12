@@ -11,6 +11,7 @@ class InventoryManager:
 
   def checkLowStock(self):
     try:
+      self.clearList()
       with getDB() as db:
         recentlyAdded = []
         products = getLowStockProducts(db)

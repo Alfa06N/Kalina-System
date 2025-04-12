@@ -7,6 +7,7 @@ from utils.exchangeManager import exchangeRateManager
 from Modules.Sections.SalesSection.sale_history import SaleHistory
 from utils.inventoryManager import inventoryManager
 import threading
+from utils.pathUtils import getImagePath
 
 class Sales(ft.Column):
   def __init__(self, page):
@@ -159,7 +160,7 @@ class Sales(ft.Column):
       isLowStock = len(products) > 0
       stockText = ft.Text(
         value="",
-        size=24,
+        size=22,
         color=constants.BLACK,
         text_align=ft.TextAlign.CENTER,
         weight=ft.FontWeight.W_500,
@@ -172,6 +173,45 @@ class Sales(ft.Column):
         stockText.value = f"Hay {len(products)} producto{"s" if len(products) > 1 else ""} con bajo inventario"
       else:
         stockText.value = f"El inventario está actualizado y bien abastecido"
+      
+      if isLowStock:
+        inventoryContextInfo = ft.Column(
+          expand=1,
+          alignment=ft.MainAxisAlignment.CENTER,
+          horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+          spacing=20,
+          controls=[
+          stockText,
+          CustomTextButton(
+            text="Ver inventario",
+            on_click=lambda e: self.openStockDialog(),
+          ) if isLowStock else ft.Image(
+            src=getImagePath("Inventory up to date.png"),
+            width=140,
+            height=140,
+            fit=ft.ImageFit.CONTAIN,
+          ),
+        ]
+      )
+      else:
+        inventoryContextInfo = ft.Column(
+          expand=1,
+          alignment=ft.MainAxisAlignment.CENTER,
+          horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+          spacing=10,
+          controls=[
+          CustomTextButton(
+            text="Ver inventario",
+            on_click=lambda e: self.openStockDialog(),
+          ) if isLowStock else ft.Image(
+            src=getImagePath("Inventory up to date.png"),
+            width=140,
+            height=140,
+            fit=ft.ImageFit.CONTAIN,
+          ),
+          stockText,
+        ]
+      )
       
       newContent = ft.Container(
         expand=True,
@@ -205,19 +245,7 @@ class Sales(ft.Column):
                   ]
                 ),
                 ft.Divider(color=constants.BLACK_GRAY),
-                ft.Column(
-                  expand=1,
-                  alignment=ft.MainAxisAlignment.CENTER,
-                  horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                  spacing=20,
-                  controls=[
-                    stockText,
-                    CustomTextButton(
-                      text="Ver inventario",
-                      on_click=lambda e: self.openStockDialog(),
-                    ) if isLowStock else ft.Text(value=""),
-                  ]
-                )
+                inventoryContextInfo,
               ]
             ),
             ft.Container(

@@ -2617,16 +2617,17 @@ class CustomLowStockDialog(ft.AlertDialog):
     
     if self.products == []:
       self.content.content.controls = [
-        ft.Icon(
-          name=ft.Icons.CHECK_CIRCLE_ROUNDED,
-          size=48,
-          color=constants.GREEN_TEXT,
+        ft.Image(
+          src=getImagePath("Inventory up to date.png"),  
+          height=180,
+          width=180,
+          fit=ft.ImageFit.CONTAIN,
         ),
         ft.Text(
-          value="El inventario está bien abastecido.",
+          value="El inventario está al día.",
           size=32,
           color=constants.BLACK,
-          weight=ft.FontWeight.W_700,
+          weight=ft.FontWeight.W_600,
           text_align=ft.TextAlign.CENTER
         )
       ]
