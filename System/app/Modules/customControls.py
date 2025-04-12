@@ -599,7 +599,7 @@ class CustomAppBar(ft.AppBar):
                   size=32,
                 ),
                 ft.Text(
-                  value="Estado de inventario",
+                  value="Estado del inventario",
                   color=constants.BLACK,
                   weight=ft.FontWeight.W_400,
                   size=20,
@@ -2638,38 +2638,43 @@ class CustomLowStockDialog(ft.AlertDialog):
           product = getProductById(db, idProduct)
           self.content.content.controls.append(
             ft.Container(
-              padding=10,
               gradient=ft.LinearGradient(
                 begin=ft.alignment.center_left,
-                end=ft.alignment.center,
+                end=ft.alignment.center_right,
                 colors=[constants.ORANGE, ft.Colors.WHITE38] if not product.stock < product.minStock/2 else [constants.RED_FAILED, ft.Colors.WHITE38],
               ),
-              border_radius=10,
-              border=ft.border.all(1, constants.BLACK_GRAY),
+              border_radius=20,
+              border=ft.border.all(2, constants.BROWN),
               content=ft.Row(
                 vertical_alignment=ft.CrossAxisAlignment.CENTER,
                 controls=[
-                  ft.Text(
-                    value=f"{product.stock}",
-                    color=constants.BLACK,
-                    weight=ft.FontWeight.W_600,
-                    size=20,
-                    overflow=ft.TextOverflow.ELLIPSIS,
+                  CustomImageContainer(
+                    src=imageManager.getImagePath(product.imgPath),
+                    height=80,
+                    width=80,
+                    border_radius=ft.border_radius.all(20),
+                    shadow=False,
                   ),
-                  ft.Text(
-                    value=f"unidades restantes en stock de",
-                    color=constants.BLACK,
-                    size=20,
-                    overflow=ft.TextOverflow.ELLIPSIS,
+                  ft.Column(
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    horizontal_alignment=ft.CrossAxisAlignment.START,
+                    spacing=0,
+                    controls=[
+                      ft.Text(
+                        value=f"{product.name}",
+                        color=constants.BLACK,
+                        weight=ft.FontWeight.W_500,
+                        size=20,
+                        overflow=ft.TextOverflow.ELLIPSIS,
+                      ),
+                      ft.Text(
+                        value=f"{product.stock} unidad{"es" if product.stock != 1 else ""} restante{"s" if product.stock != 1 else ""}",
+                        color=constants.BLACK,
+                        size=20,
+                        overflow=ft.TextOverflow.ELLIPSIS,
+                      )
+                    ]  
                   ),
-                  ft.Text(
-                    expand=True,
-                    value=f"\"{product.name}\"",
-                    color=constants.BLACK,
-                    weight=ft.FontWeight.W_600,
-                    size=20,
-                    overflow=ft.TextOverflow.ELLIPSIS,
-                  )
                 ]
               ),
               ink=True,

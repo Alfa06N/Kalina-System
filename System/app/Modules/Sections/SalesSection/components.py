@@ -318,8 +318,6 @@ class SaleRecord(ft.Container):
       
       payments = [transaction for transaction in sale.transactions if transaction.transactionType == "Pago"]
       changes = [transaction for transaction in sale.transactions if transaction.transactionType == "Cambio"]
-      products = [register.product for register in sale.products]
-      combos = [register.combo for register in sale.combos]
       client = sale.client
       employee = sale.user.employee
       exchangeRate = sale.transactions[0].exchangeRate

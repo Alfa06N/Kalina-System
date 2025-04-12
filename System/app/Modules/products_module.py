@@ -517,7 +517,7 @@ class UpdateStockForm(ft.Stack):
             time.sleep(1.5)
             self.productInfoControl.updateInfoControls(stock=True)
             self.productInfoControl.returnToInfo()
-            self.inventoryManager.checkLowStock()
+            inventoryManager.checkLowStock()
           else:
             self.operationContent.actionFailed("No se pudo actualizar el producto")
             time.sleep(1.5)
