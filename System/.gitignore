@@ -1,3 +1,7 @@
 myenv/
 __pycache__/
 tests/
+MyFletApp.spec
+version_info.txt
+build/
+dist/

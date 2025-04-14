@@ -11,7 +11,7 @@ class InventoryManager:
 
   def checkLowStock(self):
     try:
-      self.clearList()
+      newList = []
       with getDB() as db:
         recentlyAdded = []
         products = getLowStockProducts(db)
@@ -23,8 +23,9 @@ class InventoryManager:
         for product in products:
           if not product.idProduct in self.lowStockProducts:
             recentlyAdded.append(product.idProduct)
-            self.lowStockProducts.append(product.idProduct)
-          
+          newList.append(product.idProduct)
+        
+        self.lowStockProducts = newList
         return self.lowStockProducts, len(recentlyAdded) > 0
     except:
       raise

@@ -19,7 +19,7 @@ def initApp(page: ft.Page):
       expand=True,
       alignment=ft.MainAxisAlignment.CENTER,
       controls=[
-        ft.Text(f"© {getLocal().strftime("%Y")} Kariña System. Todos los derechos reservados.", color="#222222", size=16, text_align=ft.TextAlign.CENTER, weight=ft.FontWeight.W_600)
+        ft.Text(f"© {getLocal().strftime("%Y")} Kaip'e Alimentos y Equipo Desarrollador. Todos los derechos reservados", color="#222222", size=16, text_align=ft.TextAlign.CENTER, weight=ft.FontWeight.W_600)
       ]
     )
   )
@@ -96,7 +96,7 @@ def showPrincipal(page: ft.Page):
               right=0,
               expand=True,
               alignment=ft.alignment.center,
-              content=ft.Text(f"© {getLocal().strftime("%Y")} Kariña System. Todos los derechos reservados.", color="#222222", size=16, text_align=ft.TextAlign.CENTER, weight=ft.FontWeight.W_600),
+              content=ft.Text(f"© {getLocal().strftime("%Y")} Kaip'e Alimentos y Equipo Desarrollador. Todos los derechos reservados", color="#222222", size=16, text_align=ft.TextAlign.CENTER, weight=ft.FontWeight.W_600),
             )
           ]
         ),

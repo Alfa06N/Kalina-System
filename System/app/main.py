@@ -1,26 +1,9 @@
 import flet as ft 
-from interface import initApp, showPrincipal
+from interface import initApp
 import locale
 import constants
 from initialization import init_db
-from Modules.customControls import CustomAppBar, CustomUserIcon, CustomSidebar, CustomCardInfo, CustomDatePicker, CustomFilledButton, CustomAnimatedContainer, CustomAutoComplete, CustomNumberField, CustomTooltip, CustomTextField, CustomDropdown, CustomItemsSelector, CustomItemCard, CustomImageContainer, CustomFilePicker
-from utils.sessionManager import getCurrentUser, setUser
-from config import getDB
-from DataBase.crud.user import getUsers, getUserByUsername, updateUser
-from DataBase.crud.product import getProductByName, getProducts
-from DataBase.crud.category import getCategories, removeCategory
-from DataBase.crud.closing import removeClosing
-from DataBase.crud.closing import getSalesWithoutClosing
-# from DataBase.crud.user_product import getAllRegisters
-from utils.imageManager import ImageManager
-from utils.datetimeGlobal import getTime, syncTime, getCurrentTime
-import asyncio
-from DataBase.crud.transaction import getTransactions
-from Modules.Sections.ClosingsSection.components.ClosingRecord import ClosingRecord
-import time
-from utils.pathUtils import getImagePath, getFontPath
-from utils.inventoryManager import inventoryManager
-from datetime import datetime
+from utils.pathUtils import getFontPath, getImagePath
 
 locale.setlocale(locale.LC_TIME, 'es_ES')
 def main(page: ft.Page):
@@ -46,9 +29,7 @@ def main(page: ft.Page):
   page.padding = 0 
   init_db() 
 
-  setUser("Alfa06N")
-  showPrincipal(page)
-  # initApp(page)
+  initApp(page)
   
 if __name__ == "__main__":
   

@@ -179,34 +179,41 @@ class Sales(ft.Column):
           expand=1,
           alignment=ft.MainAxisAlignment.CENTER,
           horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-          spacing=20,
+          spacing=5,
           controls=[
-          stockText,
-          CustomTextButton(
-            text="Ver inventario",
-            on_click=lambda e: self.openStockDialog(),
-          ) if isLowStock else ft.Image(
-            src=getImagePath("Inventory up to date.png"),
-            width=140,
-            height=140,
-            fit=ft.ImageFit.CONTAIN,
-          ),
-        ]
-      )
+            ft.Row(
+              alignment=ft.MainAxisAlignment.CENTER,
+              vertical_alignment=ft.CrossAxisAlignment.CENTER,
+              controls=[
+                CustomTextButton(
+                  text="Ver inventario",
+                  on_click=lambda e: self.openStockDialog(),
+                ),
+                ft.Image(
+                  src=getImagePath("inventory new low.png") if recentlyAdded else getImagePath("inventory low.png"),
+                  width=120,
+                  height=120,
+                  fit=ft.ImageFit.CONTAIN,
+                )
+              ]
+            ),
+            stockText,
+          ]
+        )
       else:
         inventoryContextInfo = ft.Column(
           expand=1,
           alignment=ft.MainAxisAlignment.CENTER,
           horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-          spacing=10,
+          spacing=5,
           controls=[
           CustomTextButton(
             text="Ver inventario",
             on_click=lambda e: self.openStockDialog(),
           ) if isLowStock else ft.Image(
             src=getImagePath("Inventory up to date.png"),
-            width=140,
-            height=140,
+            width=120,
+            height=120,
             fit=ft.ImageFit.CONTAIN,
           ),
           stockText,
